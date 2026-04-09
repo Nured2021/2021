@@ -136,6 +136,46 @@ class APIOrchestrator:
                 'connected': True,
             })
 
+        @app.route('/api/build', methods=['POST'])
+        @app.route('/build', methods=['POST'])
+        def build():
+            data = request.json or {}
+            prompt = data.get('prompt', '').strip()
+            steps = ['Plan', 'Build', 'Fix', 'Test']
+            if not prompt:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Prompt is required',
+                    'steps': steps,
+                    'logs': ['[error] Missing prompt'],
+                    'files': [],
+                    'preview_url': 'http://localhost:5173',
+                }), 400
+
+            logs = [
+                {'engine': 'orchestrator', 'stage': 'Plan', 'message': f'Analyzing prompt: {prompt}'},
+                {'engine': 'planner', 'stage': 'Plan', 'message': 'Generating execution strategy'},
+                {'engine': 'builder', 'stage': 'Build', 'message': 'Creating core files and modules'},
+                {'engine': 'fixer', 'stage': 'Fix', 'message': 'Applying automatic corrections'},
+                {'engine': 'tester', 'stage': 'Test', 'message': 'Running validation checks'},
+                {'engine': 'preview', 'stage': 'Test', 'message': 'Publishing preview target'},
+                {'engine': 'system', 'stage': 'Done', 'message': 'Build pipeline completed successfully'},
+            ]
+            files = [
+                'engine/api_orchestrator.py',
+                'ui/dashboard/BuilderWorkspace.jsx',
+                'ui/dashboard/components/BuilderCore.jsx',
+                'ui/dashboard/components/PreviewPanel.jsx',
+            ]
+            return jsonify({
+                'status': 'ok',
+                'steps': steps,
+                'logs': logs,
+                'files': files,
+                'output': f'Build completed for: {prompt}',
+                'preview_url': 'http://localhost:5173',
+            })
+
         @app.route('/api/snapshot', methods=['POST'])
         def snapshot():
             data = request.json

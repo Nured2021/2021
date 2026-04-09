@@ -1,9 +1,9 @@
 import React from 'react';
-import AppRouter from './components/AppRouter';
+import BuilderWorkspace from './BuilderWorkspace';
 import './styles/theme.css';
 
 function App() {
-  return <AppRouter />;
+  return <BuilderWorkspace />;
 }
 
 export default App;
