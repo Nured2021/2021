@@ -1,0 +1,30 @@
+.odex-symbol-glass {
+  display: flex;
+  align-items: center;
+  margin: 1rem;
+}
+.spinning-glass {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 6px solid rgba(0,200,255,0.5);
+  border-top: 6px solid #fff;
+  animation: spin 1.2s linear infinite, colorchange 3s linear infinite;
+  background: linear-gradient(135deg, rgba(0,200,255,0.2), rgba(255,255,255,0.1));
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes colorchange {
+  0% { border-color: #00c8ff #fff #00c8ff #fff; }
+  50% { border-color: #ff00c8 #fff #ff00c8 #fff; }
+  100% { border-color: #00c8ff #fff #00c8ff #fff; }
+}
+.odex-label {
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-left: 0.5rem;
+  color: #00c8ff;
+  letter-spacing: 0.1em;
+}

@@ -1,0 +1,1143 @@
+=== ODEX SYSTEM AUTO FIX START ===
+[INSTALL] flask
+[INSTALL] flask-socketio
+[INSTALL] flask-cors
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\system_auto_fixer.py
+
+[BOOT ATTEMPT 1]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 2]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 3]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 4]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 5]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 6]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 7]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 8]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 9]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 10]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+[FAIL] Could not auto-fix system fully. Manual fix required.
+=== ODEX SYSTEM AUTO FIX START ===
+[INSTALL] flask
+[INSTALL] flask-socketio
+[INSTALL] flask-cors
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\api_orchestrator.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\app.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\auto_master_fixer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\inference_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\learn_go_core.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\main.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\main_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\planning_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\subscription_billing_support_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\system_auto_fixer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\training_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\data_engine\data_core.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\pipeline\controller.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\pipeline\stages.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\preview_control\auto_fix_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\preview_control\recovery_manager.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\ui\renderer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\workers\builder.py
+
+[BOOT ATTEMPT 1]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 2]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 3]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 4]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 5]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 6]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 7]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 8]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 9]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+
+[BOOT ATTEMPT 10]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 9, in <module>
+    socketio = SocketIO(app, cors_allowed_origins="*")
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 201, in __init__
+    self.init_app(app, **kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\flask_socketio\__init__.py", line 257, in init_app
+    self.server = socketio.Server(**self.server_options)
+                  ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\base_server.py", line 34, in __init__
+    self.eio = self._engineio_server_class()(**engineio_options)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\base_server.py", line 83, in __init__
+    self._async = importlib.import_module(
+                  ~~~~~~~~~~~~~~~~~~~~~~~^
+        'engineio.async_drivers.' + mode)._async
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "C:\Users\ameli\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\engineio\async_drivers\threading.py", line 14, in <module>
+    'queue': queue.Queue,
+             ^^^^^^^^^^^
+AttributeError: module 'queue' has no attribute 'Queue' (consider renaming 'C:\Users\ameli\Downloads\ODEX\engine\queue\__init__.py' since it has the same name as the standard library module named 'queue' and prevents importing that standard library module)
+
+[FAIL] Could not auto-fix system fully. Manual fix required.
+=== ODEX SYSTEM AUTO FIX START ===
+[INSTALL] flask
+[INSTALL] flask-socketio
+[INSTALL] flask-cors
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\api_orchestrator.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\app.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\auto_master_fixer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\inference_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\learn_go_core.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\main.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\main_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\planning_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\subscription_billing_support_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\system_auto_fixer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\training_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\data_engine\data_core.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\pipeline\controller.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\pipeline\stages.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\preview_control\auto_fix_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\preview_control\recovery_manager.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\ui\renderer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\workers\builder.py
+
+[BOOT ATTEMPT 1]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 2]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 3]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 4]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 5]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 6]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 7]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 8]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 9]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 10]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+[FAIL] Could not auto-fix system fully. Manual fix required.
+=== ODEX SYSTEM AUTO FIX START ===
+[INSTALL] flask
+[INSTALL] flask-socketio
+[INSTALL] flask-cors
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\api_orchestrator.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\app.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\auto_master_fixer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\inference_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\learn_go_core.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\main.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\main_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\planning_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\subscription_billing_support_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\system_auto_fixer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\training_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\data_engine\data_core.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\pipeline\controller.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\pipeline\stages.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\preview_control\auto_fix_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\preview_control\recovery_manager.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\ui\renderer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\workers\builder.py
+
+[BOOT ATTEMPT 1]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 2]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 3]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 4]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 5]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 6]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 7]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 8]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 9]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+
+[BOOT ATTEMPT 10]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 1, in <module>
+    from .refining_core import RefiningCore
+ImportError: attempted relative import with no known parent package
+
+[FAIL] Could not auto-fix system fully. Manual fix required.
+=== ODEX SYSTEM AUTO FIX START ===
+[INSTALL] flask
+[INSTALL] flask-socketio
+[INSTALL] flask-cors
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\api_orchestrator.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\app.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\auto_master_fixer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\inference_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\learn_go_core.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\main.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\main_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\planning_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\subscription_billing_support_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\system_auto_fixer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\training_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\data_engine\data_core.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\pipeline\controller.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\pipeline\stages.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\preview_control\auto_fix_engine.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\preview_control\recovery_manager.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\ui\renderer.py
+[FIX] Adjusted import in C:\Users\ameli\Downloads\ODEX\engine\workers\builder.py
+
+[BOOT ATTEMPT 1]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 86, in <module>
+    from vibe.coordinator_ai import VibeCoordinatorAI
+ImportError: cannot import name 'VibeCoordinatorAI' from 'vibe.coordinator_ai' (C:\Users\ameli\Downloads\ODEX\engine\vibe\coordinator_ai.py)
+
+
+[BOOT ATTEMPT 2]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 86, in <module>
+    from vibe.coordinator_ai import VibeCoordinatorAI
+ImportError: cannot import name 'VibeCoordinatorAI' from 'vibe.coordinator_ai' (C:\Users\ameli\Downloads\ODEX\engine\vibe\coordinator_ai.py)
+
+
+[BOOT ATTEMPT 3]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 86, in <module>
+    from vibe.coordinator_ai import VibeCoordinatorAI
+ImportError: cannot import name 'VibeCoordinatorAI' from 'vibe.coordinator_ai' (C:\Users\ameli\Downloads\ODEX\engine\vibe\coordinator_ai.py)
+
+
+[BOOT ATTEMPT 4]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 86, in <module>
+    from vibe.coordinator_ai import VibeCoordinatorAI
+ImportError: cannot import name 'VibeCoordinatorAI' from 'vibe.coordinator_ai' (C:\Users\ameli\Downloads\ODEX\engine\vibe\coordinator_ai.py)
+
+
+[BOOT ATTEMPT 5]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 86, in <module>
+    from vibe.coordinator_ai import VibeCoordinatorAI
+ImportError: cannot import name 'VibeCoordinatorAI' from 'vibe.coordinator_ai' (C:\Users\ameli\Downloads\ODEX\engine\vibe\coordinator_ai.py)
+
+
+[BOOT ATTEMPT 6]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 86, in <module>
+    from vibe.coordinator_ai import VibeCoordinatorAI
+ImportError: cannot import name 'VibeCoordinatorAI' from 'vibe.coordinator_ai' (C:\Users\ameli\Downloads\ODEX\engine\vibe\coordinator_ai.py)
+
+
+[BOOT ATTEMPT 7]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 86, in <module>
+    from vibe.coordinator_ai import VibeCoordinatorAI
+ImportError: cannot import name 'VibeCoordinatorAI' from 'vibe.coordinator_ai' (C:\Users\ameli\Downloads\ODEX\engine\vibe\coordinator_ai.py)
+
+
+[BOOT ATTEMPT 8]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 86, in <module>
+    from vibe.coordinator_ai import VibeCoordinatorAI
+ImportError: cannot import name 'VibeCoordinatorAI' from 'vibe.coordinator_ai' (C:\Users\ameli\Downloads\ODEX\engine\vibe\coordinator_ai.py)
+
+
+[BOOT ATTEMPT 9]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 86, in <module>
+    from vibe.coordinator_ai import VibeCoordinatorAI
+ImportError: cannot import name 'VibeCoordinatorAI' from 'vibe.coordinator_ai' (C:\Users\ameli\Downloads\ODEX\engine\vibe\coordinator_ai.py)
+
+
+[BOOT ATTEMPT 10]
+[ERROR OUTPUT]
+Traceback (most recent call last):
+  File "C:\Users\ameli\Downloads\ODEX\engine\app.py", line 12, in <module>
+    from orchestrator import run_orchestrator
+  File "C:\Users\ameli\Downloads\ODEX\engine\orchestrator.py", line 23, in <module>
+    from main_engine import MainEngine
+  File "C:\Users\ameli\Downloads\ODEX\engine\main_engine.py", line 86, in <module>
+    from vibe.coordinator_ai import VibeCoordinatorAI
+ImportError: cannot import name 'VibeCoordinatorAI' from 'vibe.coordinator_ai' (C:\Users\ameli\Downloads\ODEX\engine\vibe\coordinator_ai.py)
+
+[FAIL] Could not auto-fix system fully. Manual fix required.
