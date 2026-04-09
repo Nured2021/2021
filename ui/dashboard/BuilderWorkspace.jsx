@@ -1,10 +1,11 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Sidebar from './components/Sidebar';
 import BuilderCore from './components/BuilderCore';
 import PreviewPanel from './components/PreviewPanel';
 import ConsolePanel from './components/ConsolePanel';
 
 const DEFAULT_STEPS = ['Plan', 'Build', 'Fix', 'Test'];
+const BACKEND_URL = 'http://localhost:8080';
 
 function formatLogEntry(entry) {
   if (typeof entry === 'string') return entry;
@@ -23,6 +24,9 @@ export default function BuilderWorkspace() {
   const [consoleLines, setConsoleLines] = useState(['[system] ODEX Builder initialized']);
   const [files, setFiles] = useState([]);
   const [previewUrl, setPreviewUrl] = useState('http://localhost:5173');
+  const [engines, setEngines] = useState([]);
+  const [backendStatus, setBackendStatus] = useState('checking');
+  const [backendError, setBackendError] = useState('');
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -34,6 +38,44 @@ export default function BuilderWorkspace() {
     () => ['Files', 'Engines', 'Pipeline', 'Logs', 'Workers', 'Settings'],
     []
   );
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadBackendState = async () => {
+      try {
+        const [healthRes, enginesRes] = await Promise.all([
+          fetch(`${BACKEND_URL}/api/health`),
+          fetch(`${BACKEND_URL}/api/engines`),
+        ]);
+
+        if (!healthRes.ok) {
+          throw new Error(`Health check failed (${healthRes.status})`);
+        }
+
+        const healthJson = await healthRes.json();
+        const enginesJson = enginesRes.ok ? await enginesRes.json() : {};
+        const list = Array.isArray(enginesJson?.items) ? enginesJson.items : [];
+
+        if (!mounted) return;
+        setBackendStatus(healthJson?.status || 'healthy');
+        setEngines(list);
+        setBackendError('');
+        setConsoleLines((prev) => [...prev, `[system] Backend status: ${healthJson?.status || 'healthy'}`]);
+      } catch (err) {
+        if (!mounted) return;
+        const msg = err?.message || 'Backend unavailable';
+        setBackendStatus('offline');
+        setBackendError(msg);
+        setConsoleLines((prev) => [...prev, `[error] ${msg}`]);
+      }
+    };
+
+    loadBackendState();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const clearStreamTimer = () => {
     if (streamTimerRef.current) {
@@ -88,7 +130,7 @@ export default function BuilderWorkspace() {
     appendConsole(`[build] Starting build for prompt: "${input}"`);
 
     try {
-      const response = await fetch('/build', {
+      const response = await fetch(`${BACKEND_URL}/build`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: input }),
@@ -144,11 +186,23 @@ export default function BuilderWorkspace() {
     <div className="builder-workspace">
       <div className="builder-main">
         <aside className="builder-sidebar-shell">
-          <Sidebar activeModule={activeModule} modules={modules} onSelect={setActiveModule} />
+          <Sidebar
+            activeModule={activeModule}
+            modules={modules}
+            onSelect={setActiveModule}
+            engines={engines}
+            backendStatus={backendStatus}
+          />
         </aside>
         <section className="builder-center-shell">
+          {backendError ? (
+            <div className="builder-error-banner">Backend connection error: {backendError}</div>
+          ) : null}
           <BuilderCore
             activeModule={activeModule}
+            healthStatus={backendStatus}
+            healthError={backendError}
+            engineItems={engines}
             prompt={prompt}
             steps={steps}
             logs={liveLogs}

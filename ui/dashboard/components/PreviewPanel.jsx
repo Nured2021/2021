@@ -11,7 +11,8 @@ export default function PreviewPanel({ previewUrl }) {
       .get('/preview/live')
       .then((res) => {
         if (!mounted) return;
-        const url = previewUrl || res.data?.url || 'about:blank';
+        const backendUrl = res.data?.url;
+        const url = previewUrl || backendUrl || 'about:blank';
         setResolvedUrl(url);
         setLabel(res.data?.preview || 'Live preview connected');
       })

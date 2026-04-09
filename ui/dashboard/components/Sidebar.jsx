@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Sidebar({ modules = [], activeModule, onSelect }) {
+export default function Sidebar({ modules = [], activeModule, onSelect, engines = [] }) {
   return (
     <div className="builder-sidebar">
       <div className="builder-sidebar-title">ODEX Workspace</div>
@@ -17,6 +17,16 @@ export default function Sidebar({ modules = [], activeModule, onSelect }) {
           </button>
         ))}
       </nav>
+      <div className="builder-sidebar-subtitle">Engines</div>
+      <ul className="builder-engines-list">
+        {engines.length ? (
+          engines.map((engine, idx) => (
+            <li key={`${engine.name || 'engine'}-${idx}`}>{engine.name || 'Engine'}</li>
+          ))
+        ) : (
+          <li>Loading engines...</li>
+        )}
+      </ul>
     </div>
   );
 }
