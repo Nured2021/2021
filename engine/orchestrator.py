@@ -2,6 +2,12 @@ from workers.builder import BuilderWorker
 from workers.debugger import DebuggerWorker
 from workers.tester import TesterWorker
 from workers.deployer import DeployerWorker
+from auto_system.auto_engine import AutoEngine
+from engine_brains.engine_brain_registry import ENGINE_BRAINS
+from tool_system.tools_registry import TOOLS
+from tool_system.card_builder import CardBuilder
+from brain_system.controller import BrainSystem
+from human_loop.controller import HumanLoopController
 
 class Orchestrator:
     def __init__(self):
@@ -20,14 +26,33 @@ class Orchestrator:
             raise Exception(f"Unknown worker: {worker_type}")
         result = worker.execute(task)
 
-from main_engine import MainEngine
 import time
+
+card_builder = CardBuilder()
+dashboard_cards = card_builder.build_cards(TOOLS)
+brain_system = BrainSystem()
+human_loop = HumanLoopController()
 
 def run_orchestrator(prompt, socketio=None):
     logs = []
     active_engines = []
     stages = []
     result = None
+    auto_engine = AutoEngine()
+    system_state = auto_engine.run()
+    brain_state = brain_system.run()
+    human_state = human_loop.activate(
+        stage="Human-in-the-decision-loop",
+        context={"prompt": prompt}
+    )
+    engine_brains = ENGINE_BRAINS
+    print(f"Engine Brains Loaded: {len(engine_brains)}")
+    print("Dashboard Cards:", len(dashboard_cards))
+    print("Brain System State:", brain_state)
+    print("Human Loop State:", human_state)
+    print(system_state)
+    # Import lazily to avoid circular import at module load time
+    from main_engine import MainEngine
     main = MainEngine()
 
     def emit_log(engine, stage, status, message):
@@ -82,7 +107,11 @@ def run_orchestrator(prompt, socketio=None):
     result = {
         "output": f"ODEX generated result for: {prompt}",
         "engines": active_engines,
-        "stages": stages
+        "stages": stages,
+        "system_state": system_state,
+        "brain_state": brain_state,
+        "human_state": human_state,
+        "dashboard_cards": dashboard_cards,
     }
 
     return {

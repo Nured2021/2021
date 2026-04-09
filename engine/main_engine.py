@@ -95,7 +95,7 @@ from inference.reasoning_chain import ReasoningChain
 from data_engine.data_core import DataCore
 from transformers_engine import TransformersEngine
 from autoregressive_engine import AutoregressiveEngine
-from inference_engine import ODEXInferenceEngine
+from inference_engine import InferenceEngine
 from training_engine import TrainingEngine
 from execution_engine import ExecutionEngine
 from planning_engine import PlanningEngine
@@ -236,7 +236,7 @@ class MainEngine:
         self.benchmarking_ai = BenchmarkingAI(self.data_engine)
         self.health_check_ai = HealthCheckAI(self.data_engine)
     def __init__(self):
-        self.queue = PromptQueue()
+        self.queue = TaskQueueCore()
         self.feeling = FeelingDetector()
         self.guidance_advisor = GuidanceAdvisor()
         self.guidance_responder = GuidanceResponder()
@@ -246,7 +246,7 @@ class MainEngine:
         self.analyzer = HumanFeedbackAnalyzer()
         self.learner = HumanFeedbackLearner()
         self.injector = HumanPreferenceInjector()
-        self.orchestrator = Orchestrator()
+        self.orchestrator = None
         self.busy = False
         self.workspace = SharedWorkspace()
         self.bridge = HumanAIBridge()
@@ -330,7 +330,7 @@ class MainEngine:
         self.task_queue_core = TaskQueueCore()
         self.plugin_system_core = PluginSystemCore()
         self.analytics_bi_core = AnalyticsBICore(self.data_engine)
-        self.odinference_engine = ODEXInferenceEngine(self.data_engine)
+        self.odinference_engine = InferenceEngine(self.data_engine)
         self.training_engine = TrainingEngine(self.data_engine)
         self.execution_engine = ExecutionEngine(self.data_engine)
         self.planning_engine = PlanningEngine(self.data_engine)
