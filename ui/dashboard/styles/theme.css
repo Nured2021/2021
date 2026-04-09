@@ -111,8 +111,259 @@ body[data-theme='system'] {
   background: #111;
 }
 
+.builder-workspace {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #0b1020;
+  color: #e6ebff;
+}
+
+.builder-main {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 400px;
+}
+
+.builder-sidebar-shell {
+  border-right: 1px solid #1f2b4a;
+  background: #0d1428;
+  min-height: 0;
+  overflow: auto;
+}
+
+.builder-center-shell {
+  background: #101a33;
+  min-height: 0;
+  overflow: auto;
+}
+
+.builder-preview-shell {
+  border-left: 1px solid #1f2b4a;
+  background: #0d1428;
+  min-height: 0;
+  overflow: auto;
+}
+
+.builder-console-shell {
+  height: 180px;
+  border-top: 1px solid #1f2b4a;
+  background: #070b16;
+}
+
+.builder-sidebar {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #8fa0c8;
+}
+
+.sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.sidebar-item {
+  width: 100%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #d7def8;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background: #122146;
+}
+
+.sidebar-item.active {
+  background: #1d3b80;
+  border-color: #3359ad;
+}
+
+.builder-core {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+}
+
+.builder-core-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.builder-core-header p {
+  margin: 6px 0 0;
+  color: #9fb0d8;
+}
+
+.builder-prompt-box {
+  width: 100%;
+  min-height: 78px;
+  border: 1px solid #2b3f6f;
+  border-radius: 10px;
+  background: #0b1225;
+  color: #e5ecff;
+  padding: 12px;
+  resize: vertical;
+}
+
+.builder-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.builder-actions button {
+  border: 1px solid #2a3f72;
+  background: #142a5a;
+  color: #e7eeff;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.builder-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.builder-steps {
+  border: 1px solid #243965;
+  border-radius: 10px;
+  background: #0b1328;
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.builder-step {
+  border: 1px solid #233862;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.builder-step.running {
+  background: #243f89;
+}
+
+.builder-step.done {
+  background: #175334;
+  border-color: #2a8254;
+}
+
+.builder-stream {
+  border: 1px solid #243965;
+  border-radius: 10px;
+  background: #0b1328;
+  padding: 10px;
+  min-height: 220px;
+}
+
+.builder-stream h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.builder-stream ul {
+  margin: 0;
+  padding-left: 18px;
+  max-height: 160px;
+  overflow: auto;
+}
+
+.builder-stream li {
+  margin-bottom: 6px;
+  color: #cbd6f7;
+  font-size: 13px;
+}
+
+.builder-preview-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+.builder-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #9fb0d8;
+  font-size: 12px;
+}
+
+.builder-preview-url {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.builder-preview-frame {
+  flex: 1;
+  min-height: 260px;
+  border: 1px solid #243965;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.builder-console {
+  height: 100%;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.builder-console-header {
+  color: #8ea1cf;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.builder-console-body {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid #1e2f56;
+  border-radius: 8px;
+  background: #050912;
+  padding: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+}
+
+.builder-console-line {
+  color: #c7d4fa;
+  margin-bottom: 4px;
+  white-space: pre-wrap;
+}
 @media (max-width: 1200px) {
   .workspace-grid {
     grid-template-columns: 1fr;
+  }
+
+  .builder-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: 240px minmax(0, 1fr) 300px;
+  }
+
+  .builder-console-shell {
+    height: 220px;
   }
 }

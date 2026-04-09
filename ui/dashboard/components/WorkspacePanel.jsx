@@ -8,6 +8,7 @@ import DashboardCards from './DashboardCards';
 import LivePreviewPanel from './LivePreviewPanel';
 import BrainSystemPanel from './BrainSystemPanel';
 import HumanLoopPanel from './HumanLoopPanel';
+import OdexReplitStyleBuilder from './OdexReplitStyleBuilder';
 
 export default function WorkspacePanel() {
   const [workspace, setWorkspace] = useState(null);
@@ -19,6 +20,7 @@ export default function WorkspacePanel() {
       <div className="workspace-title">
         Workspace: {workspace ? workspace.name : 'Loading...'}
       </div>
+      <OdexReplitStyleBuilder />
       <div className="workspace-grid">
         <div className="workspace-col left">
           <BrainSystemPanel />

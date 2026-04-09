@@ -19,7 +19,7 @@ def main():
     def static_proxy(path):
         return send_from_directory(ui_path, path)
 
-    socketio.run(app, host='0.0.0.0', port=8080, debug=True)
+    socketio.run(app, host='0.0.0.0', port=8080, debug=True, allow_unsafe_werkzeug=True)
 
 if __name__ == "__main__":
     main()
