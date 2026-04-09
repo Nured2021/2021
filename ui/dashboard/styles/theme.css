@@ -353,7 +353,6 @@ body[data-theme='system'] {
   margin-bottom: 4px;
   white-space: pre-wrap;
 }
-
 @media (max-width: 1200px) {
   .workspace-grid {
     grid-template-columns: 1fr;
