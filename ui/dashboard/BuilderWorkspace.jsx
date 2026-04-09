@@ -20,7 +20,7 @@ export default function BuilderWorkspace() {
   const [activeModule, setActiveModule] = useState('Files');
   const [prompt, setPrompt] = useState('');
   const [steps, setSteps] = useState(DEFAULT_STEPS.map((name) => ({ name, status: 'idle' })));
-  const [liveLogs, setLiveLogs] = useState([]);
+  const [logs, setLogs] = useState([]);
   const [consoleLines, setConsoleLines] = useState(['[system] ODEX Builder initialized']);
   const [files, setFiles] = useState([]);
   const [previewUrl, setPreviewUrl] = useState('http://localhost:5173');
@@ -104,7 +104,7 @@ export default function BuilderWorkspace() {
     }
 
     const line = logs[idx];
-    setLiveLogs((prev) => [...prev, line]);
+    setLogs((prev) => [...prev, line]);
     appendConsole(line);
 
     const stepIndex = Math.min(idx, stepNames.length - 1);
@@ -124,7 +124,7 @@ export default function BuilderWorkspace() {
 
     setIsRunning(true);
     setIsPaused(false);
-    setLiveLogs([]);
+    setLogs([]);
     setFiles([]);
     setSteps(DEFAULT_STEPS.map((name, i) => ({ name, status: i === 0 ? 'running' : 'idle' })));
     appendConsole(`[build] Starting build for prompt: "${input}"`);
@@ -205,7 +205,7 @@ export default function BuilderWorkspace() {
             engineItems={engines}
             prompt={prompt}
             steps={steps}
-            logs={liveLogs}
+            logs={logs}
             files={files}
             isPaused={isPaused}
             isRunning={isRunning}
