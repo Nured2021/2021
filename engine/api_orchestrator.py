@@ -10,6 +10,7 @@ from auto_system.auto_engine import AutoEngine
 from auto_system.brain_registry import BRAINS
 from engine_brains.engine_brain_registry import ENGINE_BRAINS
 from brain_system.controller import BrainSystem
+from human_loop.controller import HumanLoopController
 from tool_system.tools_registry import TOOLS
 from tool_system.card_builder import CardBuilder
 
@@ -29,6 +30,7 @@ class APIOrchestrator:
         self.snapshot = SnapshotRollbackCore(data_engine)
         self.auto_engine = AutoEngine()
         self.brain_system = BrainSystem()
+        self.human_loop = HumanLoopController()
         self.card_builder = CardBuilder()
         self.dashboard_cards = self.card_builder.build_cards(TOOLS)
 
@@ -215,6 +217,16 @@ class APIOrchestrator:
                 "count": len(ENGINE_BRAINS),
                 "brains": ENGINE_BRAINS
             })
+
+        @app.route('/api/human-loop', methods=['POST'])
+        @app.route('/human-loop', methods=['POST'])
+        def human_loop_api():
+            data = request.json or {}
+            result = self.human_loop.activate(
+                stage=data.get("stage", "Human-in-the-decision-loop"),
+                context=data.get("context", data),
+            )
+            return jsonify(result)
 
         return app, socketio
 

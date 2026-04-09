@@ -7,6 +7,7 @@ from engine_brains.engine_brain_registry import ENGINE_BRAINS
 from tool_system.tools_registry import TOOLS
 from tool_system.card_builder import CardBuilder
 from brain_system.controller import BrainSystem
+from human_loop.controller import HumanLoopController
 
 class Orchestrator:
     def __init__(self):
@@ -30,6 +31,7 @@ import time
 card_builder = CardBuilder()
 dashboard_cards = card_builder.build_cards(TOOLS)
 brain_system = BrainSystem()
+human_loop = HumanLoopController()
 
 def run_orchestrator(prompt, socketio=None):
     logs = []
@@ -39,10 +41,15 @@ def run_orchestrator(prompt, socketio=None):
     auto_engine = AutoEngine()
     system_state = auto_engine.run()
     brain_state = brain_system.run()
+    human_state = human_loop.activate(
+        stage="Human-in-the-decision-loop",
+        context={"prompt": prompt}
+    )
     engine_brains = ENGINE_BRAINS
     print(f"Engine Brains Loaded: {len(engine_brains)}")
     print("Dashboard Cards:", len(dashboard_cards))
     print("Brain System State:", brain_state)
+    print("Human Loop State:", human_state)
     print(system_state)
     # Import lazily to avoid circular import at module load time
     from main_engine import MainEngine
@@ -103,6 +110,7 @@ def run_orchestrator(prompt, socketio=None):
         "stages": stages,
         "system_state": system_state,
         "brain_state": brain_state,
+        "human_state": human_state,
         "dashboard_cards": dashboard_cards,
     }
 

@@ -7,6 +7,7 @@ import LiveLogsPanel from './LiveLogsPanel';
 import DashboardCards from './DashboardCards';
 import LivePreviewPanel from './LivePreviewPanel';
 import BrainSystemPanel from './BrainSystemPanel';
+import HumanLoopPanel from './HumanLoopPanel';
 
 export default function WorkspacePanel() {
   const [workspace, setWorkspace] = useState(null);
@@ -21,6 +22,7 @@ export default function WorkspacePanel() {
       <div className="workspace-grid">
         <div className="workspace-col left">
           <BrainSystemPanel />
+          <HumanLoopPanel />
           <EngineStatusPanel />
           <LiveLogsPanel />
         </div>
