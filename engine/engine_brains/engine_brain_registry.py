@@ -1,0 +1,73 @@
+ENGINE_BRAINS = [
+    # TIME BRAINS
+    {"name": "Chronos", "route": "/chronos/time", "ui": "ChronosClock", "panel": "ChronosTimeline"},
+    {"name": "Moment", "route": "/moment/now", "ui": "MomentFlash", "panel": "MomentCapture"},
+    {"name": "Tick", "route": "/tick/count", "ui": "TickMeter", "panel": "TickCounter"},
+    {"name": "Tock", "route": "/tock/alternate", "ui": "TockSwitch", "panel": "TockSync"},
+    {"name": "Beat", "route": "/beat/rhythm", "ui": "BeatPulse", "panel": "BeatGraph"},
+    {"name": "Cycle", "route": "/cycle/loop", "ui": "CycleWheel", "panel": "CycleTracker"},
+    {"name": "Phase", "route": "/phase/shift", "ui": "PhaseDial", "panel": "PhaseAngle"},
+    {"name": "Era", "route": "/era/age", "ui": "EraTimeline", "panel": "EraSpan"},
+    {"name": "Epoch", "route": "/epoch/mark", "ui": "EpochStamp", "panel": "EpochRecord"},
+    {"name": "Instant", "route": "/instant/now", "ui": "InstantFlash", "panel": "InstantLog"},
+
+    # SPACE BRAINS
+    {"name": "Void", "route": "/void/empty", "ui": "VoidBlack", "panel": "VoidEmptiness"},
+    {"name": "Abyss", "route": "/abyss/deep", "ui": "AbyssDrop", "panel": "AbyssDepth"},
+    {"name": "Expanse", "route": "/expanse/wide", "ui": "ExpanseView", "panel": "ExpanseMap"},
+    {"name": "Stretch", "route": "/stretch/extend", "ui": "StretchBar", "panel": "StretchLimit"},
+    {"name": "Span", "route": "/span/cross", "ui": "SpanRuler", "panel": "SpanMeasure"},
+    {"name": "Zone", "route": "/zone/area", "ui": "ZoneHighlight", "panel": "ZoneHeatmap"},
+    {"name": "Region", "route": "/region/bound", "ui": "RegionBox", "panel": "RegionStats"},
+    {"name": "Domain", "route": "/domain/own", "ui": "DomainBadge", "panel": "DomainControl"},
+    {"name": "Territory", "route": "/territory/claim", "ui": "TerritoryFlag", "panel": "TerritoryMap"},
+    {"name": "Field", "route": "/field/area", "ui": "FieldGrid", "panel": "FieldStrength"},
+
+    # ENERGY BRAINS
+    {"name": "Volt", "route": "/volt/pressure", "ui": "VoltMeter", "panel": "VoltReading"},
+    {"name": "Amp", "route": "/amp/current", "ui": "AmpFlow", "panel": "AmpRate"},
+    {"name": "Watt", "route": "/watt/power", "ui": "WattDial", "panel": "WattUsage"},
+    {"name": "Joule", "route": "/joule/work", "ui": "JouleCounter", "panel": "JouleTotal"},
+    {"name": "Charge", "route": "/charge/fill", "ui": "ChargeBattery", "panel": "ChargeLevel"},
+    {"name": "Power", "route": "/power/energy", "ui": "PowerButton", "panel": "PowerGrid"},
+    {"name": "Force", "route": "/force/push", "ui": "ForceGauge", "panel": "ForceVector"},
+    {"name": "Might", "route": "/might/strength", "ui": "MightBar", "panel": "MightScore"},
+    {"name": "Strength", "route": "/strength/strong", "ui": "StrengthMeter", "panel": "StrengthRank"},
+    {"name": "Vigor", "route": "/vigor/life", "ui": "VigorHeart", "panel": "VigorHealth"},
+
+    # MATTER BRAINS
+    {"name": "Atom", "route": "/atom/split", "ui": "AtomOrbit", "panel": "AtomStructure"},
+    {"name": "Molecule", "route": "/molecule/bond", "ui": "MoleculeWeb", "panel": "MoleculeMap"},
+    {"name": "Particle", "route": "/particle/small", "ui": "ParticleDot", "panel": "ParticleCloud"},
+    {"name": "Grain", "route": "/grain/texture", "ui": "GrainSlider", "panel": "GrainDensity"},
+    {"name": "Speck", "route": "/speck/tiny", "ui": "SpeckDot", "panel": "SpeckCount"},
+    {"name": "Dot", "route": "/dot/point", "ui": "DotMatrix", "panel": "DotGrid"},
+    {"name": "Pixel", "route": "/pixel/screen", "ui": "PixelBlock", "panel": "PixelCanvas"},
+    {"name": "Block", "route": "/block/solid", "ui": "BlockCube", "panel": "BlockStack"},
+    {"name": "Chunk", "route": "/chunk/piece", "ui": "ChunkSlice", "panel": "ChunkMap"},
+    {"name": "Mass", "route": "/mass/weight", "ui": "MassScale", "panel": "MassTotal"},
+
+    # MOTION BRAINS
+    {"name": "Speed", "route": "/speed/rate", "ui": "SpeedNeedle", "panel": "SpeedHistory"},
+    {"name": "Velocity", "route": "/velocity/vector", "ui": "VelocityArrow", "panel": "VelocityPlot"},
+    {"name": "Accel", "route": "/accel/up", "ui": "AccelRamp", "panel": "AccelGraph"},
+    {"name": "Decel", "route": "/decel/down", "ui": "DecelBrake", "panel": "DecelCurve"},
+    {"name": "Turn", "route": "/turn/rotate", "ui": "TurnKnob", "panel": "TurnAngle"},
+    {"name": "Twist", "route": "/twist/screw", "ui": "TwistDial", "panel": "TwistTorque"},
+    {"name": "Spin", "route": "/spin/rotate", "ui": "SpinWheel", "panel": "SpinRPM"},
+    {"name": "Roll", "route": "/roll/tumble", "ui": "RollBar", "panel": "RollAngle"},
+    {"name": "Pitch", "route": "/pitch/tilt", "ui": "PitchMeter", "panel": "PitchDegree"},
+    {"name": "Yaw", "route": "/yaw/turn", "ui": "YawCompass", "panel": "YawDirection"},
+
+    # SOUND BRAINS
+    {"name": "Echo", "route": "/echo/repeat", "ui": "EchoVoice", "panel": "EchoDelay"},
+    {"name": "Reverberate", "route": "/reverb/linger", "ui": "ReverbSlider", "panel": "ReverbTail"},
+    {"name": "Ring", "route": "/ring/sound", "ui": "RingBell", "panel": "RingFrequency"},
+    {"name": "Chime", "route": "/chime/tone", "ui": "ChimeBar", "panel": "ChimeSequence"},
+    {"name": "Hum", "route": "/hum/vibrate", "ui": "HumDial", "panel": "HumPitch"},
+    {"name": "Buzz", "route": "/buzz/alert", "ui": "BuzzButton", "panel": "BuzzPattern"},
+    {"name": "Whir", "route": "/whir/spin", "ui": "WhirMeter", "panel": "WhirSpeed"},
+    {"name": "Click", "route": "/click/press", "ui": "ClickButton", "panel": "ClickCounter"},
+    {"name": "Snap", "route": "/snap/break", "ui": "SnapToggle", "panel": "SnapAction"},
+    {"name": "Pop", "route": "/pop/burst", "ui": "PopBubble", "panel": "PopEvents"},
+]
