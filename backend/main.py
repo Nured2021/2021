@@ -15,6 +15,9 @@ from pydantic import BaseModel
 from main_ai import MainAI
 from education_orchestrator import EducationOrchestrator, MODULE_INFO
 from export_utils import export_pdf, export_docx
+from workspace_store import save_workspace_item, list_workspace_items
+from education_memory import add_chat_message, get_chat_history
+from uploaded_material_store import save_uploaded_material, list_uploaded_materials
 
 app = FastAPI(title="Easy AI – Document & Education API")
 
@@ -35,6 +38,14 @@ app.add_middleware(
 _controller = MainAI()
 _edu = EducationOrchestrator()
 
+# MIME types for generated file extensions
+_MIME = {
+    ".pdf":  "application/pdf",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+}
+
 
 # ---------------------------------------------------------------------------
 # Schemas
@@ -42,7 +53,7 @@ _edu = EducationOrchestrator()
 
 class GenerateRequest(BaseModel):
     prompt: str
-    doc_type: str = "document"  # "document" | "presentation" | "excel"
+    doc_type: str = "document"  # "doc" | "pdf" | "slides" | "excel" | "document" | "presentation"
 
 
 class SimpleGenerateRequest(BaseModel):
@@ -59,7 +70,9 @@ class GenerateResponse(BaseModel):
     body: str
     sections: list[SectionOut]
     pdf_url: str
-    docx_url: str
+    docx_url: str | None = None
+    pptx_url: str | None = None
+    xlsx_url: str | None = None
 
 
 # Education schemas
@@ -74,12 +87,6 @@ class EducationChatRequest(BaseModel):
     module: str | None = None
 
 
-class EducationUploadMaterialRequest(BaseModel):
-    filename: str
-    text_content: str
-    module: str | None = "student"
-
-
 class EducationGenerateResponse(BaseModel):
     module: str
     title: str
@@ -87,6 +94,16 @@ class EducationGenerateResponse(BaseModel):
     sections: list[SectionOut]
     pdf_url: str
     docx_url: str
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _url(path: str | None) -> str | None:
+    if not path:
+        return None
+    return f"/download/{Path(path).name}"
 
 
 # ---------------------------------------------------------------------------
@@ -113,13 +130,10 @@ async def generate(req: SimpleGenerateRequest) -> dict:
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Generation failed: {exc}") from exc
 
-    pdf_filename = Path(result["pdf_path"]).name
-    docx_filename = Path(result["docx_path"]).name
-
     return {
         "content": result["body"],
-        "pdf": f"/download/{pdf_filename}",
-        "docx": f"/download/{docx_filename}",
+        "pdf":  _url(result.get("pdf_path")),
+        "docx": _url(result.get("docx_path")),
     }
 
 
@@ -132,15 +146,32 @@ def generate_document(req: GenerateRequest) -> GenerateResponse:
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Generation failed: {exc}") from exc
 
-    pdf_filename = Path(result["pdf_path"]).name
-    docx_filename = Path(result["docx_path"]).name
+    pdf_url  = _url(result.get("pdf_path"))
+    docx_url = _url(result.get("docx_path"))
+    pptx_url = _url(result.get("pptx_path"))
+    xlsx_url = _url(result.get("xlsx_path"))
+
+    # Persist to workspace history
+    save_workspace_item({
+        "prompt":   req.prompt,
+        "doc_type": req.doc_type,
+        "mode":     "document",
+        "title":    result["title"],
+        "preview":  result["body"][:300],
+        "pdf_url":  pdf_url,
+        "docx_url": docx_url,
+        "pptx_url": pptx_url,
+        "xlsx_url": xlsx_url,
+    })
 
     return GenerateResponse(
         title=result["title"],
         body=result["body"],
         sections=result["sections"],
-        pdf_url=f"/download/{pdf_filename}",
-        docx_url=f"/download/{docx_filename}",
+        pdf_url=pdf_url,
+        docx_url=docx_url,
+        pptx_url=pptx_url,
+        xlsx_url=xlsx_url,
     )
 
 
@@ -148,28 +179,30 @@ def generate_document(req: GenerateRequest) -> GenerateResponse:
 def download_file(filename: str) -> FileResponse:
     import tempfile
 
-    # Strip any directory components from the user-supplied name to prevent
-    # path traversal before any filesystem operations.
     safe_name = os.path.basename(filename)
     export_dir = os.path.realpath(
         os.path.join(tempfile.gettempdir(), "docgen_exports")
     )
     candidate = os.path.join(export_dir, safe_name)
-
-    # Resolve symlinks and verify the final path is inside the export directory.
     resolved = os.path.realpath(candidate)
     if not resolved.startswith(export_dir + os.sep):
         raise HTTPException(status_code=403, detail="Access denied.")
-
     if not os.path.isfile(resolved):
         raise HTTPException(status_code=404, detail="File not found.")
 
-    media_type = (
-        "application/pdf"
-        if resolved.endswith(".pdf")
-        else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
+    ext = Path(resolved).suffix.lower()
+    media_type = _MIME.get(ext, "application/octet-stream")
     return FileResponse(resolved, media_type=media_type, filename=safe_name)
+
+
+# ---------------------------------------------------------------------------
+# Workspace
+# ---------------------------------------------------------------------------
+
+@app.get("/workspace/history")
+def workspace_history() -> list:
+    """Return the full workspace generation history."""
+    return list_workspace_items()
 
 
 # ---------------------------------------------------------------------------
@@ -192,11 +225,22 @@ def education_generate(req: EducationGenerateRequest) -> EducationGenerateRespon
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Education generation failed: {exc}") from exc
 
-    pdf_path = export_pdf(result["title"], result["sections"])
+    pdf_path  = export_pdf(result["title"], result["sections"])
     docx_path = export_docx(result["title"], result["sections"])
 
-    pdf_filename = Path(pdf_path).name
+    pdf_filename  = Path(pdf_path).name
     docx_filename = Path(docx_path).name
+
+    # Persist to workspace history
+    save_workspace_item({
+        "prompt":   req.prompt,
+        "mode":     "education",
+        "module":   result["module"],
+        "title":    result["title"],
+        "preview":  result["body"][:300],
+        "pdf_url":  f"/download/{pdf_filename}",
+        "docx_url": f"/download/{docx_filename}",
+    })
 
     return EducationGenerateResponse(
         module=result["module"],
@@ -210,13 +254,30 @@ def education_generate(req: EducationGenerateRequest) -> EducationGenerateRespon
 
 @app.post("/education/chat")
 def education_chat(req: EducationChatRequest) -> dict:
-    """Return a conversational response from the appropriate education module."""
+    """Return a conversational response from the appropriate education module,
+    persisting the conversation in memory."""
+    module = req.module or "student"
+
+    # Store user message
+    add_chat_message(module, "user", req.message)
+
     try:
-        return _edu.chat(req.message, module=req.module)
+        response = _edu.chat(req.message, module=req.module)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Chat failed: {exc}") from exc
+
+    reply = response.get("reply") or response.get("content") or str(response)
+
+    # Store assistant reply
+    add_chat_message(module, "assistant", reply)
+
+    return {
+        "module":  module,
+        "reply":   reply,
+        "history": get_chat_history(module),
+    }
 
 
 @app.post("/education/upload-material")
@@ -224,12 +285,19 @@ async def education_upload_material(
     file: UploadFile = File(...),
     module: str = "student",
 ) -> dict:
-    """Accept an uploaded file and generate a study guide from its text content."""
+    """Accept an uploaded file, persist it, and generate a study guide."""
     try:
         raw = await file.read()
         text_content = raw.decode("utf-8", errors="replace")
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Could not read file: {exc}") from exc
+
+    # Persist the uploaded material record
+    save_uploaded_material(
+        filename=file.filename or "unknown",
+        module=module,
+        extracted_text=text_content,
+    )
 
     combined_prompt = (
         f"Summarise and create a study guide for the following material "
@@ -242,14 +310,22 @@ async def education_upload_material(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Upload processing failed: {exc}") from exc
 
-    pdf_path = export_pdf(result["title"], result["sections"])
+    pdf_path  = export_pdf(result["title"], result["sections"])
     docx_path = export_docx(result["title"], result["sections"])
 
     return {
-        "module": result["module"],
-        "title": result["title"],
-        "body": result["body"],
+        "filename": file.filename,
+        "saved":    True,
+        "module":   result["module"],
+        "title":    result["title"],
+        "body":     result["body"],
         "sections": result["sections"],
-        "pdf_url": f"/download/{Path(pdf_path).name}",
+        "pdf_url":  f"/download/{Path(pdf_path).name}",
         "docx_url": f"/download/{Path(docx_path).name}",
     }
+
+
+@app.get("/education/materials")
+def list_materials() -> list:
+    """Return list of all previously uploaded materials."""
+    return list_uploaded_materials()
