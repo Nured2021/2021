@@ -138,3 +138,16 @@
   font-size: 0.85rem;
   opacity: 0.6;
 }
+
+/* ── User account bar ── */
+.userBar { display:flex; align-items:center; gap:4px; padding:8px 10px;
+  border-bottom:1px solid rgba(255,255,255,0.08); flex-wrap:wrap; }
+.userName { font-size:0.75rem; color:#b0d8dc; flex:1; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.userBtn { background:none; border:none; cursor:pointer; font-size:1rem;
+  opacity:0.7; transition:opacity 0.15s; padding:2px 4px; }
+.userBtn:hover { opacity:1; }
+.loginBtn { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+  border-radius:6px; color:#b0d8dc; cursor:pointer; font-size:0.75rem;
+  padding:5px 10px; width:100%; transition:background 0.15s; }
+.loginBtn:hover { background:rgba(255,255,255,0.2); }

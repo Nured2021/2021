@@ -35,7 +35,8 @@ const DOC_FORMATS = [
   { id: "excel",  label: "Excel"  },
 ];
 
-export default function Sidebar({ active, onSelect, docFormat, onDocFormat }) {
+export default function Sidebar({ active, onSelect, docFormat, onDocFormat,
+  user, onLogin, onLogout, onApiKeys, searchSlot }) {
   const [collapsed, setCollapsed] = useState({ office: false, education: false, business: false });
 
   const toggle = (section) =>
@@ -50,6 +51,25 @@ export default function Sidebar({ active, onSelect, docFormat, onDocFormat }) {
         <span className={styles.logoIcon}>✦</span>
         <span className={styles.logoText}>Easy AI</span>
       </div>
+
+      {/* ── User account bar ─────────────────── */}
+      <div className={styles.userBar}>
+        {user ? (
+          <>
+            <span className={styles.userName} title={user.email}>
+              {user.role === "admin" ? "👑" : user.role === "professor" ? "🎓" :
+               user.role === "teacher" ? "📚" : user.role === "lawyer" ? "⚖️" : "🙋"} {user.name}
+            </span>
+            <button className={styles.userBtn} onClick={onApiKeys} title="API Keys">🔑</button>
+            <button className={styles.userBtn} onClick={onLogout} title="Log out">⏏</button>
+          </>
+        ) : (
+          <button className={styles.loginBtn} onClick={onLogin}>Sign In / Sign Up</button>
+        )}
+      </div>
+
+      {/* ── Search slot ──────────────────────── */}
+      {searchSlot}
 
       <nav className={styles.nav}>
 

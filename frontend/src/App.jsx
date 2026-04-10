@@ -2,6 +2,10 @@ import { useRef, useState } from "react";
 import Sidebar from "./components/Sidebar";
 import PromptPanel from "./components/PromptPanel";
 import PreviewPanel from "./components/PreviewPanel";
+import SearchBar from "./components/SearchBar";
+import AuthPage from "./pages/AuthPage";
+import ApiKeysPage from "./pages/ApiKeysPage";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { buildRequest, uploadFile } from "./api/buildApi";
 import { generateEducation } from "./api/educationApi";
 import "./App.css";
@@ -48,6 +52,9 @@ const STATUS_SEQ = {
 };
 
 function App() {
+  const { user, logout } = useAuth();
+  const [showAuth, setShowAuth]   = useState(false);
+  const [showKeys, setShowKeys]   = useState(false);
   const [activeTab, setActiveTab]     = useState("document");
   const [docFormat, setDocFormat]     = useState("doc");
   const [loading, setLoading]         = useState(false);
@@ -241,11 +248,21 @@ function App() {
 
   return (
     <div className="layout">
+      {showAuth && <AuthPage onDone={() => setShowAuth(false)} />}
+      {showKeys && <ApiKeysPage onClose={() => setShowKeys(false)} />}
       <Sidebar
         active={activeTab}
         onSelect={handleTabSelect}
         docFormat={docFormat}
         onDocFormat={setDocFormat}
+        user={user}
+        onLogin={() => setShowAuth(true)}
+        onLogout={logout}
+        onApiKeys={() => setShowKeys(true)}
+        searchSlot={<SearchBar onResult={(r) => {
+          if (r._result) setResult(r._result);
+          if (r.prompt) setPendingPrompt(r.prompt);
+        }} />}
       />
       <main className="main">
         <PromptPanel
@@ -282,4 +299,10 @@ function App() {
   );
 }
 
-export default App;
+export default function AppRoot() {
+  return (
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  );
+}
