@@ -1,5 +1,57 @@
 [
   {
+    "id": 14,
+    "timestamp": "2026-04-10T21:51:13.562587+00:00",
+    "prompt": "Write a short business plan for a coffee shop startup",
+    "mode": "business",
+    "module": "business",
+    "title": "Investor Pitch: Short Business Plan For A Coffee Shop Startup",
+    "preview": "Investor Pitch: Short Business Plan For A Coffee Shop Startup\n=============================================================\n\nThe Hook\n--------\n[Opening with a compelling fact or question about short business plan for a coffee shop startup]\n\nEvery year, [X] people/businesses struggle with short. Curr",
+    "pdf_url": "/download/5201be014fa9433b802d26d1821950aa.pdf",
+    "docx_url": "/download/0f108ee851d146f094d225323cf54e9e.docx",
+    "pptx_url": null,
+    "xlsx_url": null
+  },
+  {
+    "id": 13,
+    "timestamp": "2026-04-10T21:16:11.096916+00:00",
+    "prompt": "BUILD ",
+    "mode": "excel",
+    "module": "excel",
+    "title": "Data Sheet: Writing Style: Write In A Polished",
+    "preview": "Data Sheet: Writing Style: Write In A Polished\n==============================================\n\nOverview\n--------\nData table for: Writing Style: Write In A Polished\nKey fields: writing, style, polished, business\n\nData Table\n----------\nCategory         | Description                          | Value   ",
+    "pdf_url": "/download/a4f762fbd6644a9d839682aa9cb906cc.pdf",
+    "docx_url": null,
+    "pptx_url": null,
+    "xlsx_url": null
+  },
+  {
+    "id": 12,
+    "timestamp": "2026-04-10T21:15:49.540202+00:00",
+    "prompt": "BUILD",
+    "mode": "excel",
+    "module": "excel",
+    "title": "Data Sheet: Build",
+    "preview": "Data Sheet: Build\n=================\n\nOverview\n--------\nData table for: Build\nKey fields: N/A\n\nData Table\n----------\nCategory         | Description                          | Value   | Status\n-----------------|--------------------------------------|---------|----------\nRow 1            | Item A detai",
+    "pdf_url": "/download/26471be8c87142e6b9e335030d814c41.pdf",
+    "docx_url": null,
+    "pptx_url": null,
+    "xlsx_url": null
+  },
+  {
+    "id": 11,
+    "timestamp": "2026-04-10T20:55:50.743725+00:00",
+    "prompt": "Write a short business proposal for an AI tutoring platform",
+    "mode": "teacher",
+    "module": "teacher",
+    "title": "Lesson Material: Short Business Proposal For An Ai Tutoring Platform",
+    "preview": "Lesson Material: Short Business Proposal For An Ai Tutoring Platform\n====================================================================\n\nLesson Objectives\n-----------------\nTopic: Short Business Proposal For An Ai Tutoring Platform\nSubject area: Business\n\nBy the end of this lesson, students will b",
+    "pdf_url": "/download/fb7dc08d6e10471cae122a75b613b180.pdf",
+    "docx_url": "/download/0e6abe15badc46a6acd9802071fb2930.docx",
+    "pptx_url": null,
+    "xlsx_url": null
+  },
+  {
     "id": 10,
     "timestamp": "2026-04-10T16:45:34.331885+00:00",
     "prompt": "Test download",
