@@ -1,0 +1,43 @@
+{
+  "name": "Easy AI",
+  "short_name": "EasyAI",
+  "description": "17-module AI workspace — generate documents, spreadsheets, presentations and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#3b82f6",
+  "background_color": "#0b1020",
+  "lang": "en",
+  "categories": ["productivity", "education", "business"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "New Document",
+      "short_name": "Document",
+      "description": "Generate a new AI document",
+      "url": "/?tab=document",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "New Presentation",
+      "short_name": "Slides",
+      "description": "Generate a new AI presentation",
+      "url": "/?tab=presentation",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

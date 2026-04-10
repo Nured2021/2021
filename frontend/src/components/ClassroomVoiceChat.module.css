@@ -1,0 +1,131 @@
+.voiceChat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #0b1020;
+  border: 1px solid #1e2d4a;
+  border-radius: 12px;
+  padding: 14px;
+  height: 100%;
+}
+
+/* ── Status bar ──────────────────────────────────────────────── */
+.statusBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.dot   { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.online  { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+.offline { background: #ef4444; }
+
+.statusLabel { color: #94a3b8; flex: 1; }
+.peerCount   { color: #60a5fa; font-weight: 600; font-size: 0.75rem; }
+
+/* ── Controls ────────────────────────────────────────────────── */
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ctrlBtn {
+  flex: 1;
+  min-width: 90px;
+  padding: 8px 10px;
+  background: #0f1729;
+  border: 1px solid #1e2d4a;
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.ctrlBtn:hover     { background: #1e2d4a; }
+.ctrlDanger        { border-color: #ef4444; color: #ef4444; }
+.ctrlDanger:hover  { background: #1f0f0f; }
+.ctrlRecording     { border-color: #f59e0b; color: #f59e0b;
+                     animation: blink 1s infinite; }
+
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* ── Active speakers ─────────────────────────────────────────── */
+.speakers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0;
+  border-top: 1px solid #1e2d4a;
+}
+
+.speakerBadge {
+  background: #0f2a1a;
+  border: 1px solid #22c55e44;
+  color: #22c55e;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.73rem;
+  font-weight: 600;
+  animation: speakerPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes speakerPulse {
+  0%,100% { box-shadow: 0 0 0 0 #22c55e44; }
+  50%     { box-shadow: 0 0 0 4px #22c55e22; }
+}
+
+/* ── Peers ───────────────────────────────────────────────────── */
+.peers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+}
+
+.peersLabel { color: #64748b; margin-right: 2px; }
+
+.peerSelf {
+  background: #0f1e36;
+  border: 1px solid #3b82f660;
+  color: #60a5fa;
+  padding: 2px 10px;
+  border-radius: 100px;
+}
+
+.peerChip {
+  background: #0f1729;
+  border: 1px solid #1e2d4a;
+  color: #94a3b8;
+  padding: 2px 10px;
+  border-radius: 100px;
+}
+
+/* ── Transcriptions ──────────────────────────────────────────── */
+.transcriptions {
+  flex: 1;
+  overflow-y: auto;
+  border-top: 1px solid #1e2d4a;
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.transcTitle  { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;
+                letter-spacing: 0.05em; margin: 0; }
+.transcEmpty  { font-size: 0.77rem; color: #3d5068; font-style: italic; }
+
+.transcLine {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  background: #0f1729;
+  border-radius: 6px;
+  padding: 5px 9px;
+  border: 1px solid #1e2d4a;
+}
+
+.transcUser { color: #60a5fa; font-weight: 600; }

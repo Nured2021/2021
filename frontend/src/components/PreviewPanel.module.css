@@ -1,0 +1,462 @@
+.panel {
+  width: 360px;
+  min-height: 100vh;
+  background: rgba(10, 15, 30, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-left: 1px solid #18233d;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.center {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px;
+}
+
+.placeholder {
+  color: #2e3f5e;
+  font-size: 14px;
+}
+
+.error {
+  color: #f87171;
+  font-size: 14px;
+}
+
+.loadingText {
+  color: #5a7090;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+.pulse {
+  font-size: 36px;
+  color: #3b82f6;
+  animation: pulsate 1.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+}
+
+@keyframes pulsate {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.2); }
+}
+
+.header {
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid #18233d;
+}
+
+.moduleBadge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #7db3ff;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 6px;
+  padding: 3px 8px;
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+
+.docTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #c8d8f0;
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  flex: 1;
+  text-align: center;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.15s;
+  min-width: 60px;
+}
+
+.btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.pdf {
+  background: rgba(59, 7, 100, 0.5);
+  color: #d8a4fc;
+  border: 1px solid rgba(192, 132, 252, 0.2);
+}
+
+.docx {
+  background: rgba(10, 30, 70, 0.6);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.pptx {
+  background: rgba(5, 46, 22, 0.6);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.xlsx {
+  background: rgba(55, 32, 0, 0.6);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.content {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section {
+  background: rgba(14, 22, 40, 0.8);
+  border: 1px solid #18233d;
+  border-radius: 12px;
+  padding: 14px 16px;
+  transition: border-color 0.2s;
+}
+
+.section:hover {
+  border-color: #2a3d60;
+}
+
+.sectionHeading {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7db3ff;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 8px;
+}
+
+.sectionContent {
+  font-size: 13px;
+  color: #7a92b0;
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* Empty state */
+.emptyState {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+}
+
+/* Workspace section */
+.workspace {
+  border-top: 1px solid #18233d;
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wsTitle {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #2e3f5e;
+  margin: 0 0 4px;
+}
+
+.wsItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  background: rgba(14, 22, 40, 0.8);
+  border: 1px solid #1a2840;
+  border-radius: 12px;
+  transition: border-color 0.2s, transform 0.15s;
+  cursor: pointer;
+}
+
+.wsItem:hover {
+  border-color: #2a4a80;
+  transform: scale(1.01);
+}
+
+.wsIcon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.wsName {
+  flex: 1;
+  font-size: 12px;
+  color: #7a92b0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wsActions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.wsBtn {
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.wsBtn:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+/* reuse pdf/docx colours for ws buttons */
+.wsBtn.pdf {
+  background: rgba(59, 7, 100, 0.5);
+  color: #d8a4fc;
+  border: 1px solid rgba(192, 132, 252, 0.2);
+}
+
+.wsBtn.docx {
+  background: rgba(10, 30, 70, 0.6);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.wsBtn.pptx {
+  background: rgba(5, 46, 22, 0.6);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.wsBtn.xlsx {
+  background: rgba(55, 32, 0, 0.6);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+/* Download buttons in header */
+.btn.pptx {
+  background: rgba(5, 46, 22, 0.6);
+  color: #4ade80;
+}
+
+.btn.xlsx {
+  background: rgba(55, 32, 0, 0.6);
+  color: #fbbf24;
+}
+
+/* Workspace load button */
+.wsLoadBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  min-width: 0;
+}
+
+.wsLoadBtn:hover .wsName {
+  color: #7db3ff;
+}
+
+/* Structured content rendering */
+.structuredContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.subHeading {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7db3ff;
+  margin: 8px 0 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.line {
+  font-size: 13px;
+  color: #7a92b0;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.bullet {
+  font-size: 13px;
+  color: #7a92b0;
+  margin: 0;
+  padding-left: 8px;
+  line-height: 1.6;
+}
+
+.spacer {
+  height: 6px;
+}
+
+/* ── Workflow automation row ─────────────── */
+.workflowRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.workflowLabel {
+  font-size: 0.78rem;
+  color: #666;
+}
+.workflowBtn {
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+.workflowBtn:hover { opacity: 0.85; }
+.pptxWf { background: #e8d5f5; color: #5b2d8e; }
+.xlsxWf { background: #d5f5e3; color: #1a6b3a; }
+
+/* ── Table rows (pipe-delimited) ─────────── */
+.tableRow {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.8rem;
+  white-space: pre;
+  margin: 1px 0;
+  color: #2a3a4a;
+  background: #f7f9fb;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+/* ── Empty state improvements ────────────── */
+.emptyIcon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  opacity: 0.3;
+}
+.emptyHint {
+  font-size: 0.82rem;
+  color: #999;
+  margin-top: 6px;
+  max-width: 240px;
+  text-align: center;
+}
+.loadingHint {
+  font-size: 0.78rem;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+/* ─── Integrations bar ───────────────────────────────────────── */
+.integBar    { margin-top: 6px; }
+
+.integToggle {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #94a3b8;
+  padding: 5px 14px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.integToggle:hover { border-color: #3b82f6; color: #60a5fa; }
+
+.integPanel {
+  margin-top: 8px;
+  background: #0b1020;
+  border: 1px solid #1e2d4a;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.integTabs {
+  display: flex;
+  border-bottom: 1px solid #1e2d4a;
+}
+
+.integTab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #64748b;
+  padding: 8px;
+  font-size: 0.76rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.integTab:hover       { color: #e2e8f0; }
+.integTabActive       { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+.integForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.integHint  { font-size: 0.74rem; color: #64748b; margin: 0; }
+
+.integInput {
+  background: #0f1729;
+  border: 1px solid #1e2d4a;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  outline: none;
+}
+.integInput:focus { border-color: #3b82f6; }
+
+.integBtn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.integBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.integBtn:hover:not(:disabled) { background: #2563eb; }
+
+.integMsg {
+  font-size: 0.76rem;
+  color: #60a5fa;
+  padding: 0 12px 10px;
+  margin: 0;
+  word-break: break-all;
+}
