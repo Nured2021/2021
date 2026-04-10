@@ -1,0 +1,321 @@
+.page {
+  position: fixed;
+  inset: 0;
+  background: #0b1020;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Page header ─────────────────────────────────────────────── */
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #1e2d4a;
+  background: #0b1020;
+  flex-shrink: 0;
+}
+
+.pageTitle { margin: 0; font-size: 1.2rem; font-weight: 800; color: #e2e8f0; }
+.pageSub   { margin: 3px 0 0; font-size: 0.78rem; color: #64748b; }
+
+.headerActions { display: flex; align-items: center; gap: 10px; }
+
+.btnPrimary {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btnPrimary:hover    { background: #2563eb; }
+.btnPrimary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnSecondary {
+  background: #0f1729;
+  color: #94a3b8;
+  border: 1px solid #1e2d4a;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+.btnSecondary:hover { border-color: #3b82f6; color: #e2e8f0; }
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.closeBtn:hover { background: #1e2d4a; color: #e2e8f0; }
+
+.errMsg  { color: #f87171; font-size: 0.84rem; padding: 8px 24px; }
+.loadMsg { color: #64748b; font-size: 0.84rem; padding: 8px 24px; }
+
+.authNotice {
+  background: #0f1e1a;
+  border: 1px solid #22c55e30;
+  color: #4ade80;
+  font-size: 0.82rem;
+  padding: 8px 24px;
+  flex-shrink: 0;
+}
+
+/* ── Classroom grid ──────────────────────────────────────────── */
+.grid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  align-content: start;
+}
+
+.roomCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #0f1729;
+  border: 1px solid #1e2d4a;
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+  color: inherit;
+}
+.roomCard:hover { border-color: #3b82f6; background: #0f1e36; }
+
+.roomTheme   { font-size: 2rem; flex-shrink: 0; }
+.roomInfo    { flex: 1; min-width: 0; }
+.roomName    { margin: 0; font-size: 0.95rem; font-weight: 700; color: #e2e8f0;
+               white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.roomMeta    { margin: 2px 0 0; font-size: 0.75rem; color: #64748b; }
+.enterArrow  { color: #3b82f6; font-size: 1.1rem; flex-shrink: 0; }
+
+.emptyGrid {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 60px 0;
+  color: #3d5068;
+  font-size: 0.9rem;
+}
+.emptyIcon  { font-size: 3rem; }
+.emptySub   { font-size: 0.8rem; color: #2d3f5a; }
+
+/* ── Modal ───────────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal {
+  background: #0f1729;
+  border: 1px solid #1e2d4a;
+  border-radius: 14px;
+  padding: 28px;
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.6);
+}
+
+.modalTitle { margin: 0; font-size: 1.1rem; font-weight: 800; color: #e2e8f0; }
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: -8px;
+}
+
+.input {
+  background: #0b1020;
+  border: 1px solid #1e2d4a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  outline: none;
+}
+.input:focus { border-color: #3b82f6; }
+
+.themeRow { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.themeBtn {
+  background: #0b1020;
+  border: 1px solid #1e2d4a;
+  border-radius: 100px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  cursor: pointer;
+  text-transform: capitalize;
+}
+.themeBtn:hover     { border-color: #3b82f660; }
+.themeBtnActive     { border-color: #3b82f6; color: #60a5fa; background: #0f1e36; }
+
+.roleRow { display: flex; gap: 10px; }
+
+.roleBtn {
+  flex: 1;
+  background: #0b1020;
+  border: 1px solid #1e2d4a;
+  border-radius: 8px;
+  padding: 10px;
+  color: #94a3b8;
+  font-size: 0.84rem;
+  cursor: pointer;
+  text-transform: capitalize;
+}
+.roleBtn:hover  { border-color: #3b82f660; }
+.roleBtnActive  { border-color: #3b82f6; color: #60a5fa; background: #0f1e36; }
+
+.modalActions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+
+/* ── Classroom view ──────────────────────────────────────────── */
+.classroomView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.cvHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #1e2d4a;
+  background: #0b1020;
+  flex-shrink: 0;
+}
+
+.backBtn {
+  background: none;
+  border: 1px solid #1e2d4a;
+  color: #94a3b8;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.backBtn:hover { border-color: #3b82f6; color: #e2e8f0; }
+
+.cvTheme { font-size: 1.8rem; flex-shrink: 0; }
+.cvInfo  { flex: 1; }
+.cvName  { margin: 0; font-size: 1rem; font-weight: 800; color: #e2e8f0; }
+.cvMeta  { margin: 2px 0 0; font-size: 0.75rem; color: #64748b; }
+.cvBadges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.badge {
+  background: #0f1729;
+  border: 1px solid #1e2d4a;
+  border-radius: 100px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+/* ── Tabs ────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 16px;
+  border-bottom: 1px solid #1e2d4a;
+  background: #0b1020;
+  flex-shrink: 0;
+}
+
+.tab {
+  background: none;
+  border: none;
+  color: #64748b;
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab:hover    { color: #e2e8f0; }
+.tabActive    { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+.tabContent {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Simple chat ─────────────────────────────────────────────── */
+.simpleChat {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px 16px;
+  gap: 10px;
+}
+
+.chatMsgs   { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.chatEmpty  { color: #3d5068; font-size: 0.82rem; font-style: italic; text-align: center; padding: 24px; }
+.chatMsg    { background: #0f1729; border: 1px solid #1e2d4a; border-radius: 8px;
+              padding: 7px 12px; font-size: 0.82rem; color: #94a3b8; }
+.chatUser   { color: #60a5fa; font-weight: 600; }
+.chatRow    { display: flex; gap: 8px; }
+.chatField  { flex: 1; background: #0b1020; border: 1px solid #1e2d4a; border-radius: 8px;
+              padding: 9px 12px; color: #e2e8f0; font-size: 0.84rem; outline: none; }
+.chatField:focus { border-color: #3b82f6; }
+.sendBtn    { background: #3b82f6; color: #fff; border: none; border-radius: 8px;
+              padding: 9px 18px; font-size: 0.84rem; font-weight: 600; cursor: pointer; }
+.sendBtn:hover { background: #2563eb; }
+
+/* ── Members list ────────────────────────────────────────────── */
+.membersList {
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.memberRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0f1729;
+  border: 1px solid #1e2d4a;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.memberIcon { font-size: 1.2rem; flex-shrink: 0; }
+.memberName { flex: 1; font-size: 0.9rem; color: #e2e8f0; font-weight: 500; }
+.memberRole { font-size: 0.75rem; color: #64748b; text-transform: capitalize;
+              background: #0b1020; border: 1px solid #1e2d4a; border-radius: 100px;
+              padding: 2px 10px; }

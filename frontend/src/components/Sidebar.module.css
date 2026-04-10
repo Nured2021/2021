@@ -151,3 +151,30 @@
   border-radius:6px; color:#b0d8dc; cursor:pointer; font-size:0.75rem;
   padding:5px 10px; width:100%; transition:background 0.15s; }
 .loginBtn:hover { background:rgba(255,255,255,0.2); }
+
+/* ── Quick Access cards (Dashboard + Classroom) ── */
+.quickRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 8px 10px 4px;
+}
+
+.quickCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  color: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+.quickCard:hover { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.4); }
+.quickActive     { background: rgba(59,130,246,0.18); border-color: #3b82f6; }
+
+.quickIcon  { font-size: 1.25rem; }
+.quickLabel { font-size: 0.66rem; color: #94a3b8; text-align: center; line-height: 1.2; }

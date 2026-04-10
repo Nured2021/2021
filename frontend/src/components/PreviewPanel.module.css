@@ -378,3 +378,85 @@
   color: #aaa;
   margin-top: 4px;
 }
+
+/* ─── Integrations bar ───────────────────────────────────────── */
+.integBar    { margin-top: 6px; }
+
+.integToggle {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #94a3b8;
+  padding: 5px 14px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.integToggle:hover { border-color: #3b82f6; color: #60a5fa; }
+
+.integPanel {
+  margin-top: 8px;
+  background: #0b1020;
+  border: 1px solid #1e2d4a;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.integTabs {
+  display: flex;
+  border-bottom: 1px solid #1e2d4a;
+}
+
+.integTab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #64748b;
+  padding: 8px;
+  font-size: 0.76rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.integTab:hover       { color: #e2e8f0; }
+.integTabActive       { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+.integForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.integHint  { font-size: 0.74rem; color: #64748b; margin: 0; }
+
+.integInput {
+  background: #0f1729;
+  border: 1px solid #1e2d4a;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  outline: none;
+}
+.integInput:focus { border-color: #3b82f6; }
+
+.integBtn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.integBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.integBtn:hover:not(:disabled) { background: #2563eb; }
+
+.integMsg {
+  font-size: 0.76rem;
+  color: #60a5fa;
+  padding: 0 12px 10px;
+  margin: 0;
+  word-break: break-all;
+}

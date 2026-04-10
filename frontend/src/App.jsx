@@ -5,6 +5,8 @@ import PreviewPanel from "./components/PreviewPanel";
 import SearchBar from "./components/SearchBar";
 import AuthPage from "./pages/AuthPage";
 import ApiKeysPage from "./pages/ApiKeysPage";
+import Dashboard from "./pages/Dashboard";
+import ClassroomPage from "./pages/ClassroomPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { buildRequest, uploadFile } from "./api/buildApi";
 import { generateEducation } from "./api/educationApi";
@@ -55,6 +57,8 @@ function App() {
   const { user, logout } = useAuth();
   const [showAuth, setShowAuth]   = useState(false);
   const [showKeys, setShowKeys]   = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [showClassroom, setShowClassroom] = useState(false);
   const [activeTab, setActiveTab]     = useState("document");
   const [docFormat, setDocFormat]     = useState("doc");
   const [loading, setLoading]         = useState(false);
@@ -234,6 +238,14 @@ function App() {
       fileInputRef.current?.click();
       return;
     }
+    if (tab === "dashboard") {
+      setShowDashboard(true);
+      return;
+    }
+    if (tab === "classroom") {
+      setShowClassroom(true);
+      return;
+    }
     setActiveTab(tab);
     setResult(null);
     setError(null);
@@ -248,8 +260,11 @@ function App() {
 
   return (
     <div className="layout">
-      {showAuth && <AuthPage onDone={() => setShowAuth(false)} />}
-      {showKeys && <ApiKeysPage onClose={() => setShowKeys(false)} />}
+      {showAuth      && <AuthPage      onDone={() => setShowAuth(false)} />}
+      {showKeys      && <ApiKeysPage  onClose={() => setShowKeys(false)} />}
+      {showDashboard && <Dashboard    onClose={() => setShowDashboard(false)}
+                          onActivateModule={(mod) => { setActiveTab(mod); setShowDashboard(false); }} />}
+      {showClassroom && <ClassroomPage onClose={() => setShowClassroom(false)} />}
       <Sidebar
         active={activeTab}
         onSelect={handleTabSelect}

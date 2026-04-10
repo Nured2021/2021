@@ -31,6 +31,7 @@ from collaboration      import manager as ws_manager
 from integrations.google_drive import GoogleDriveIntegration
 from integrations.slack         import SlackIntegration
 from integrations.zoom          import ZoomIntegration
+from classroom          import voice_engine, peer_engine, classroom_mgr
 from database           import (
     get_db, create_user, get_user_by_email, save_document, list_documents,
     search_documents, create_api_key, get_api_key_owner, check_rate_limit,
@@ -1003,6 +1004,201 @@ def schedule_zoom_meeting(req: ZoomMeetingRequest,
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Zoom scheduling failed: {e}")
+
+
+# ── AI CLASSROOM ───────────────────────────────────────────────────────────
+
+class CreateClassroomRequest(BaseModel):
+    name:       str
+    subject:    str
+    theme:      str = "default"
+
+class JoinClassroomRequest(BaseModel):
+    class_id:   str
+    role:       str = "student"
+
+class CreateStudyGroupRequest(BaseModel):
+    classroom_id:         str
+    name:                 str
+    topic:                str
+    user_id:              str = ""
+    user_name:            str = "Student"
+
+class StudyGroupActionRequest(BaseModel):
+    user_id:   str = ""
+    user_name: str = ""
+
+class WhiteboardActionRequest(BaseModel):
+    user_id:     str
+    action_type: str   # draw | erase | clear | text | shape
+    data:        dict  = {}
+
+class RecordSessionRequest(BaseModel):
+    recording_url: str
+
+
+@app.post("/api/classroom")
+def create_classroom(req: CreateClassroomRequest,
+                     current_user: User = Depends(get_current_user)) -> dict:
+    room = classroom_mgr.create_classroom(
+        name=req.name, subject=req.subject,
+        owner_id=current_user.id, owner_name=current_user.name,
+        theme=req.theme,
+    )
+    return classroom_mgr.to_dict(room.id)
+
+
+@app.post("/api/classroom/join")
+def join_classroom(req: JoinClassroomRequest,
+                   current_user: User = Depends(get_current_user)) -> dict:
+    room = classroom_mgr.join_classroom(
+        req.class_id, current_user.id, current_user.name, req.role
+    )
+    if not room:
+        raise HTTPException(status_code=404, detail="Classroom not found. Check the class ID.")
+    return classroom_mgr.to_dict(room.id)
+
+
+@app.get("/api/classroom/my")
+def my_classrooms(current_user: User = Depends(get_current_user)) -> list:
+    return classroom_mgr.list_user_classrooms(current_user.id)
+
+
+@app.get("/api/classroom/{classroom_id}")
+def get_classroom(classroom_id: str,
+                  current_user: User = Depends(get_current_user)) -> dict:
+    info = classroom_mgr.to_dict(classroom_id)
+    if not info:
+        raise HTTPException(status_code=404, detail="Classroom not found.")
+    return info
+
+
+# ── Voice Chat (REST helpers; real-time via WebSocket below) ──────────────
+
+@app.post("/api/classroom/{classroom_id}/voice/start")
+def start_voice_session(classroom_id: str,
+                        current_user: User = Depends(get_current_user)) -> dict:
+    return voice_engine.join_voice(classroom_id, current_user.id, current_user.name)
+
+
+@app.post("/api/classroom/{classroom_id}/voice/mute")
+def mute_voice(classroom_id: str, user_id: str,
+               current_user: User = Depends(get_current_user)) -> dict:
+    voice_engine.mute_user(classroom_id, user_id or current_user.id)
+    return {"muted": True}
+
+
+@app.post("/api/classroom/{classroom_id}/voice/unmute")
+def unmute_voice(classroom_id: str, user_id: str,
+                 current_user: User = Depends(get_current_user)) -> dict:
+    voice_engine.unmute_user(classroom_id, user_id or current_user.id)
+    return {"muted": False}
+
+
+@app.post("/api/classroom/{classroom_id}/voice/recording/start")
+def start_voice_recording(classroom_id: str,
+                           current_user: User = Depends(get_current_user)) -> dict:
+    return voice_engine.start_recording(classroom_id)
+
+
+@app.post("/api/classroom/{classroom_id}/voice/recording/stop")
+def stop_voice_recording(classroom_id: str,
+                          current_user: User = Depends(get_current_user)) -> dict:
+    return voice_engine.stop_recording(classroom_id)
+
+
+@app.get("/api/classroom/{classroom_id}/voice/transcriptions")
+def get_voice_transcriptions(classroom_id: str) -> list:
+    return voice_engine.get_transcriptions(classroom_id)
+
+
+@app.post("/api/classroom/{classroom_id}/voice/transcription")
+def add_transcription(classroom_id: str,
+                       text: str,
+                       current_user: User = Depends(get_current_user)) -> dict:
+    voice_engine.add_transcription(classroom_id, current_user.id, current_user.name, text)
+    return {"saved": True}
+
+
+# ── WebSocket: Voice Chat Signaling ───────────────────────────────────────
+
+@app.websocket("/ws/voice/{classroom_id}")
+async def voice_chat_ws(websocket: WebSocket, classroom_id: str,
+                        user_id: str = "anonymous", user_name: str = "Anonymous"):
+    await voice_engine.handle_connection(websocket, classroom_id, user_id, user_name)
+
+
+# ── Peer Teaching (Study Groups) ──────────────────────────────────────────
+
+@app.post("/api/classroom/study-group/create")
+def create_study_group(req: CreateStudyGroupRequest,
+                        current_user: User = Depends(get_current_user)) -> dict:
+    uid   = req.user_id or current_user.id
+    uname = req.user_name if req.user_name != "Student" else current_user.name
+    from classroom.peer_teaching_engine import _group_to_dict
+    grp = peer_engine.create_study_group(
+        classroom_id=req.classroom_id, name=req.name, topic=req.topic,
+        teacher_student_id=uid, teacher_student_name=uname,
+    )
+    return _group_to_dict(grp)
+
+
+@app.post("/api/classroom/study-group/{group_id}/join")
+def join_study_group(group_id: str,
+                     req: StudyGroupActionRequest,
+                     current_user: User = Depends(get_current_user)) -> dict:
+    from classroom.peer_teaching_engine import _group_to_dict
+    uid = req.user_id or current_user.id
+    grp = peer_engine.join_study_group(group_id, uid)
+    if not grp:
+        raise HTTPException(status_code=404, detail="Study group not found.")
+    return _group_to_dict(grp)
+
+
+@app.post("/api/classroom/study-group/{group_id}/leave")
+def leave_study_group(group_id: str,
+                      current_user: User = Depends(get_current_user)) -> dict:
+    peer_engine.leave_study_group(group_id, current_user.id)
+    return {"left": True}
+
+
+@app.post("/api/classroom/study-group/{group_id}/whiteboard")
+def whiteboard_action(group_id: str, req: WhiteboardActionRequest,
+                      current_user: User = Depends(get_current_user)) -> dict:
+    action = peer_engine.add_whiteboard_action(
+        group_id, req.user_id or current_user.id, req.action_type, req.data
+    )
+    return {"success": True, "action": action}
+
+
+@app.get("/api/classroom/study-group/{group_id}/whiteboard")
+def get_whiteboard(group_id: str) -> dict:
+    return peer_engine.get_whiteboard_state(group_id)
+
+
+@app.post("/api/classroom/study-group/{group_id}/record")
+def record_study_session(group_id: str, req: RecordSessionRequest,
+                          current_user: User = Depends(get_current_user)) -> dict:
+    ok = peer_engine.record_session(group_id, req.recording_url)
+    return {"recorded": ok}
+
+
+@app.get("/api/classroom/{classroom_id}/study-groups")
+def get_study_groups(classroom_id: str) -> list:
+    return peer_engine.get_study_groups_for_classroom(classroom_id)
+
+
+@app.get("/api/classroom/study-groups/mine")
+def my_study_groups(current_user: User = Depends(get_current_user)) -> list:
+    return peer_engine.get_groups_for_student(current_user.id)
+
+
+# ── WebSocket: Peer Teaching / Whiteboard Signaling ───────────────────────
+
+@app.websocket("/ws/peer/{classroom_id}")
+async def peer_teaching_ws(websocket: WebSocket, classroom_id: str,
+                            user_id: str = "anonymous", user_name: str = "Anonymous"):
+    await peer_engine.handle_peer_connection(websocket, classroom_id, user_id, user_name)
 
 
 # ── SPA CATCH-ALL ─────────────────────────────────────────────────────────

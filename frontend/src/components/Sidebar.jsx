@@ -28,6 +28,12 @@ const BIZ_ITEMS = [
   { id: "course",     label: "Course Builder AI",  icon: "🏫" },
 ];
 
+/* ── New top-level quick-access cards ───────────────────────────── */
+const QUICK_ITEMS = [
+  { id: "dashboard",  label: "My Dashboard",   icon: "🗂️" },
+  { id: "classroom",  label: "AI Classroom",   icon: "🏫" },
+];
+
 const DOC_FORMATS = [
   { id: "doc",    label: "Doc"    },
   { id: "pdf",    label: "PDF"    },
@@ -72,6 +78,21 @@ export default function Sidebar({ active, onSelect, docFormat, onDocFormat,
       {searchSlot}
 
       <nav className={styles.nav}>
+
+        {/* ── Quick Access: Dashboard + Classroom ─────── */}
+        <div className={styles.quickRow}>
+          {QUICK_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              className={`${styles.quickCard} ${active === item.id ? styles.quickActive : ""}`}
+              onClick={() => onSelect(item.id)}
+              title={item.label}
+            >
+              <span className={styles.quickIcon}>{item.icon}</span>
+              <span className={styles.quickLabel}>{item.label}</span>
+            </button>
+          ))}
+        </div>
 
         {/* ── Office ───────────────────────────── */}
         <button className={styles.sectionBtn} onClick={() => toggle("office")}>

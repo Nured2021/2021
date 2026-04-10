@@ -1,4 +1,5 @@
 import { downloadUrl } from "../api/documentApi";
+import { useState } from "react";
 import styles from "./PreviewPanel.module.css";
 
 const MODULE_LABELS = {
@@ -160,6 +161,8 @@ export default function PreviewPanel({
             )}
           </div>
         )}
+        {/* ── Integrations row ──────────────────────────────────────── */}
+        <IntegrationsBar result={result} pdfHref={pdfHref} />
       </div>
 
       <div className={styles.content}>
@@ -172,6 +175,124 @@ export default function PreviewPanel({
       </div>
 
       {hasWorkspace && <WorkspaceSection files={workspaceFiles} onLoad={onLoadWorkspaceItem} />}
+    </div>
+  );
+}
+
+/* ─── Integrations Bar ─────────────────────────────────────────────────── */
+const API_BASE_INT = import.meta.env.VITE_API_URL || "";
+
+function IntegrationsBar({ result, pdfHref }) {
+  const [open,      setOpen]      = useState(false);
+  const [tab,       setTab]       = useState("slack");
+  const [slackUrl,  setSlackUrl]  = useState("");
+  const [zoomTopic, setZoomTopic] = useState(result?.title || "");
+  const [zoomTime,  setZoomTime]  = useState("");
+  const [zoomToken, setZoomToken] = useState("");
+  const [gdToken,   setGdToken]   = useState("");
+  const [busy,      setBusy]      = useState(false);
+  const [msg,       setMsg]       = useState("");
+
+  const authHdr = () => {
+    const t = localStorage.getItem("easy_ai_token");
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  };
+
+  const sendSlack = async () => {
+    if (!slackUrl) return;
+    setBusy(true);
+    try {
+      const r = await fetch(`${API_BASE_INT}/api/integrations/slack/notify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHdr() },
+        body: JSON.stringify({ webhook_url: slackUrl, message: `✅ *${result.title}* is ready!`,
+          document_title: result.title, document_url: pdfHref || "" }),
+      });
+      const d = await r.json();
+      setMsg(d.success ? "✅ Sent to Slack!" : "⚠ Failed.");
+    } catch { setMsg("⚠ Error."); } finally { setBusy(false); }
+  };
+
+  const scheduleZoom = async () => {
+    if (!zoomToken || !zoomTopic || !zoomTime) return;
+    setBusy(true);
+    try {
+      const r = await fetch(`${API_BASE_INT}/api/integrations/zoom/schedule`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHdr() },
+        body: JSON.stringify({ access_token: zoomToken, topic: zoomTopic,
+          start_time: zoomTime, duration: 60 }),
+      });
+      const d = await r.json();
+      setMsg(d.join_url ? `✅ ${d.join_url}` : "⚠ Failed.");
+    } catch { setMsg("⚠ Error."); } finally { setBusy(false); }
+  };
+
+  const uploadDrive = async () => {
+    if (!gdToken || !pdfHref) return;
+    setBusy(true);
+    try {
+      const r = await fetch(`${API_BASE_INT}/api/integrations/google-drive/upload`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHdr() },
+        body: JSON.stringify({ access_token: gdToken, file_url: pdfHref,
+          filename: `${result.title}.pdf` }),
+      });
+      const d = await r.json();
+      setMsg(d.drive_url ? `✅ ${d.drive_url}` : "⚠ Failed.");
+    } catch { setMsg("⚠ Error."); } finally { setBusy(false); }
+  };
+
+  return (
+    <div className={styles.integBar}>
+      <button className={styles.integToggle} onClick={() => { setOpen(o => !o); setMsg(""); }}>
+        🔗 Integrations {open ? "▲" : "▼"}
+      </button>
+      {open && (
+        <div className={styles.integPanel}>
+          <div className={styles.integTabs}>
+            {[["slack","💬 Slack"],["zoom","🎥 Zoom"],["drive","☁️ Drive"]].map(([id,lbl]) => (
+              <button key={id} className={`${styles.integTab} ${tab===id?styles.integTabActive:""}`}
+                onClick={() => { setTab(id); setMsg(""); }}>{lbl}</button>
+            ))}
+          </div>
+          {tab === "slack" && (
+            <div className={styles.integForm}>
+              <p className={styles.integHint}>Paste your Slack Incoming Webhook URL.</p>
+              <input className={styles.integInput} placeholder="https://hooks.slack.com/services/…"
+                value={slackUrl} onChange={e => setSlackUrl(e.target.value)} />
+              <button className={styles.integBtn} onClick={sendSlack} disabled={busy||!slackUrl}>
+                {busy?"Sending…":"Send Notification"}</button>
+            </div>
+          )}
+          {tab === "zoom" && (
+            <div className={styles.integForm}>
+              <p className={styles.integHint}>Schedule a Zoom meeting to review this document.</p>
+              <input className={styles.integInput} placeholder="Zoom OAuth Bearer token"
+                value={zoomToken} onChange={e => setZoomToken(e.target.value)} />
+              <input className={styles.integInput} placeholder="Meeting topic"
+                value={zoomTopic} onChange={e => setZoomTopic(e.target.value)} />
+              <input className={styles.integInput} type="datetime-local"
+                value={zoomTime.replace(":00Z","")} onChange={e => setZoomTime(e.target.value+":00Z")} />
+              <button className={styles.integBtn} onClick={scheduleZoom}
+                disabled={busy||!zoomToken||!zoomTopic||!zoomTime}>
+                {busy?"Scheduling…":"Schedule Meeting"}</button>
+            </div>
+          )}
+          {tab === "drive" && (
+            <div className={styles.integForm}>
+              <p className={styles.integHint}>Upload the PDF to your Google Drive.
+                {!pdfHref&&" (Generate a PDF first.)"}</p>
+              <input className={styles.integInput} placeholder="Google OAuth access token"
+                value={gdToken} onChange={e => setGdToken(e.target.value)} />
+              <button className={styles.integBtn} onClick={uploadDrive}
+                disabled={busy||!gdToken||!pdfHref}>
+                {busy?"Uploading…":"Upload to Drive"}</button>
+            </div>
+          )}
+          {msg && <p className={styles.integMsg}>{msg}</p>}
+        </div>
+      )}
     </div>
   );
 }
