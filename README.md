@@ -23,7 +23,7 @@ A full-stack document generation web application.
 
 ## Getting Started
 
-### Backend
+### Single-Server (Integrated UI + API)
 
 ```bash
 cd backend
@@ -31,9 +31,11 @@ pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-API available at `http://localhost:8000`
+Open `http://localhost:8000` — the backend serves both the dashboard UI and the API.
 
-### Frontend
+### Frontend (React – optional)
+
+The React app in `frontend/` provides an alternative UI with richer interactivity.
 
 ```bash
 cd frontend
@@ -42,19 +44,39 @@ npm install
 npm run dev
 ```
 
-App available at `http://localhost:5173`
+React app available at `http://localhost:5173` (requires backend running on port 8000).
 
 ## Usage
 
-1. Select a document type from the left sidebar (Documents, Excel, Presentation)
-2. Enter your prompt in the center input box
+1. Open `http://localhost:8000`
+2. Enter your prompt in the text box
 3. Click **Generate**
-4. Preview the result on the right panel
+4. Preview the generated content
 5. Download as **PDF** or **Word (.docx)**
 
 ## API
 
+### `POST /generate`
+
+Simple endpoint used by the integrated HTML dashboard.
+
+```json
+{ "prompt": "Write a project proposal for a mobile app" }
+```
+
+Response:
+
+```json
+{
+  "content": "...",
+  "pdf": "/download/<uuid>.pdf",
+  "docx": "/download/<uuid>.docx"
+}
+```
+
 ### `POST /generate-document`
+
+Full endpoint with doc-type selection (used by the React frontend).
 
 ```json
 {

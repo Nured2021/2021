@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EASY AI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; display: flex; height: 100vh; overflow: hidden; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background: #111;
+      color: #fff;
+      padding: 24px 20px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .sidebar h2 { font-size: 1.3rem; margin-bottom: 8px; letter-spacing: 1px; }
+    .sidebar p {
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+    .sidebar p:hover { background: #222; color: #fff; }
+    .sidebar p.active { background: #333; color: #fff; }
+    .sidebar p.disabled { opacity: 0.4; cursor: default; }
+
+    /* Main */
+    .main {
+      flex: 1;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+    .main h1 { font-size: 1.2rem; color: #333; }
+    textarea {
+      width: 100%;
+      height: 130px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      resize: vertical;
+    }
+    button {
+      align-self: flex-start;
+      padding: 10px 22px;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    button:hover { background: #333; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #output {
+      white-space: pre-wrap;
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      min-height: 100px;
+    }
+
+    /* Preview / Downloads */
+    .preview {
+      width: 260px;
+      background: #f4f4f4;
+      padding: 24px 20px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+    }
+    .preview h3 { font-size: 1rem; color: #333; margin-bottom: 4px; }
+    #downloads a {
+      display: block;
+      margin: 6px 0;
+      padding: 9px 14px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #111;
+      font-size: 0.88rem;
+    }
+    #downloads a:hover { background: #e8e8e8; }
+    .status {
+      font-size: 0.82rem;
+      color: #666;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>EASY AI</h2>
+  <p class="active">📄 Documents</p>
+  <p class="disabled">📊 Excel (soon)</p>
+  <p class="disabled">📑 Presentation (soon)</p>
+</div>
+
+<div class="main">
+  <h1>Document Generator</h1>
+  <textarea id="prompt" placeholder="What do you want to create? e.g. 'Write a project proposal for a mobile app'"></textarea>
+  <button id="generateBtn" onclick="generate()">Generate</button>
+  <span id="status" class="status"></span>
+  <pre id="output"></pre>
+</div>
+
+<div class="preview">
+  <h3>Downloads</h3>
+  <div id="downloads"><p class="status">Generate a document to see download links.</p></div>
+</div>
+
+<script>
+async function generate() {
+  const prompt = document.getElementById("prompt").value.trim();
+  if (!prompt) {
+    document.getElementById("status").textContent = "Please enter a prompt.";
+    return;
+  }
+
+  const btn = document.getElementById("generateBtn");
+  const status = document.getElementById("status");
+  const output = document.getElementById("output");
+  const downloads = document.getElementById("downloads");
+
+  btn.disabled = true;
+  status.textContent = "Generating…";
+  output.textContent = "";
+  downloads.innerHTML = "";
+
+  try {
+    const res = await fetch("/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Server error");
+    }
+
+    const data = await res.json();
+
+    output.textContent = data.content;
+    status.textContent = "Done!";
+
+    const pdfName = data.pdf.split("/").pop();
+    const docxName = data.docx.split("/").pop();
+
+    downloads.innerHTML = `
+      <a href="${data.pdf}" download="${pdfName}">⬇ Download PDF</a>
+      <a href="${data.docx}" download="${docxName}">⬇ Download Word (.docx)</a>
+    `;
+  } catch (err) {
+    status.textContent = "Error: " + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>
