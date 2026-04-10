@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./PromptPanel.module.css";
 import ChatPanel from "./ChatPanel";
 import MaterialPicker from "./MaterialPicker";
@@ -70,11 +70,14 @@ export default function PromptPanel({
 }) {
   const [prompt, setPrompt] = useState("");
 
-  // Apply an externally-set prompt (e.g. from workspace click)
-  if (externalPrompt !== undefined && externalPrompt !== null && externalPrompt !== prompt) {
-    setPrompt(externalPrompt);
-    onPromptConsumed?.();
-  }
+  // Apply an externally-set prompt (e.g. from workspace click-to-load)
+  useEffect(() => {
+    if (externalPrompt != null) {
+      setPrompt(externalPrompt);
+      onPromptConsumed?.();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalPrompt]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
