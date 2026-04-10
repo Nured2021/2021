@@ -304,6 +304,25 @@ export default function ClassroomPage({ onClose }) {
 
       {/* ── Classroom grid */}
       <div className={styles.grid}>
+        {/* ── Demo classroom card (always shown as a sample) ── */}
+        <div className={`${styles.roomCard} ${styles.demoCard}`}>
+          <span className={styles.roomTheme}>🌌</span>
+          <div className={styles.roomInfo}>
+            <p className={styles.roomName}>Physics 101 – Dr. Smith</p>
+            <p className={styles.roomMeta}>🔑 PHYS-101-ABC</p>
+            <p className={styles.roomMeta}>🎓 Professor · 👨‍🏫 2 Teachers · 👥 24 Students</p>
+            <p className={styles.roomMeta} style={{ marginTop: 4 }}>
+              <span style={{ color: '#10b981', fontSize: 12 }}>🟢 Voice Active</span>
+              &nbsp;·&nbsp;
+              <span style={{ color: '#7db3ff', fontSize: 12 }}>📐 3 Study Groups</span>
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+            <span className={styles.demoBadge}>Demo</span>
+            <span className={styles.enterArrow}>→</span>
+          </div>
+        </div>
+
         {classrooms.map((room) => (
           <button key={room.id} className={styles.roomCard}
             onClick={() => setActiveRoom(room)}>

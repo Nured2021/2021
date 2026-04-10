@@ -6,6 +6,7 @@ import SearchBar from "./components/SearchBar";
 import AuthPage from "./pages/AuthPage";
 import ApiKeysPage from "./pages/ApiKeysPage";
 import Dashboard from "./pages/Dashboard";
+import PremiumDashboard from "./pages/PremiumDashboard";
 import ClassroomPage from "./pages/ClassroomPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { buildRequest, uploadFile } from "./api/buildApi";
@@ -58,6 +59,7 @@ function App() {
   const [showAuth, setShowAuth]   = useState(false);
   const [showKeys, setShowKeys]   = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [showPremiumDashboard, setShowPremiumDashboard] = useState(false);
   const [showClassroom, setShowClassroom] = useState(false);
   const [activeTab, setActiveTab]     = useState("document");
   const [docFormat, setDocFormat]     = useState("doc");
@@ -242,6 +244,10 @@ function App() {
       setShowDashboard(true);
       return;
     }
+    if (tab === "premium_dashboard") {
+      setShowPremiumDashboard(true);
+      return;
+    }
     if (tab === "classroom") {
       setShowClassroom(true);
       return;
@@ -264,6 +270,8 @@ function App() {
       {showKeys      && <ApiKeysPage  onClose={() => setShowKeys(false)} />}
       {showDashboard && <Dashboard    onClose={() => setShowDashboard(false)}
                           onActivateModule={(mod) => { setActiveTab(mod); setShowDashboard(false); }} />}
+      {showPremiumDashboard && <PremiumDashboard onClose={() => setShowPremiumDashboard(false)}
+                          onActivateModule={(mod) => { if (mod === 'classroom') { setShowClassroom(true); } else { setActiveTab(mod); } setShowPremiumDashboard(false); }} />}
       {showClassroom && <ClassroomPage onClose={() => setShowClassroom(false)} />}
       <Sidebar
         active={activeTab}

@@ -881,6 +881,71 @@ def role_dashboard(user: User = Depends(get_current_user), db: Session = Depends
     }
 
 
+# ── PREMIUM DASHBOARD ─────────────────────────────────────────────────────
+
+@app.get("/api/dashboard/premium")
+def premium_dashboard(user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> dict:
+    """Returns all data needed for the premium dashboard overview."""
+    recent_docs  = list_documents(db, user_id=user.id, limit=5)
+    classrooms   = classroom_mgr.list_user_classrooms(user.id)
+    study_groups = peer_engine.get_groups_for_student(user.id)
+    ai_usage     = {
+        "business":  0,
+        "court":     0,
+        "professor": 0,
+        "excel":     0,
+    }
+    for doc in list_documents(db, user_id=user.id, limit=200):
+        mod = getattr(doc, "module", "")
+        if mod in ai_usage:
+            ai_usage[mod] += 1
+
+    storage_used_mb = max(1, round(user.gen_count * 0.25))
+
+    return {
+        "totalDocuments":   user.gen_count,
+        "totalAICalls":     user.gen_count,
+        "totalStudyGroups": len(study_groups),
+        "productivity":     min(99, max(0, round((user.gen_count / max(user.gen_count + 5, 10)) * 100))),
+        "storageUsed":      storage_used_mb,
+        "storageLimit":     1024,
+        "recentActivity": [
+            {
+                "id":     d.id,
+                "action": f'Generated "{d.title}"',
+                "module": f"{(d.module or 'AI').replace('_', ' ').title()} AI",
+                "time":   d.created_at.strftime("%b %d %H:%M") if d.created_at else "",
+            }
+            for d in recent_docs
+        ],
+        "recentDocuments": [
+            {
+                "id":     d.id,
+                "name":   d.title or "Untitled",
+                "module": f"{(d.module or 'AI').replace('_', ' ').title()} AI",
+                "date":   d.created_at.strftime("%b %d") if d.created_at else "",
+            }
+            for d in recent_docs
+        ],
+        "classrooms": [
+            {
+                "id":      c.get("id", ""),
+                "name":    c.get("name", ""),
+                "teacher": next((m["user_name"] for m in c.get("members", []) if m.get("role") in ("professor", "teacher")), "—"),
+                "students": len([m for m in c.get("members", []) if m.get("role") == "student"]),
+                "classId":  c.get("class_id", ""),
+            }
+            for c in classrooms
+        ],
+        "aiUsage": ai_usage,
+        "integrations": {
+            "googleDrive": bool(getattr(user, "google_access_token", None)),
+            "slack":       bool(getattr(user, "slack_webhook", None)),
+            "zoom":        bool(getattr(user, "zoom_access_token", None)),
+        },
+    }
+
+
 # ── REAL-TIME COLLABORATION (WebSockets) ───────────────────────────────────
 
 @app.websocket("/ws/{document_id}")

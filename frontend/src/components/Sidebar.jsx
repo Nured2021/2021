@@ -30,8 +30,9 @@ const BIZ_ITEMS = [
 
 /* ── New top-level quick-access cards ───────────────────────────── */
 const QUICK_ITEMS = [
-  { id: "dashboard",  label: "My Dashboard",   icon: "🗂️" },
-  { id: "classroom",  label: "AI Classroom",   icon: "🏫" },
+  { id: "dashboard",         label: "My Dashboard",     icon: "🗂️" },
+  { id: "premium_dashboard", label: "Premium Dashboard", icon: "✦"  },
+  { id: "classroom",         label: "AI Classroom",     icon: "🏫" },
 ];
 
 const DOC_FORMATS = [
