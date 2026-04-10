@@ -3,6 +3,7 @@ import Sidebar from "./components/Sidebar";
 import PromptPanel from "./components/PromptPanel";
 import PreviewPanel from "./components/PreviewPanel";
 import { generateDocument } from "./api/documentApi";
+import { generateEducation } from "./api/educationApi";
 import "./App.css";
 
 function App() {
@@ -11,12 +12,21 @@ function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
+  const isEducationTab = activeTab.startsWith("edu_");
+
   const handleGenerate = async (prompt) => {
     setLoading(true);
     setError(null);
     setResult(null);
     try {
-      const data = await generateDocument({ prompt, docType: activeTab });
+      let data;
+      if (isEducationTab) {
+        // Strip the "edu_" prefix to get the module id
+        const module = activeTab.replace("edu_", "");
+        data = await generateEducation({ prompt, module });
+      } else {
+        data = await generateDocument({ prompt, docType: activeTab });
+      }
       setResult(data);
     } catch (err) {
       setError(err.message);

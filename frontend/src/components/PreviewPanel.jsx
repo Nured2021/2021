@@ -1,6 +1,18 @@
 import { downloadUrl } from "../api/documentApi";
 import styles from "./PreviewPanel.module.css";
 
+const MODULE_LABELS = {
+  professor:    "🎓 Senior Professor AI",
+  teacher:      "📚 Teacher AI",
+  exam:         "📝 Exam Prep AI",
+  simulation:   "💼 Simulation AI",
+  court:        "⚖️ Court AI",
+  student:      "🙋 Student Assistant AI",
+  admin:        "🗂️ Admin AI",
+  multilingual: "🌐 Multilingual AI",
+  integrity:    "🛡️ Integrity AI",
+};
+
 export default function PreviewPanel({ result, error, loading }) {
   if (loading) {
     return (
@@ -29,23 +41,22 @@ export default function PreviewPanel({ result, error, loading }) {
     );
   }
 
+  const pdfHref  = downloadUrl(result.pdf_url);
+  const docxHref = downloadUrl(result.docx_url);
+  const moduleLabel = result.module ? MODULE_LABELS[result.module] : null;
+
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
+        {moduleLabel && (
+          <span className={styles.moduleBadge}>{moduleLabel}</span>
+        )}
         <h3 className={styles.docTitle}>{result.title}</h3>
         <div className={styles.actions}>
-          <a
-            href={downloadUrl(result.pdf_url)}
-            download
-            className={`${styles.btn} ${styles.pdf}`}
-          >
+          <a href={pdfHref} download className={`${styles.btn} ${styles.pdf}`}>
             ⬇ PDF
           </a>
-          <a
-            href={downloadUrl(result.docx_url)}
-            download
-            className={`${styles.btn} ${styles.docx}`}
-          >
+          <a href={docxHref} download className={`${styles.btn} ${styles.docx}`}>
             ⬇ Word
           </a>
         </div>

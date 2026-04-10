@@ -13,8 +13,10 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 from main_ai import MainAI
+from education_orchestrator import EducationOrchestrator, MODULE_INFO
+from export_utils import export_pdf, export_docx
 
-app = FastAPI(title="Document Generator API")
+app = FastAPI(title="Easy AI – Document & Education API")
 
 _TEMPLATES_DIR = Path(__file__).parent / "templates"
 _STATIC_DIR = Path(__file__).parent / "static"
@@ -31,6 +33,7 @@ app.add_middleware(
 )
 
 _controller = MainAI()
+_edu = EducationOrchestrator()
 
 
 # ---------------------------------------------------------------------------
@@ -52,6 +55,33 @@ class SectionOut(BaseModel):
 
 
 class GenerateResponse(BaseModel):
+    title: str
+    body: str
+    sections: list[SectionOut]
+    pdf_url: str
+    docx_url: str
+
+
+# Education schemas
+
+class EducationGenerateRequest(BaseModel):
+    prompt: str
+    module: str | None = None  # auto-detect if omitted
+
+
+class EducationChatRequest(BaseModel):
+    message: str
+    module: str | None = None
+
+
+class EducationUploadMaterialRequest(BaseModel):
+    filename: str
+    text_content: str
+    module: str | None = "student"
+
+
+class EducationGenerateResponse(BaseModel):
+    module: str
     title: str
     body: str
     sections: list[SectionOut]
@@ -140,3 +170,77 @@ def download_file(filename: str) -> FileResponse:
         else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
     return FileResponse(resolved, media_type=media_type, filename=safe_name)
+
+
+# ---------------------------------------------------------------------------
+# Education endpoints
+# ---------------------------------------------------------------------------
+
+@app.get("/education/modules")
+def list_education_modules() -> list:
+    """Return the list of available education AI modules."""
+    return MODULE_INFO
+
+
+@app.post("/education/generate", response_model=EducationGenerateResponse)
+def education_generate(req: EducationGenerateRequest) -> EducationGenerateResponse:
+    """Generate structured academic content and export to PDF + DOCX."""
+    try:
+        result = _edu.generate(req.prompt, module=req.module)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Education generation failed: {exc}") from exc
+
+    pdf_path = export_pdf(result["title"], result["sections"])
+    docx_path = export_docx(result["title"], result["sections"])
+
+    pdf_filename = Path(pdf_path).name
+    docx_filename = Path(docx_path).name
+
+    return EducationGenerateResponse(
+        module=result["module"],
+        title=result["title"],
+        body=result["body"],
+        sections=result["sections"],
+        pdf_url=f"/download/{pdf_filename}",
+        docx_url=f"/download/{docx_filename}",
+    )
+
+
+@app.post("/education/chat")
+def education_chat(req: EducationChatRequest) -> dict:
+    """Return a conversational response from the appropriate education module."""
+    try:
+        return _edu.chat(req.message, module=req.module)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Chat failed: {exc}") from exc
+
+
+@app.post("/education/upload-material")
+def education_upload_material(req: EducationUploadMaterialRequest) -> dict:
+    """Accept uploaded text content and generate a study guide from it."""
+    combined_prompt = (
+        f"Summarise and create a study guide for the following material "
+        f"from '{req.filename}':\n\n{req.text_content[:4000]}"
+    )
+    try:
+        result = _edu.generate(combined_prompt, module=req.module or "student")
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Upload processing failed: {exc}") from exc
+
+    pdf_path = export_pdf(result["title"], result["sections"])
+    docx_path = export_docx(result["title"], result["sections"])
+
+    return {
+        "module": result["module"],
+        "title": result["title"],
+        "body": result["body"],
+        "sections": result["sections"],
+        "pdf_url": f"/download/{Path(pdf_path).name}",
+        "docx_url": f"/download/{Path(docx_path).name}",
+    }
