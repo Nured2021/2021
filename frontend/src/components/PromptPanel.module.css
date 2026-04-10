@@ -2,57 +2,64 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 32px 28px;
-  background: #13131f;
+  padding: 28px 24px;
+  background: transparent;
   overflow-y: auto;
 }
 
 .header {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .title {
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 700;
-  color: #e8e8f0;
+  color: #e6edff;
   margin: 0 0 6px;
+  letter-spacing: -0.2px;
 }
 
 .subtitle {
   font-size: 13px;
-  color: #7a7a90;
+  color: #6a82a0;
   margin: 0;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  flex: 1;
+  gap: 14px;
+  background: rgba(18, 26, 48, 0.85);
+  border: 1px solid #1f2a44;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .textarea {
-  flex: 1;
-  min-height: 220px;
+  min-height: 200px;
   resize: vertical;
-  background: #1a1a2e;
-  border: 1.5px solid #2a2a3e;
-  border-radius: 12px;
+  background: #0e1628;
+  border: 1.5px solid #1f2a44;
+  border-radius: 14px;
   padding: 16px;
-  color: #d8d8f0;
+  color: #e6edff;
   font-size: 15px;
   line-height: 1.6;
   outline: none;
   font-family: inherit;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .textarea:focus {
-  border-color: #7c6af7;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
 .textarea::placeholder {
-  color: #4a4a60;
+  color: #2e3f5e;
 }
 
 .textarea:disabled {
@@ -65,32 +72,40 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 28px;
-  background: linear-gradient(135deg, #7c6af7, #5a4fd4);
+  padding: 13px 24px;
+  background: #3b82f6;
   color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+  font-family: inherit;
 }
 
 .button:hover:not(:disabled) {
-  opacity: 0.9;
-  transform: translateY(-1px);
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .spinner {
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.35);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -119,20 +134,22 @@
 /* Outline/secondary button variant */
 .outlineBtn {
   background: transparent !important;
-  border: 1.5px solid #2a2a3e !important;
-  color: #9090a8 !important;
+  border: 1.5px solid #1f2a44 !important;
+  color: #8ea3c7 !important;
+  box-shadow: none !important;
 }
 
 .outlineBtn:hover:not(:disabled) {
-  border-color: #7c6af7 !important;
-  color: #a89cf7 !important;
+  border-color: #3b82f6 !important;
+  color: #7db3ff !important;
   opacity: 1 !important;
+  background: rgba(59, 130, 246, 0.06) !important;
 }
 
 /* Status text */
 .statusText {
   font-size: 12px;
-  color: #7c6af7;
+  color: #7db3ff;
   margin: 0;
   text-align: center;
 }
@@ -142,18 +159,19 @@
   display: inline-block;
   margin-top: 6px;
   font-size: 12px;
-  color: #a89cf7;
-  background: #1e1a3a;
+  color: #7db3ff;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.2);
   padding: 3px 10px;
   border-radius: 6px;
 }
 
 /* Feature cards */
 .cards {
-  margin-top: 24px;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .card {
@@ -161,14 +179,15 @@
   align-items: flex-start;
   gap: 14px;
   padding: 14px 16px;
-  background: #1a1a2e;
-  border: 1px solid #2a2a3e;
-  border-radius: 12px;
-  transition: border-color 0.2s;
+  background: rgba(14, 22, 40, 0.7);
+  border: 1px solid #1f2a44;
+  border-radius: 14px;
+  transition: border-color 0.2s, transform 0.15s;
 }
 
 .card:hover {
-  border-color: #4a3aaa;
+  border-color: #3b5c90;
+  transform: translateX(2px);
 }
 
 .cardIcon {
@@ -180,13 +199,13 @@
 .cardTitle {
   font-size: 13px;
   font-weight: 700;
-  color: #d0d0e8;
+  color: #e6edff;
   margin: 0 0 4px;
 }
 
 .cardDesc {
   font-size: 12px;
-  color: #6a6a82;
+  color: #5a7090;
   margin: 0;
   line-height: 1.5;
 }

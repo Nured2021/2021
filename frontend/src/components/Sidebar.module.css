@@ -1,12 +1,15 @@
 .sidebar {
   width: 220px;
   min-height: 100vh;
-  background: #0f0f1a;
+  background: rgba(10, 15, 30, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   flex-direction: column;
   padding: 0;
-  border-right: 1px solid #1e1e2e;
+  border-right: 1px solid #18233d;
   flex-shrink: 0;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
 }
 
 .logo {
@@ -14,19 +17,20 @@
   align-items: center;
   gap: 10px;
   padding: 24px 20px 20px;
-  border-bottom: 1px solid #1e1e2e;
+  border-bottom: 1px solid #18233d;
 }
 
 .logoIcon {
   font-size: 22px;
-  color: #7c6af7;
+  color: #7db3ff;
+  filter: drop-shadow(0 0 6px rgba(125, 179, 255, 0.5));
 }
 
 .logoText {
   font-size: 17px;
   font-weight: 700;
-  color: #e8e8f0;
-  letter-spacing: 0.3px;
+  color: #e6edff;
+  letter-spacing: 0.5px;
 }
 
 .nav {
@@ -45,24 +49,26 @@
   padding: 10px 12px;
   border: none;
   background: transparent;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  color: #9090a8;
+  color: #8ea3c7;
   font-size: 14px;
   font-weight: 500;
   text-align: left;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
   width: 100%;
 }
 
 .navItem:hover {
-  background: #1a1a2e;
-  color: #d0d0e8;
+  background: rgba(30, 48, 80, 0.6);
+  color: #e6edff;
+  transform: translateX(2px);
 }
 
 .navItem.active {
-  background: #2a1f6e;
-  color: #a89cf7;
+  background: rgba(59, 130, 246, 0.15);
+  color: #7db3ff;
+  border: 1px solid rgba(59, 130, 246, 0.25);
 }
 
 .icon {
@@ -80,7 +86,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #4a4a62;
+  color: #3d5070;
   padding: 12px 12px 4px;
   display: block;
 }
@@ -95,9 +101,9 @@
 .formatPill {
   padding: 4px 10px;
   border-radius: 20px;
-  border: 1px solid #2a2a3e;
+  border: 1px solid #1f2e48;
   background: transparent;
-  color: #7a7a90;
+  color: #6a82a0;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -105,13 +111,13 @@
 }
 
 .formatPill:hover {
-  background: #1a1a2e;
-  color: #d0d0e8;
-  border-color: #4a4a62;
+  background: rgba(30, 48, 80, 0.6);
+  color: #e6edff;
+  border-color: #3d5880;
 }
 
 .formatPill.formatActive {
-  background: #2a1f6e;
-  color: #a89cf7;
-  border-color: #5a4fd4;
+  background: rgba(59, 130, 246, 0.18);
+  color: #7db3ff;
+  border-color: #3b82f6;
 }
