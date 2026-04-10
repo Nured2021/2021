@@ -74,19 +74,25 @@ class GoogleDriveIntegration:
                         folder_id: Optional[str] = None) -> str:
         """Upload a file from the server's export directory by its basename only.
 
-        This is the preferred call from HTTP endpoints because the path is
-        constructed entirely from a server-controlled constant (_EXPORT_DIR)
-        combined with the validated basename — no user-supplied path reaches
-        any filesystem API.
+        This is the preferred call from HTTP endpoints.  The user-supplied
+        *filename* is used only as a comparison target against entries returned
+        by os.scandir() — it is never concatenated into a filesystem path.
         """
         import re
-        # Only allow safe filename characters; strip any path components.
         safe_name = os.path.basename(filename)
         if not safe_name or not re.match(r'^[\w\-. ]+$', safe_name):
             raise ValueError(f"Unsafe filename: {filename!r}")
-        # Construct the full path entirely from the server-side constant
-        full_path = os.path.join(_EXPORT_DIR, safe_name)
-        return self.upload_file(full_path, drive_name or safe_name, folder_id)
+
+        # Iterate over the server-controlled directory; user input is only
+        # used for equality comparison — never path construction.
+        for entry in os.scandir(_EXPORT_DIR):
+            if entry.is_file() and entry.name == safe_name:
+                # entry.path is 100% server-derived from os.scandir()
+                return self.upload_file(entry.path, drive_name or safe_name, folder_id)
+
+        raise FileNotFoundError(
+            f"File '{safe_name}' not found in the server export directory."
+        )
 
     def list_files(self, folder_id: Optional[str] = None,
                    limit: int = 20) -> list[dict]:
