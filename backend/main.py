@@ -10,7 +10,6 @@ from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 from main_ai import MainAI
@@ -22,12 +21,17 @@ from uploaded_material_store import save_uploaded_material, list_uploaded_materi
 
 app = FastAPI(title="Easy AI – Document & Education API")
 
-_TEMPLATES_DIR = Path(__file__).parent / "templates"
 _STATIC_DIR = Path(__file__).parent / "static"
 _STATIC_DIR.mkdir(exist_ok=True)
 
-templates = Jinja2Templates(directory=str(_TEMPLATES_DIR))
+# Path to the compiled React frontend (built with: cd frontend && npm run build)
+_DIST_DIR = Path(__file__).parent.parent / "frontend" / "dist"
+
 app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
+
+# Serve Vite's hashed asset bundles (JS / CSS / images) as /assets/...
+if (_DIST_DIR / "assets").exists():
+    app.mount("/assets", StaticFiles(directory=str(_DIST_DIR / "assets")), name="frontend_assets")
 
 app.add_middleware(
     CORSMiddleware,
@@ -147,9 +151,17 @@ def _url(path: str | None) -> str | None:
 # Endpoints
 # ---------------------------------------------------------------------------
 
-@app.get("/", response_class=HTMLResponse)
-def home(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse("index.html", {"request": request})
+@app.get("/", response_class=HTMLResponse, response_model=None, include_in_schema=False)
+def home():
+    """Serve the React SPA shell from the production build."""
+    index = _DIST_DIR / "index.html"
+    if index.is_file():
+        return FileResponse(str(index))
+    return HTMLResponse(
+        "<h1>Frontend not built.</h1>"
+        "<p>Run: <code>cd frontend &amp;&amp; npm run build</code></p>",
+        status_code=503,
+    )
 
 
 @app.get("/health")
@@ -453,3 +465,28 @@ async def education_upload_material(
 def list_materials() -> list:
     """Return list of all previously uploaded materials."""
     return list_uploaded_materials()
+
+
+# ---------------------------------------------------------------------------
+# SPA catch-all — must be the LAST route registered
+# Serves any path that isn't an API endpoint as the React index.html so that
+# client-side routing (React Router / direct URL entry) works correctly.
+# ---------------------------------------------------------------------------
+
+@app.get("/{full_path:path}", response_class=HTMLResponse, response_model=None, include_in_schema=False)
+def serve_spa(full_path: str):
+    """Serve static files from the React build, falling back to index.html."""
+    if _DIST_DIR.is_dir():
+        # Try to serve an actual file from the dist root (favicon, icons, etc.)
+        candidate = _DIST_DIR / full_path
+        if candidate.is_file():
+            return FileResponse(str(candidate))
+        # For all other paths (SPA client-side routes) return the shell
+        index = _DIST_DIR / "index.html"
+        if index.is_file():
+            return FileResponse(str(index))
+    return HTMLResponse(
+        "<h1>Frontend not built.</h1>"
+        "<p>Run: <code>cd frontend &amp;&amp; npm run build</code></p>",
+        status_code=503,
+    )
