@@ -80,11 +80,16 @@ def generate_document(req: GenerateRequest) -> GenerateResponse:
 def download_file(filename: str) -> FileResponse:
     import tempfile
 
-    export_dir = os.path.join(tempfile.gettempdir(), "docgen_exports")
-    file_path = os.path.join(export_dir, filename)
+    # Strip any directory components from the user-supplied name to prevent
+    # path traversal before any filesystem operations.
+    safe_name = os.path.basename(filename)
+    export_dir = os.path.realpath(
+        os.path.join(tempfile.gettempdir(), "docgen_exports")
+    )
+    file_path = os.path.join(export_dir, safe_name)
 
-    # Security: ensure the resolved path stays inside export_dir
-    if not os.path.realpath(file_path).startswith(os.path.realpath(export_dir)):
+    # Double-check the resolved path is still inside the export directory.
+    if not os.path.realpath(file_path).startswith(export_dir + os.sep):
         raise HTTPException(status_code=403, detail="Access denied.")
 
     if not os.path.isfile(file_path):
@@ -92,7 +97,7 @@ def download_file(filename: str) -> FileResponse:
 
     media_type = (
         "application/pdf"
-        if filename.endswith(".pdf")
+        if safe_name.endswith(".pdf")
         else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
-    return FileResponse(file_path, media_type=media_type, filename=filename)
+    return FileResponse(file_path, media_type=media_type, filename=safe_name)
