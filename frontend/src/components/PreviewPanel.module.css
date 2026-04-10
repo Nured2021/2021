@@ -1,0 +1,117 @@
+.panel {
+  width: 360px;
+  min-height: 100vh;
+  background: #0f0f1a;
+  border-left: 1px solid #1e1e2e;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.center {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px;
+}
+
+.placeholder {
+  color: #4a4a62;
+  font-size: 14px;
+}
+
+.error {
+  color: #f87171;
+  font-size: 14px;
+}
+
+.loadingText {
+  color: #7a7a92;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+.pulse {
+  font-size: 36px;
+  color: #7c6af7;
+  animation: pulsate 1.2s ease-in-out infinite;
+}
+
+@keyframes pulsate {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.2); }
+}
+
+.header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid #1e1e2e;
+}
+
+.docTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #d0d0e8;
+  margin: 0 0 14px;
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  flex: 1;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.pdf {
+  background: #3b1f5e;
+  color: #c084fc;
+}
+
+.docx {
+  background: #1a3050;
+  color: #60a5fa;
+}
+
+.content {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section {
+  background: #1a1a2e;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.sectionHeading {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a89cf7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px;
+}
+
+.sectionContent {
+  font-size: 13px;
+  color: #9090a8;
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
