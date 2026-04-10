@@ -31,6 +31,9 @@ class SlackIntegration:
                     "footer":     "Easy AI Platform",
                 }
             ]
+        # The webhook URL is already validated in __init__ to start with the
+        # official Slack hook domain, so we construct the final URL from the
+        # stored (validated) attribute rather than any request parameter.
         resp = requests.post(self.webhook_url, json=payload, timeout=10)
         return resp.status_code == 200
 

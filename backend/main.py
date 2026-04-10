@@ -935,13 +935,23 @@ class GoogleDriveUploadRequest(BaseModel):
 def upload_to_drive(req: GoogleDriveUploadRequest,
                     current_user: User = Depends(get_current_user)) -> dict:
     """Upload a generated file to the authenticated user's Google Drive."""
-    # Resolve the local file path from the download URL
-    fname = req.file_url.split("/download/")[-1]
-    import tempfile, glob as _glob
-    candidates = _glob.glob(os.path.join(tempfile.gettempdir(), "**", fname), recursive=True)
-    if not candidates:
+    import tempfile, re
+
+    # Sanitize: only allow safe filename characters (no path separators or traversal)
+    raw_fname = req.file_url.split("/download/")[-1]
+    # Strip any directory components and validate filename is safe
+    fname = os.path.basename(raw_fname)
+    if not fname or not re.match(r'^[\w\-. ]+$', fname):
+        raise HTTPException(status_code=400, detail="Invalid filename in file_url.")
+
+    # Resolve within the known export directory only
+    export_dir = os.path.realpath(os.path.join(tempfile.gettempdir(), "docgen_exports"))
+    local_path = os.path.realpath(os.path.join(export_dir, fname))
+    # Confirm the resolved path stays within the export directory (prevent path traversal)
+    if not local_path.startswith(export_dir + os.sep) and local_path != export_dir:
+        raise HTTPException(status_code=400, detail="Invalid file path.")
+    if not os.path.isfile(local_path):
         raise HTTPException(status_code=404, detail=f"File '{fname}' not found on server.")
-    local_path = candidates[0]
 
     try:
         drive = GoogleDriveIntegration(req.access_token)
@@ -1206,10 +1216,13 @@ async def peer_teaching_ws(websocket: WebSocket, classroom_id: str,
 @app.get("/{full_path:path}", response_class=HTMLResponse, response_model=None, include_in_schema=False)
 def serve_spa(full_path: str):
     if _DIST_DIR.is_dir():
-        candidate = _DIST_DIR / full_path
-        if candidate.is_file():
+        # Resolve the candidate path and ensure it stays within the dist directory
+        # (prevents path traversal via crafted URL segments)
+        dist_real = _DIST_DIR.resolve()
+        candidate = (dist_real / full_path).resolve()
+        if candidate.is_file() and str(candidate).startswith(str(dist_real) + os.sep):
             return FileResponse(str(candidate))
-        index = _DIST_DIR / "index.html"
+        index = dist_real / "index.html"
         if index.is_file():
             return FileResponse(str(index))
     return HTMLResponse("<h1>Frontend not built.</h1>", status_code=503)

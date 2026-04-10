@@ -28,11 +28,17 @@ class GoogleDriveIntegration:
 
     def upload_file(self, file_path: str, filename: str,
                     folder_id: Optional[str] = None) -> str:
-        """Upload *file_path* to Drive and return the public view URL."""
-        if not os.path.isfile(file_path):
-            raise FileNotFoundError(f"File not found: {file_path}")
+        """Upload *file_path* to Drive and return the public view URL.
 
-        media = MediaFileUpload(file_path, resumable=True)
+        *file_path* must be an absolute path that has already been validated
+        (canonicalised and confirmed to lie within the server's export directory)
+        by the caller before being passed here.
+        """
+        resolved = os.path.realpath(file_path)
+        if not os.path.isfile(resolved):
+            raise FileNotFoundError(f"File not found: {resolved}")
+
+        media = MediaFileUpload(resolved, resumable=True)
         file_metadata: dict = {"name": filename}
         if folder_id:
             file_metadata["parents"] = [folder_id]
