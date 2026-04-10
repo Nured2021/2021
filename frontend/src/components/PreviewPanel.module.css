@@ -208,3 +208,77 @@
   background: #1a3050;
   color: #60a5fa;
 }
+
+.wsBtn.pptx {
+  background: #1f3b28;
+  color: #4ade80;
+}
+
+.wsBtn.xlsx {
+  background: #3b2a10;
+  color: #fbbf24;
+}
+
+/* Download buttons in header */
+.btn.pptx {
+  background: #1f3b28;
+  color: #4ade80;
+}
+
+.btn.xlsx {
+  background: #3b2a10;
+  color: #fbbf24;
+}
+
+/* Workspace load button */
+.wsLoadBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  min-width: 0;
+}
+
+.wsLoadBtn:hover .wsName {
+  color: #a89cf7;
+}
+
+/* Structured content rendering */
+.structuredContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.subHeading {
+  font-size: 12px;
+  font-weight: 700;
+  color: #c084fc;
+  margin: 8px 0 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.line {
+  font-size: 13px;
+  color: #9090a8;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.bullet {
+  font-size: 13px;
+  color: #9090a8;
+  margin: 0;
+  padding-left: 8px;
+  line-height: 1.6;
+}
+
+.spacer {
+  height: 6px;
+}

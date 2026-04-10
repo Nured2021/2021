@@ -23,6 +23,8 @@ function App() {
   const [status, setStatus]                 = useState("Ready");
   const [workspaceFiles, setWorkspaceFiles] = useState([]);
   const [uploadedFileName, setUploadedFileName] = useState("");
+  // Workspace click-to-load: holds a prompt string to inject into PromptPanel
+  const [pendingPrompt, setPendingPrompt]   = useState(null);
   const fileInputRef = useRef(null);
 
   const isEducationTab = activeTab.startsWith("edu_");
@@ -49,8 +51,12 @@ function App() {
           id: Date.now(),
           name: data.title || `${docFormat.toUpperCase()} Output`,
           format: isEducationTab ? "edu" : docFormat,
+          prompt,
           pdf_url:  data.pdf_url  || null,
           docx_url: data.docx_url || null,
+          pptx_url: data.pptx_url || null,
+          xlsx_url: data.xlsx_url || null,
+          _result: data,
         },
         ...prev.slice(0, 9), // keep last 10
       ]);
@@ -80,8 +86,12 @@ function App() {
           id: Date.now(),
           name: data.title || `Upload: ${file.name}`,
           format: "edu",
+          prompt: `Summarise uploaded file: ${file.name}`,
           pdf_url:  data.pdf_url  || null,
           docx_url: data.docx_url || null,
+          pptx_url: null,
+          xlsx_url: null,
+          _result: data,
         },
         ...prev.slice(0, 9),
       ]);
@@ -111,8 +121,12 @@ function App() {
           id: Date.now(),
           name: data.title || "Translation",
           format: "edu",
+          prompt: translatePrompt,
           pdf_url:  data.pdf_url  || null,
           docx_url: data.docx_url || null,
+          pptx_url: null,
+          xlsx_url: null,
+          _result: data,
         },
         ...prev.slice(0, 9),
       ]);
@@ -137,6 +151,12 @@ function App() {
     setStatus("Ready");
   };
 
+  // Workspace click-to-load: restore prompt + preview
+  const handleLoadWorkspaceItem = (item) => {
+    if (item._result) setResult(item._result);
+    if (item.prompt)  setPendingPrompt(item.prompt);
+  };
+
   return (
     <div className="layout">
       <Sidebar
@@ -154,6 +174,8 @@ function App() {
           loading={loading}
           status={status}
           uploadedFileName={uploadedFileName}
+          externalPrompt={pendingPrompt}
+          onPromptConsumed={() => setPendingPrompt(null)}
         />
       </main>
       <PreviewPanel
@@ -161,6 +183,7 @@ function App() {
         error={error}
         loading={loading}
         workspaceFiles={workspaceFiles}
+        onLoadWorkspaceItem={handleLoadWorkspaceItem}
       />
       {/* Hidden file input for uploads */}
       <input

@@ -1,0 +1,100 @@
+.wrapper {
+  position: relative;
+}
+
+.toggleBtn {
+  background: transparent;
+  border: 1.5px solid #2a2a3e;
+  border-radius: 8px;
+  color: #9090a8;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  font-family: inherit;
+}
+
+.toggleBtn:hover {
+  border-color: #7c6af7;
+  color: #a89cf7;
+}
+
+.dropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #0f0f1a;
+  border: 1px solid #2a2a3e;
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 100;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.info {
+  font-size: 12px;
+  color: #4a4a62;
+  text-align: center;
+  padding: 8px;
+  margin: 0;
+}
+
+.error {
+  font-size: 12px;
+  color: #f87171;
+  text-align: center;
+  padding: 4px;
+  margin: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: #1a1a2e;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s;
+  font-family: inherit;
+  width: 100%;
+}
+
+.item:hover {
+  border-color: #7c6af7;
+}
+
+.icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.name {
+  flex: 1;
+  font-size: 12px;
+  color: #c0c0d8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.module {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #6a6a82;
+  background: #252538;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}

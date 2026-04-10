@@ -1,5 +1,7 @@
 import { useState } from "react";
 import styles from "./PromptPanel.module.css";
+import ChatPanel from "./ChatPanel";
+import MaterialPicker from "./MaterialPicker";
 
 const FEATURE_CARDS = [
   {
@@ -63,8 +65,16 @@ export default function PromptPanel({
   loading,
   status,
   uploadedFileName,
+  externalPrompt,      // workspace click sets this
+  onPromptConsumed,    // called after externalPrompt has been applied
 }) {
   const [prompt, setPrompt] = useState("");
+
+  // Apply an externally-set prompt (e.g. from workspace click)
+  if (externalPrompt !== undefined && externalPrompt !== null && externalPrompt !== prompt) {
+    setPrompt(externalPrompt);
+    onPromptConsumed?.();
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -73,6 +83,10 @@ export default function PromptPanel({
 
   const handleTranslate = () => {
     if (prompt.trim()) onTranslate(prompt.trim());
+  };
+
+  const handleMaterialPick = (snippet) => {
+    setPrompt((prev) => snippet + (prev ? prev : ""));
   };
 
   const isEducation = docType.startsWith("edu_");
@@ -90,6 +104,7 @@ export default function PromptPanel({
     "e.g. Write a project proposal for a new mobile app...";
 
   const showFeatureCards = !loading && !prompt.trim();
+  const chatModule = isEducation ? docType.replace("edu_", "") : null;
 
   return (
     <div className={styles.panel}>
@@ -110,6 +125,11 @@ export default function PromptPanel({
           rows={8}
           disabled={loading}
         />
+
+        {/* Material picker row */}
+        <div className={styles.materialRow}>
+          <MaterialPicker onPick={handleMaterialPick} />
+        </div>
 
         <div className={styles.actionRow}>
           <button
@@ -156,6 +176,9 @@ export default function PromptPanel({
           ))}
         </div>
       )}
+
+      {/* Education chat panel — shown for all edu_ tabs */}
+      {chatModule && <ChatPanel module={chatModule} />}
     </div>
   );
 }
