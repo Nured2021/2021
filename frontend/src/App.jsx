@@ -2,16 +2,16 @@ import { useRef, useState } from "react";
 import Sidebar from "./components/Sidebar";
 import PromptPanel from "./components/PromptPanel";
 import PreviewPanel from "./components/PreviewPanel";
-import { generateDocument } from "./api/documentApi";
+import { buildRequest } from "./api/buildApi";
 import { generateEducation, uploadMaterial } from "./api/educationApi";
 import "./App.css";
 
-// Map doc-hub format ids to backend doc_type strings
-const FORMAT_TO_DOC_TYPE = {
+// Map sidebar doc-format pills to the /api/build mode string
+const FORMAT_TO_BUILD_MODE = {
   doc:    "document",
   pdf:    "document",
   slides: "presentation",
-  excel:  "excel",
+  excel:  "spreadsheet",
 };
 
 function App() {
@@ -37,11 +37,13 @@ function App() {
     try {
       let data;
       if (isEducationTab) {
+        // Education modules keep their dedicated endpoint for richer edu-specific output
         const module = activeTab.replace("edu_", "");
         data = await generateEducation({ prompt, module });
       } else {
-        const docType = FORMAT_TO_DOC_TYPE[docFormat] || "document";
-        data = await generateDocument({ prompt, docType });
+        // All office/document requests go through the unified /api/build endpoint
+        const mode = FORMAT_TO_BUILD_MODE[docFormat] || "auto";
+        data = await buildRequest(prompt, mode);
       }
       setResult(data);
 
@@ -58,7 +60,7 @@ function App() {
           xlsx_url: data.xlsx_url || null,
           _result: data,
         },
-        ...prev.slice(0, 9), // keep last 10
+        ...prev.slice(0, 9),
       ]);
       setStatus("Done");
     } catch (err) {

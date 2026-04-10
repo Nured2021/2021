@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
@@ -94,6 +95,42 @@ class EducationGenerateResponse(BaseModel):
     sections: list[SectionOut]
     pdf_url: str
     docx_url: str
+
+
+# ---------------------------------------------------------------------------
+# Intent classifier for /api/build
+# ---------------------------------------------------------------------------
+
+_INTENT_MAP: dict[str, list[str]] = {
+    "presentation": [
+        "slide", "slides", "pitch deck", "presentation", "powerpoint", "keynote",
+    ],
+    "spreadsheet": [
+        "budget", "spreadsheet", "excel", "table", "tracker", "sheet", "financial model",
+        "invoice", "expense", "salary",
+    ],
+    "education": [
+        "course", "lesson", "quiz", "exam", "professor", "teacher", "student",
+        "study guide", "assignment", "syllabus", "lecture", "curriculum",
+    ],
+    "research": [
+        "summarize", "summarise", "research", "analyze", "analyse", "abstract",
+        "literature review", "paper review", "findings",
+    ],
+    "document": [
+        "letter", "proposal", "report", "resume", "cv", "contract", "policy",
+        "memo", "agreement", "business case", "document",
+    ],
+}
+
+
+def _classify_intent(prompt: str) -> str:
+    """Return the most likely intent label for *prompt* using keyword matching."""
+    text = prompt.lower()
+    for intent, keywords in _INTENT_MAP.items():
+        if any(kw in text for kw in keywords):
+            return intent
+    return "document"
 
 
 # ---------------------------------------------------------------------------
@@ -193,6 +230,93 @@ def download_file(filename: str) -> FileResponse:
     ext = Path(resolved).suffix.lower()
     media_type = _MIME.get(ext, "application/octet-stream")
     return FileResponse(resolved, media_type=media_type, filename=safe_name)
+
+
+# ---------------------------------------------------------------------------
+# Unified build endpoint — auto-routes to the correct engine
+# ---------------------------------------------------------------------------
+
+class BuildRequest(BaseModel):
+    prompt: str
+    mode: str = "auto"  # "auto" | "document" | "presentation" | "spreadsheet" | "education" | "research"
+
+
+@app.post("/api/build")
+def api_build(req: BuildRequest) -> dict:
+    """Single entry-point that classifies the prompt and delegates to the
+    correct generation engine, then returns a normalised response."""
+    if not req.prompt or not req.prompt.strip():
+        raise HTTPException(status_code=422, detail="Prompt must not be empty.")
+
+    intent: str = req.mode if req.mode != "auto" else _classify_intent(req.prompt)
+    timestamp = datetime.now(tz=timezone.utc).isoformat()
+
+    try:
+        if intent == "presentation":
+            raw = _controller.run(req.prompt, doc_type="slides")
+            type_str = "presentation"
+            engine = "presentation_ai"
+            module_str = None
+        elif intent == "spreadsheet":
+            raw = _controller.run(req.prompt, doc_type="excel")
+            type_str = "spreadsheet"
+            engine = "excel_ai"
+            module_str = None
+        elif intent in ("education", "research"):
+            edu_module = "professor" if intent == "education" else "student"
+            edu_result = _edu.generate(req.prompt, module=edu_module)
+            raw = dict(edu_result)
+            raw["pdf_path"]  = export_pdf(raw["title"], raw["sections"])
+            raw["docx_path"] = export_docx(raw["title"], raw["sections"])
+            type_str = intent
+            engine = f"education_{edu_module}_ai"
+            module_str = raw.get("module") or edu_module
+        else:
+            raw = _controller.run(req.prompt, doc_type="document")
+            type_str = "document"
+            engine = "document_ai"
+            module_str = None
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Build failed: {exc}") from exc
+
+    pdf_url  = _url(raw.get("pdf_path"))
+    docx_url = _url(raw.get("docx_path"))
+    pptx_url = _url(raw.get("pptx_path"))
+    xlsx_url = _url(raw.get("xlsx_path"))
+
+    # Persist to workspace history
+    save_workspace_item({
+        "prompt":   req.prompt,
+        "mode":     type_str,
+        "module":   module_str,
+        "title":    raw["title"],
+        "preview":  raw["body"][:300],
+        "pdf_url":  pdf_url,
+        "docx_url": docx_url,
+        "pptx_url": pptx_url,
+        "xlsx_url": xlsx_url,
+    })
+
+    return {
+        "success":  True,
+        "type":     type_str,
+        "title":    raw["title"],
+        "prompt":   req.prompt,
+        "body":     raw["body"],
+        "sections": raw["sections"],
+        "module":   module_str,
+        "pdf_url":  pdf_url,
+        "docx_url": docx_url,
+        "pptx_url": pptx_url,
+        "xlsx_url": xlsx_url,
+        "meta": {
+            "engine":    engine,
+            "intent":    intent,
+            "timestamp": timestamp,
+        },
+    }
 
 
 # ---------------------------------------------------------------------------
