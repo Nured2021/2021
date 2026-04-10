@@ -1,0 +1,16 @@
+[
+  {
+    "id": 2,
+    "filename": "test-material.txt",
+    "module": "student",
+    "extracted_text": "MACHINE LEARNING FUNDAMENTALS\n\nChapter 1: Supervised Learning\nSupervised learning involves training a model on labeled data.\nKey algorithms: Linear Regression, Logistic Regression, Decision Trees, Random Forests, SVM, Neural Networks.\n\nChapter 2: Unsupervised Learning\nUnsupervised learning finds patterns in unlabeled data.\nKey algorithms: K-Means Clustering, DBSCAN, PCA, Autoencoders.\n\nChapter 3: Model Evaluation\nMetrics: Accuracy, Precision, Recall, F1 Score, AUC-ROC.\nTechniques: Cross-validation, Train/Test split, Confusion Matrix.\n",
+    "timestamp": "2026-04-10T16:45:34.262255+00:00"
+  },
+  {
+    "id": 1,
+    "filename": "test-material.txt",
+    "module": "student",
+    "extracted_text": "MACHINE LEARNING FUNDAMENTALS\n\nChapter 1: Supervised Learning\nSupervised learning involves training a model on labeled data.\nKey algorithms: Linear Regression, Logistic Regression, Decision Trees, Random Forests, SVM, Neural Networks.\n\nChapter 2: Unsupervised Learning\nUnsupervised learning finds patterns in unlabeled data.\nKey algorithms: K-Means Clustering, DBSCAN, PCA, Autoencoders.\n\nChapter 3: Model Evaluation\nMetrics: Accuracy, Precision, Recall, F1 Score, AUC-ROC.\nTechniques: Cross-validation, Train/Test split, Confusion Matrix.\n",
+    "timestamp": "2026-04-10T16:44:34.695624+00:00"
+  }
+]

@@ -153,7 +153,7 @@ class EducationOrchestrator:
             "For now, please use the /education/generate endpoint to produce a full "
             "structured document based on your query."
         )
-        return {"module": module, "response": response}
+        return {"module": module, "reply": response}
 
     # ------------------------------------------------------------------
     # Private dispatch
