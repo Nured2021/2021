@@ -7,6 +7,7 @@ import AuthPage from "./pages/AuthPage";
 import ApiKeysPage from "./pages/ApiKeysPage";
 import Dashboard from "./pages/Dashboard";
 import PremiumDashboard from "./pages/PremiumDashboard";
+import NewDashboard from "./pages/NewDashboard";
 import ClassroomPage from "./pages/ClassroomPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { buildRequest, uploadFile } from "./api/buildApi";
@@ -61,6 +62,7 @@ function App() {
   const [showKeys, setShowKeys]   = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showPremiumDashboard, setShowPremiumDashboard] = useState(false);
+  const [showNewDashboard, setShowNewDashboard] = useState(true);
   const [showClassroom, setShowClassroom] = useState(false);
   const [activeTab, setActiveTab]     = useState("document");
   const [docFormat, setDocFormat]     = useState("doc");
@@ -249,6 +251,10 @@ function App() {
       setShowPremiumDashboard(true);
       return;
     }
+    if (tab === "new_dashboard") {
+      setShowNewDashboard(true);
+      return;
+    }
     if (tab === "classroom") {
       setShowClassroom(true);
       return;
@@ -273,6 +279,20 @@ function App() {
                           onActivateModule={(mod) => { setActiveTab(mod); setShowDashboard(false); }} />}
       {showPremiumDashboard && <PremiumDashboard onClose={() => setShowPremiumDashboard(false)}
                           onActivateModule={(mod) => { if (mod === 'classroom') { setShowClassroom(true); } else { setActiveTab(mod); } setShowPremiumDashboard(false); }} />}
+      {showNewDashboard && (
+        <NewDashboard
+          onClose={() => setShowNewDashboard(false)}
+          onActivateModule={(mod) => {
+            if (mod === 'classroom') { setShowClassroom(true); }
+            else { setActiveTab(mod); }
+            setShowNewDashboard(false);
+          }}
+          onGenerate={(wizardResult, mod) => {
+            setResult(wizardResult);
+            if (mod) setActiveTab(mod);
+          }}
+        />
+      )}
       {showClassroom && <ClassroomPage onClose={() => setShowClassroom(false)} />}
       <Sidebar
         active={activeTab}
