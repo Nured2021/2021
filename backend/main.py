@@ -262,7 +262,7 @@ def education_chat(req: EducationChatRequest) -> dict:
     add_chat_message(module, "user", req.message)
 
     try:
-        response = _edu.chat(req.message, module=req.module)
+        response = _edu.chat(req.message, module=module)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except Exception as exc:

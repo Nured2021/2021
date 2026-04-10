@@ -4,28 +4,33 @@ from __future__ import annotations
 
 import json
 import os
-import tempfile
 import threading
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
-_STORE_PATH = os.path.join(tempfile.gettempdir(), "uploaded_materials.json")
+# Allow override via environment variable; default to a data/ dir beside this file.
+_DEFAULT_DIR = Path(__file__).parent / "data"
+_DATA_DIR = Path(os.environ.get("EASY_AI_DATA_DIR", str(_DEFAULT_DIR)))
+_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+_STORE_PATH = _DATA_DIR / "uploaded_materials.json"
 _lock = threading.Lock()
 
 
 def _load() -> list[dict[str, Any]]:
-    if not os.path.isfile(_STORE_PATH):
+    if not _STORE_PATH.is_file():
         return []
     try:
-        with open(_STORE_PATH, "r", encoding="utf-8") as fh:
-            return json.load(fh)
+        return json.loads(_STORE_PATH.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return []
 
 
 def _save(items: list[dict[str, Any]]) -> None:
-    with open(_STORE_PATH, "w", encoding="utf-8") as fh:
-        json.dump(items, fh, ensure_ascii=False, indent=2)
+    _STORE_PATH.write_text(
+        json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
 
 def save_uploaded_material(

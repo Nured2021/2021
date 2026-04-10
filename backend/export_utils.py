@@ -170,9 +170,12 @@ def export_xlsx(title: str, sections: list[dict]) -> str:
                 ws.append([line])
         ws.append([])  # blank row between sections
 
-    # Auto-fit column width (approximate)
+    # Auto-fit column width (scan at most 200 rows to avoid O(n) on huge sheets)
     for col in ws.columns:
-        max_len = max((len(str(cell.value)) if cell.value else 0) for cell in col)
+        max_len = max(
+            (len(str(cell.value)) if cell.value else 0)
+            for cell in list(col)[:200]
+        )
         ws.column_dimensions[col[0].column_letter].width = min(max_len + 4, 100)
 
     wb.save(path)
