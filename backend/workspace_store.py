@@ -51,3 +51,8 @@ def list_workspace_items() -> list[dict[str, Any]]:
     """Return the full workspace history (newest first)."""
     with _lock:
         return _load()
+
+
+def clear_workspace() -> None:
+    """Delete all workspace history items."""
+    _save([])

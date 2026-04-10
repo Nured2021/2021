@@ -4,15 +4,20 @@ from __future__ import annotations
 
 import re
 
-from professor_ai import ProfessorAI
-from teacher_ai import TeacherAI
-from exam_ai import ExamAI
-from simulation_ai import SimulationAI
-from court_ai import CourtAI
-from student_ai import StudentAI
-from admin_ai import AdminAI
-from multilingual_ai import MultilingualAI
-from integrity_ai import IntegrityAI
+from professor_ai      import ProfessorAI
+from teacher_ai        import TeacherAI
+from exam_ai           import ExamAI
+from simulation_ai     import SimulationAI
+from court_ai          import CourtAI
+from student_ai        import StudentAI
+from admin_ai          import AdminAI
+from multilingual_ai   import MultilingualAI
+from integrity_ai      import IntegrityAI
+from business_ai       import BusinessAI
+from research_ai       import ResearchAI
+from analytics_ai      import AnalyticsAI
+from content_ai        import ContentAI
+from course_builder_ai import CourseBuilderAI
 
 # ---------------------------------------------------------------------------
 # Keyword routing tables
@@ -66,13 +71,37 @@ _MULTILINGUAL_KEYWORDS = {
     "localize", "bilingual",
 }
 
-_INTEGRITY_KEYWORDS = {
-    "plagiarism", "originality", "integrity", "academic honesty",
-    "ai detection", "similarity", "citation", "reference", "misconduct",
-    "turnitin", "ithenticate",
+_BUSINESS_KEYWORDS = {
+    "business plan", "business", "startup", "pitch deck", "investor", "swot",
+    "market analysis", "marketing strategy", "financial model", "revenue",
+    "competitive analysis", "pestle", "go-to-market", "brand", "entrepreneur",
 }
 
-# Module labels returned to the client for display purposes
+_RESEARCH_KEYWORDS = {
+    "literature review", "research paper", "methodology", "hypothesis", "abstract",
+    "research proposal", "qualitative", "quantitative", "empirical", "finding",
+    "research question", "academic paper",
+}
+
+_ANALYTICS_KEYWORDS = {
+    "analytics", "data analysis", "kpi", "metrics", "dashboard", "insights",
+    "trend analysis", "forecast", "correlation", "statistical", "performance report",
+    "data insights",
+}
+
+_CONTENT_KEYWORDS = {
+    "blog", "blog post", "article", "social media", "linkedin", "twitter",
+    "instagram", "email campaign", "newsletter", "copywriting", "ad copy",
+    "press release", "seo", "caption", "content strategy",
+}
+
+_COURSE_KEYWORDS = {
+    "course outline", "curriculum", "syllabus", "module outline", "learning objectives",
+    "course builder", "lesson sequence", "bootcamp", "training programme",
+    "assessment plan", "reading list", "e-learning",
+}
+
+
 MODULE_INFO = [
     {"id": "professor",   "label": "Senior Professor", "icon": "🎓",
      "description": "Syllabi, research papers, academic explanations, high-level exams"},
@@ -92,6 +121,16 @@ MODULE_INFO = [
      "description": "Translation, localisation, multilingual content"},
     {"id": "integrity",   "label": "Integrity",        "icon": "🛡️",
      "description": "Originality checks, AI misuse detection, honesty guidance"},
+    {"id": "business",    "label": "Business AI",      "icon": "💼",
+     "description": "Business plans, pitch decks, SWOT, marketing strategy, financial models"},
+    {"id": "research",    "label": "Research AI",      "icon": "🔬",
+     "description": "Literature reviews, research papers, methodology, abstracts"},
+    {"id": "analytics",   "label": "Analytics AI",     "icon": "📊",
+     "description": "Data insights, KPI dashboards, trend analysis, forecasts"},
+    {"id": "content",     "label": "Content AI",       "icon": "✍️",
+     "description": "Blog posts, social media, email campaigns, press releases"},
+    {"id": "course",      "label": "Course Builder AI","icon": "🏫",
+     "description": "Full course outlines, syllabi, assessment plans, reading lists"},
 ]
 
 
@@ -99,15 +138,20 @@ class EducationOrchestrator:
     """Routes education prompts to the appropriate AI module."""
 
     def __init__(self) -> None:
-        self._professor = ProfessorAI()
-        self._teacher = TeacherAI()
-        self._exam = ExamAI()
+        self._professor  = ProfessorAI()
+        self._teacher    = TeacherAI()
+        self._exam       = ExamAI()
         self._simulation = SimulationAI()
-        self._court = CourtAI()
-        self._student = StudentAI()
-        self._admin = AdminAI()
+        self._court      = CourtAI()
+        self._student    = StudentAI()
+        self._admin      = AdminAI()
         self._multilingual = MultilingualAI()
-        self._integrity = IntegrityAI()
+        self._integrity  = IntegrityAI()
+        self._business   = BusinessAI()
+        self._research   = ResearchAI()
+        self._analytics  = AnalyticsAI()
+        self._content    = ContentAI()
+        self._course     = CourseBuilderAI()
 
     # ------------------------------------------------------------------
     # Public API
@@ -128,6 +172,11 @@ class EducationOrchestrator:
             "admin":        _score(lower, _ADMIN_KEYWORDS),
             "multilingual": _score(lower, _MULTILINGUAL_KEYWORDS),
             "integrity":    _score(lower, _INTEGRITY_KEYWORDS),
+            "business":     _score(lower, _BUSINESS_KEYWORDS),
+            "research":     _score(lower, _RESEARCH_KEYWORDS),
+            "analytics":    _score(lower, _ANALYTICS_KEYWORDS),
+            "content":      _score(lower, _CONTENT_KEYWORDS),
+            "course":       _score(lower, _COURSE_KEYWORDS),
         }
 
         best = max(scores, key=lambda k: scores[k])
@@ -170,6 +219,11 @@ class EducationOrchestrator:
             "admin":        lambda p: self._admin.generate(p),
             "multilingual": lambda p: self._multilingual.generate(p),
             "integrity":    lambda p: self._integrity.generate(p),
+            "business":     lambda p: self._business.generate(p),
+            "research":     lambda p: self._research.generate(p),
+            "analytics":    lambda p: self._analytics.generate(p),
+            "content":      lambda p: self._content.generate(p),
+            "course":       lambda p: self._course.generate(p),
         }
         handler = dispatch_map.get(module)
         if handler is None:

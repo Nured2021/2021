@@ -2,6 +2,10 @@ import { downloadUrl } from "../api/documentApi";
 import styles from "./PreviewPanel.module.css";
 
 const MODULE_LABELS = {
+  document:     "📄 Documents AI",
+  slides:       "📽️ Slides AI",
+  excel:        "📊 Excel AI",
+  upload:       "📁 Upload AI",
   professor:    "🎓 Senior Professor AI",
   teacher:      "📚 Teacher AI",
   exam:         "📝 Exam Prep AI",
@@ -9,47 +13,38 @@ const MODULE_LABELS = {
   court:        "⚖️ Court AI",
   student:      "🙋 Student Assistant AI",
   admin:        "🗂️ Admin AI",
-  multilingual: "🌐 Multilingual AI",
+  multilingual: "🌐 Languages AI",
   integrity:    "🛡️ Integrity AI",
+  business:     "🏢 Business AI",
+  research:     "🔬 Research AI",
+  analytics:    "📈 Analytics AI",
+  content:      "✍️ Content AI",
+  course:       "🏫 Course Builder AI",
 };
 
 const FORMAT_ICONS = {
-  doc:    "📄",
-  pdf:    "📑",
-  slides: "📽️",
-  excel:  "📊",
-  edu:    "🎓",
+  doc: "📄", pdf: "📑", slides: "📽️", excel: "📊",
+  edu: "🎓", business: "🏢", research: "🔬",
+  analytics: "📈", content: "✍️", course: "🏫", upload: "📁",
+  multilingual: "🌐",
 };
 
-// Render a section's content with simple heading detection
 function StructuredContent({ content }) {
   if (!content) return null;
-  const lines = content.split("\n");
   return (
     <div className={styles.structuredContent}>
-      {lines.map((line, i) => {
-        const trimmed = line.trim();
-        if (!trimmed) return <div key={i} className={styles.spacer} />;
-        // Detect markdown-style headings or ALL-CAPS short lines as sub-headings
-        if (/^#{1,3}\s/.test(trimmed)) {
-          return (
-            <p key={i} className={styles.subHeading}>
-              {trimmed.replace(/^#{1,3}\s/, "")}
-            </p>
-          );
-        }
-        if (trimmed.length < 60 && trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed)) {
-          return <p key={i} className={styles.subHeading}>{trimmed}</p>;
-        }
-        // Bullet lines
-        if (/^[-•*]\s/.test(trimmed)) {
-          return (
-            <p key={i} className={styles.bullet}>
-              {trimmed.replace(/^[-•*]\s/, "• ")}
-            </p>
-          );
-        }
-        return <p key={i} className={styles.line}>{trimmed}</p>;
+      {content.split("\n").map((line, i) => {
+        const t = line.trim();
+        if (!t) return <div key={i} className={styles.spacer} />;
+        if (/^#{1,3}\s/.test(t))
+          return <p key={i} className={styles.subHeading}>{t.replace(/^#{1,3}\s/, "")}</p>;
+        if (t.length < 65 && t === t.toUpperCase() && /[A-Z]/.test(t))
+          return <p key={i} className={styles.subHeading}>{t}</p>;
+        if (/^[-•*✅❌⚠□✓✗△]\s/.test(t))
+          return <p key={i} className={styles.bullet}>{t.replace(/^[-•*✅❌⚠□✓✗△]\s/, "• ")}</p>;
+        if (t.includes("|"))
+          return <p key={i} className={styles.tableRow}>{t}</p>;
+        return <p key={i} className={styles.line}>{t}</p>;
       })}
     </div>
   );
@@ -58,68 +53,43 @@ function StructuredContent({ content }) {
 function WorkspaceItem({ item, onLoad }) {
   return (
     <div className={styles.wsItem}>
-      <button
-        className={styles.wsLoadBtn}
-        onClick={() => onLoad(item)}
-        title="Load this item"
-      >
+      <button className={styles.wsLoadBtn} onClick={() => onLoad(item)} title="Load this item">
         <span className={styles.wsIcon}>{FORMAT_ICONS[item.format] || "📄"}</span>
         <span className={styles.wsName}>{item.name}</span>
       </button>
       <div className={styles.wsActions}>
-        {item.pdf_url && (
-          <a
-            href={downloadUrl(item.pdf_url)}
-            download
-            className={`${styles.wsBtn} ${styles.pdf}`}
-            title="Download PDF"
-          >
-            PDF
-          </a>
-        )}
-        {item.docx_url && (
-          <a
-            href={downloadUrl(item.docx_url)}
-            download
-            className={`${styles.wsBtn} ${styles.docx}`}
-            title="Download Word"
-          >
-            .docx
-          </a>
-        )}
-        {item.pptx_url && (
-          <a
-            href={downloadUrl(item.pptx_url)}
-            download
-            className={`${styles.wsBtn} ${styles.pptx}`}
-            title="Download Slides"
-          >
-            .pptx
-          </a>
-        )}
-        {item.xlsx_url && (
-          <a
-            href={downloadUrl(item.xlsx_url)}
-            download
-            className={`${styles.wsBtn} ${styles.xlsx}`}
-            title="Download Spreadsheet"
-          >
-            .xlsx
-          </a>
-        )}
+        {item.pdf_url  && <a href={downloadUrl(item.pdf_url)}  download className={`${styles.wsBtn} ${styles.pdf}`}>PDF</a>}
+        {item.docx_url && <a href={downloadUrl(item.docx_url)} download className={`${styles.wsBtn} ${styles.docx}`}>.docx</a>}
+        {item.pptx_url && <a href={downloadUrl(item.pptx_url)} download className={`${styles.wsBtn} ${styles.pptx}`}>.pptx</a>}
+        {item.xlsx_url && <a href={downloadUrl(item.xlsx_url)} download className={`${styles.wsBtn} ${styles.xlsx}`}>.xlsx</a>}
       </div>
     </div>
   );
 }
 
-export default function PreviewPanel({ result, error, loading, workspaceFiles, onLoadWorkspaceItem }) {
+function WorkspaceSection({ files, onLoad }) {
+  return (
+    <div className={styles.workspace}>
+      <p className={styles.wsTitle}>🗂️ Workspace History ({files.length})</p>
+      {files.map((item) => (
+        <WorkspaceItem key={item.id} item={item} onLoad={onLoad} />
+      ))}
+    </div>
+  );
+}
+
+export default function PreviewPanel({
+  result, error, loading, workspaceFiles, onLoadWorkspaceItem,
+  onGenerateSlides, onGenerateExcel, currentPrompt,
+}) {
   const hasWorkspace = workspaceFiles && workspaceFiles.length > 0;
 
   if (loading) {
     return (
       <div className={`${styles.panel} ${styles.center}`}>
         <div className={styles.pulse}>✦</div>
-        <p className={styles.loadingText}>Generating your document…</p>
+        <p className={styles.loadingText}>AI is working on your request…</p>
+        <p className={styles.loadingHint}>Generating real content, formulas, and files</p>
       </div>
     );
   }
@@ -137,8 +107,10 @@ export default function PreviewPanel({ result, error, loading, workspaceFiles, o
     return (
       <div className={styles.panel}>
         <div className={styles.emptyState}>
-          <p className={styles.placeholder}>
-            Your document preview will appear here.
+          <div className={styles.emptyIcon}>✦</div>
+          <p className={styles.placeholder}>Your AI-generated content will appear here.</p>
+          <p className={styles.emptyHint}>
+            Choose a tool from the sidebar, type your request, and click Generate.
           </p>
         </div>
         {hasWorkspace && <WorkspaceSection files={workspaceFiles} onLoad={onLoadWorkspaceItem} />}
@@ -150,14 +122,14 @@ export default function PreviewPanel({ result, error, loading, workspaceFiles, o
   const docxHref = result.docx_url ? downloadUrl(result.docx_url) : null;
   const pptxHref = result.pptx_url ? downloadUrl(result.pptx_url) : null;
   const xlsxHref = result.xlsx_url ? downloadUrl(result.xlsx_url) : null;
-  const moduleLabel = result.module ? MODULE_LABELS[result.module] : null;
+  const moduleLabel = result.module_name || (result.module ? MODULE_LABELS[result.module] : null);
+  const showSlides = !pptxHref && result.module !== "slides" && onGenerateSlides;
+  const showExcel  = !xlsxHref && result.module !== "excel"  && onGenerateExcel;
 
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        {moduleLabel && (
-          <span className={styles.moduleBadge}>{moduleLabel}</span>
-        )}
+        {moduleLabel && <span className={styles.moduleBadge}>{moduleLabel}</span>}
         <h3 className={styles.docTitle}>{result.title}</h3>
         <div className={styles.actions}>
           {pdfHref  && <a href={pdfHref}  download className={`${styles.btn} ${styles.pdf}`}>⬇ PDF</a>}
@@ -165,10 +137,33 @@ export default function PreviewPanel({ result, error, loading, workspaceFiles, o
           {pptxHref && <a href={pptxHref} download className={`${styles.btn} ${styles.pptx}`}>⬇ Slides</a>}
           {xlsxHref && <a href={xlsxHref} download className={`${styles.btn} ${styles.xlsx}`}>⬇ Excel</a>}
         </div>
+        {(showSlides || showExcel) && (
+          <div className={styles.workflowRow}>
+            <span className={styles.workflowLabel}>Convert to:</span>
+            {showSlides && (
+              <button
+                className={`${styles.workflowBtn} ${styles.pptxWf}`}
+                onClick={() => onGenerateSlides(currentPrompt || result.title)}
+                title="Turn this into a slide presentation"
+              >
+                📽️ Slides
+              </button>
+            )}
+            {showExcel && (
+              <button
+                className={`${styles.workflowBtn} ${styles.xlsxWf}`}
+                onClick={() => onGenerateExcel(currentPrompt || result.title)}
+                title="Extract data into a spreadsheet"
+              >
+                📊 Excel
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className={styles.content}>
-        {result.sections.map((sec, i) => (
+        {result.sections && result.sections.map((sec, i) => (
           <div key={i} className={styles.section}>
             <h4 className={styles.sectionHeading}>{sec.heading}</h4>
             <StructuredContent content={sec.content} />
@@ -177,17 +172,6 @@ export default function PreviewPanel({ result, error, loading, workspaceFiles, o
       </div>
 
       {hasWorkspace && <WorkspaceSection files={workspaceFiles} onLoad={onLoadWorkspaceItem} />}
-    </div>
-  );
-}
-
-function WorkspaceSection({ files, onLoad }) {
-  return (
-    <div className={styles.workspace}>
-      <p className={styles.wsTitle}>🗂️ Workspace</p>
-      {files.map((item) => (
-        <WorkspaceItem key={item.id} item={item} onLoad={onLoad} />
-      ))}
     </div>
   );
 }

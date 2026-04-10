@@ -2,76 +2,111 @@
 
 from __future__ import annotations
 
+from prompt_parser import extract_topic, extract_keywords, detect_domain
+
 
 class IntegrityAI:
-    """Generates academic integrity reports and guidance documents."""
+    """Generates academic integrity reports, originality guides, and ethics checks."""
 
     def generate(self, prompt: str) -> dict:
-        title = f"Academic Integrity Review: {prompt[:58]}"
+        topic = extract_topic(prompt)
+        domain = detect_domain(prompt)
+        keywords = extract_keywords(prompt, max_kw=5)
+        kw_str = ", ".join(keywords) if keywords else topic.lower()
+        lower = prompt.lower()
+
+        is_rewrite   = any(w in lower for w in ["rewrite", "paraphrase", "rephrase", "improve"])
+        is_citation  = any(w in lower for w in ["citation", "reference", "cite", "bibliography"])
+        is_ai_check  = any(w in lower for w in ["ai detection", "ai-generated", "chatgpt", "generated"])
+
+        title = f"Integrity Review: {topic}"
         sections = [
             {
-                "heading": "Review Request",
+                "heading": "Review Summary",
                 "content": (
-                    f"Submission / topic under review: {prompt}\n\n"
-                    "This report provides guidance on academic integrity principles "
-                    "and flags areas that may require attention before final submission. "
-                    "It does not replace a formal institutional plagiarism check."
+                    f"Submission reviewed: {topic}\n"
+                    f"Subject domain: {domain.title()}\n"
+                    f"Key areas: {kw_str}\n\n"
+                    f"This integrity review assesses your submission for {topic.lower()} against "
+                    f"academic honesty standards. It covers originality, citation practices, "
+                    f"AI-content indicators, and ethical compliance. This report is for "
+                    f"guidance only and does not replace an institutional plagiarism check."
                 ),
             },
             {
-                "heading": "Originality Check Guidance",
+                "heading": "Originality Checklist",
                 "content": (
-                    "Checklist for originality:\n"
-                    "□ All direct quotations are enclosed in quotation marks and cited.\n"
-                    "□ Paraphrased ideas are attributed to the original source.\n"
-                    "□ All sources appear in the reference list.\n"
-                    "□ The work reflects the student's own analysis and conclusions.\n"
-                    "□ No sections have been copied from previous submissions "
-                    "(self-plagiarism).\n\n"
-                    "Recommendation: Run the submission through your institution's "
-                    "approved similarity-detection tool (e.g. Turnitin, iThenticate) "
-                    "before submitting."
+                    f"Originality Review for {topic}:\n\n"
+                    f"  □ All direct quotations from sources on {kw_str} are in quotation marks\n"
+                    f"  □ Every quote is followed by an in-text citation (Author, Year, p. X)\n"
+                    f"  □ Paraphrased ideas are rewritten in your own words AND cited\n"
+                    f"  □ No text has been copied verbatim without quotation marks\n"
+                    f"  □ The reference list at the end matches every in-text citation\n"
+                    f"  □ You have not recycled sections from previous submissions (self-plagiarism)\n"
+                    f"  □ Data, statistics, and diagrams are attributed to their source\n"
+                    f"  □ Common knowledge about {topic.lower()} does not require citation, "
+                    f"    but specific claims and theories do\n\n"
+                    f"Score your checklist: ___/8 boxes ticked\n"
+                    f"  8/8 = Ready to submit  |  6–7/8 = Minor revision  |  <6/8 = Review required"
                 ),
             },
             {
-                "heading": "AI Misuse Detection Warnings",
+                "heading": "AI-Generated Content Indicators",
                 "content": (
-                    "Potential indicators of undisclosed AI-generated content:\n"
-                    "• Unusually uniform sentence length and structure throughout.\n"
-                    "• Generic, non-specific examples that lack personal or contextual "
-                    "detail.\n"
-                    "• Absence of the student's documented voice or analytical style.\n"
-                    "• Content that does not align with class discussions or lecture notes.\n\n"
-                    "Policy reminder: Students must disclose any use of AI tools in "
-                    "accordance with institutional policy. Undisclosed use may constitute "
-                    "academic misconduct."
+                    f"Scan results for potential AI-generated content in {topic}:\n\n"
+                    f"Indicators to review:\n"
+                    f"  ⚠ Overly uniform sentence length and structure throughout the document\n"
+                    f"  ⚠ Very general or non-specific examples that lack personal or contextual detail\n"
+                    f"  ⚠ Absence of your documented voice, analytical style, or course-specific examples\n"
+                    f"  ⚠ Content that does not reference class discussions, lectures, or assigned readings\n"
+                    f"  ⚠ Perfect grammar and zero stylistic variation (unusual for human writing)\n"
+                    f"  ⚠ Phrases like 'As an AI language model...' or similar disclosures\n\n"
+                    f"Policy reminder for {domain.title()} assignments:\n"
+                    f"  Undisclosed use of AI tools to generate or substantially complete academic work "
+                    f"  may constitute academic misconduct. Check your institution's AI use policy. "
+                    f"  If you used AI tools for {topic.lower()}, disclose this clearly in your submission "
+                    f"  in accordance with your course guidelines."
                 ),
             },
             {
-                "heading": "Academic Honesty Guidance",
+                "heading": "Citation & Reference Guidance",
                 "content": (
-                    "Core principles of academic integrity:\n\n"
-                    "1. Honesty – represent your own work accurately.\n"
-                    "2. Trust – build a trustworthy academic record.\n"
-                    "3. Fairness – respect the effort of other students.\n"
-                    "4. Respect – acknowledge the contributions of scholars and authors.\n"
-                    "5. Responsibility – take ownership of your academic conduct.\n\n"
-                    "If you are uncertain whether a practice is acceptable:\n"
-                    "• Consult your course handbook or assessment brief.\n"
-                    "• Speak with your instructor or academic integrity officer.\n"
-                    "• Use your institution's academic integrity resources."
+                    f"Citation guide for {topic} (select your required style):\n\n"
+                    f"APA (7th Edition):\n"
+                    f"  In-text: (Author, Year) or (Author, Year, p. X) for direct quotes\n"
+                    f"  Reference list: Author, A. A. (Year). Title of work. Publisher.\n"
+                    f"  Example: Smith, J. (2022). {topic}: Principles and practice. Oxford Press.\n\n"
+                    f"Harvard:\n"
+                    f"  In-text: (Smith, 2022) or (Smith, 2022: 45) for page numbers\n"
+                    f"  Reference: Smith, J. (2022) {topic}: Principles and practice. Oxford: Oxford Press.\n\n"
+                    f"OSCOLA (Legal):\n"
+                    f"  Case: Party A v Party B [Year] Court Reference\n"
+                    f"  Statute: Name of Act Year, s X\n"
+                    f"  Article: Author, 'Title' (Year) Volume Journal StartPage\n\n"
+                    f"For {kw_str}: Ensure all sources related to these concepts are cited using "
+                    f"the style required by your institution. Consistency is mandatory."
                 ),
             },
             {
-                "heading": "Summary & Next Steps",
+                "heading": "Ethical Compliance & Recommendations",
                 "content": (
-                    "Overall assessment: [Pending full review]\n\n"
-                    "Recommended actions before submission:\n"
-                    "1. Complete the originality checklist above.\n"
-                    "2. Run through an approved similarity-detection platform.\n"
-                    "3. Review and update your citation and reference list.\n"
-                    "4. If AI tools were used, add the required disclosure statement.\n"
-                    "5. Seek feedback from your instructor if any items remain unclear."
+                    f"Ethical standards check for {topic}:\n\n"
+                    f"Academic honesty principles applied:\n"
+                    f"  1. Honesty: Does the work accurately represent your own understanding "
+                    f"     of {topic.lower()}?\n"
+                    f"  2. Fairness: Have you given proper credit to all scholars whose ideas "
+                    f"     on {kw_str} appear in your work?\n"
+                    f"  3. Responsibility: Have you complied with all assessment guidelines?\n"
+                    f"  4. Integrity: Is there any section that might be misrepresented as your "
+                    f"     own work when it is not?\n\n"
+                    f"Recommended actions before submitting {topic}:\n"
+                    f"  1. Complete the originality checklist above and address any unchecked items\n"
+                    f"  2. Run through your institution's approved similarity tool (Turnitin / iThenticate)\n"
+                    f"  3. Review and update your reference list for completeness\n"
+                    f"  4. Add an AI disclosure statement if applicable\n"
+                    f"  5. Book a meeting with your instructor if any items are unclear\n\n"
+                    f"If your similarity score is >15%: Review flagged sections and paraphrase / cite properly.\n"
+                    f"If your similarity score is >30%: Major revision required before submission."
                 ),
             },
         ]

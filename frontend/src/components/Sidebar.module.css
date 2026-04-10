@@ -121,3 +121,20 @@
   color: #7db3ff;
   border-color: #3b82f6;
 }
+
+/* ── Collapsible section buttons ── */
+.sectionBtn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  color: inherit;
+}
+.chevron {
+  font-size: 0.85rem;
+  opacity: 0.6;
+}
