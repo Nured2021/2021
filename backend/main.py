@@ -9,7 +9,7 @@ import secrets
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, status
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -27,6 +27,10 @@ from upload_ai          import UploadAI
 from citation_ai        import CitationAI
 from search_ai          import get_search_engine
 from workflow_ai        import run_workflow, WORKFLOWS
+from collaboration      import manager as ws_manager
+from integrations.google_drive import GoogleDriveIntegration
+from integrations.slack         import SlackIntegration
+from integrations.zoom          import ZoomIntegration
 from database           import (
     get_db, create_user, get_user_by_email, save_document, list_documents,
     search_documents, create_api_key, get_api_key_owner, check_rate_limit,
@@ -874,6 +878,131 @@ def role_dashboard(user: User = Depends(get_current_user), db: Session = Depends
             "plan": user.plan,
         }
     }
+
+
+# ── REAL-TIME COLLABORATION (WebSockets) ───────────────────────────────────
+
+@app.websocket("/ws/{document_id}")
+async def websocket_endpoint(websocket: WebSocket, document_id: str,
+                              user_id: str = "anonymous",
+                              user_name: str = "Anonymous"):
+    """WebSocket endpoint for real-time collaborative document editing."""
+    await ws_manager.connect(websocket, document_id, user_id, user_name)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            msg_type = data.get("type")
+            if msg_type == "edit":
+                await ws_manager.handle_edit(
+                    document_id, user_id,
+                    content=data.get("content", ""),
+                    cursor=data.get("cursor"),
+                    sender=websocket,
+                )
+            elif msg_type == "cursor":
+                await ws_manager.handle_cursor(
+                    document_id, user_id,
+                    position=data.get("position", 0),
+                    sender=websocket,
+                )
+    except WebSocketDisconnect:
+        await ws_manager.disconnect(websocket, document_id, user_id)
+    except Exception:
+        await ws_manager.disconnect(websocket, document_id, user_id)
+
+
+@app.get("/api/collab/{document_id}/users")
+def collab_active_users(document_id: str) -> dict:
+    """Return the list of users currently editing a document."""
+    return {
+        "document_id": document_id,
+        "active_users": ws_manager._active_users(document_id),
+        "user_count":   ws_manager.active_user_count(document_id),
+    }
+
+
+# ── EXTERNAL INTEGRATIONS ──────────────────────────────────────────────────
+
+class GoogleDriveUploadRequest(BaseModel):
+    access_token: str
+    file_url:     str        # relative /download/<filename> URL
+    filename:     str
+    folder_id:    str = ""
+
+
+@app.post("/api/integrations/google-drive/upload")
+def upload_to_drive(req: GoogleDriveUploadRequest,
+                    current_user: User = Depends(get_current_user)) -> dict:
+    """Upload a generated file to the authenticated user's Google Drive."""
+    # Resolve the local file path from the download URL
+    fname = req.file_url.split("/download/")[-1]
+    import tempfile, glob as _glob
+    candidates = _glob.glob(os.path.join(tempfile.gettempdir(), "**", fname), recursive=True)
+    if not candidates:
+        raise HTTPException(status_code=404, detail=f"File '{fname}' not found on server.")
+    local_path = candidates[0]
+
+    try:
+        drive = GoogleDriveIntegration(req.access_token)
+        url   = drive.upload_file(local_path, req.filename or fname,
+                                  folder_id=req.folder_id or None)
+        return {"success": True, "drive_url": url}
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Google Drive upload failed: {e}")
+
+
+class SlackNotifyRequest(BaseModel):
+    webhook_url:    str
+    message:        str
+    document_title: str = ""
+    document_url:   str = ""
+
+
+@app.post("/api/integrations/slack/notify")
+def slack_notify(req: SlackNotifyRequest,
+                 current_user: User = Depends(get_current_user)) -> dict:
+    """Send a Slack notification via an Incoming Webhook."""
+    try:
+        slack = SlackIntegration(req.webhook_url)
+        ok    = slack.send_notification(
+            req.message,
+            document_url=req.document_url or None,
+            document_title=req.document_title or None,
+        )
+        return {"success": ok}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Slack notification failed: {e}")
+
+
+class ZoomMeetingRequest(BaseModel):
+    access_token: str
+    topic:        str
+    start_time:   str   # ISO-8601, e.g. "2024-12-01T14:00:00Z"
+    duration:     int   = 60
+    agenda:       str   = ""
+
+
+@app.post("/api/integrations/zoom/schedule")
+def schedule_zoom_meeting(req: ZoomMeetingRequest,
+                          current_user: User = Depends(get_current_user)) -> dict:
+    """Schedule a Zoom meeting and return the join URL."""
+    try:
+        zoom    = ZoomIntegration(req.access_token)
+        meeting = zoom.create_meeting(req.topic, req.start_time,
+                                      duration=req.duration, agenda=req.agenda)
+        return {
+            "success":    True,
+            "meeting_id": meeting.get("id"),
+            "join_url":   meeting.get("join_url"),
+            "start_url":  meeting.get("start_url"),
+            "topic":      meeting.get("topic"),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Zoom scheduling failed: {e}")
 
 
 # ── SPA CATCH-ALL ─────────────────────────────────────────────────────────
