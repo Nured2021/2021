@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./PromptPanel.module.css";
 import ChatPanel from "./ChatPanel";
 import MaterialPicker from "./MaterialPicker";
+import GenerationWizard from "./GenerationWizard";
 
 /* ── Module metadata ──────────────────────────────────────────────── */
 
@@ -138,9 +139,11 @@ export default function PromptPanel({
   uploadedFileName,
   externalPrompt,
   onPromptConsumed,
+  authHeader,
 }) {
   const [prompt, setPrompt]             = useState("");
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showWizard, setShowWizard]     = useState(false);
 
   const { listening, startListening, stopListening } = useVoiceInput((text) =>
     setPrompt((prev) => (prev ? prev + " " + text : text))
@@ -262,6 +265,16 @@ export default function PromptPanel({
 
           <button
             type="button"
+            className={`${styles.button} ${styles.wizardBtn}`}
+            disabled={loading || !prompt.trim()}
+            onClick={() => setShowWizard(true)}
+            title="Open 5-step Generation Wizard with style, tone &amp; outline"
+          >
+            ✨ Wizard
+          </button>
+
+          <button
+            type="button"
             className={`${styles.button} ${styles.outlineBtn}`}
             disabled={loading || !prompt.trim()}
             onClick={handleTranslate}
@@ -287,6 +300,21 @@ export default function PromptPanel({
           <p className={styles.statusText}>{status}</p>
         )}
       </form>
+
+      {/* Generation Wizard modal */}
+      {showWizard && (
+        <GenerationWizard
+          prompt={prompt}
+          module={docType}
+          authHeader={authHeader}
+          onClose={() => setShowWizard(false)}
+          onGenerate={(result) => {
+            setShowWizard(false);
+            // Pass the wizard result to the parent just like a normal generate
+            onGenerate(prompt, result);
+          }}
+        />
+      )}
 
       {/* Education chat panel */}
       {chatModule && <ChatPanel module={chatModule} />}

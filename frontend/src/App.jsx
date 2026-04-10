@@ -56,6 +56,7 @@ const STATUS_SEQ = {
 
 function App() {
   const { user, logout } = useAuth();
+  const { authHeader } = useAuth();
   const [showAuth, setShowAuth]   = useState(false);
   const [showKeys, setShowKeys]   = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
@@ -298,6 +299,7 @@ function App() {
           uploadedFileName={uploadedFileName}
           externalPrompt={pendingPrompt}
           onPromptConsumed={() => setPendingPrompt(null)}
+          authHeader={authHeader}
         />
       </main>
       <PreviewPanel

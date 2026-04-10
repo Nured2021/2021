@@ -18,6 +18,9 @@ from sqlalchemy.orm import Session
 
 from main_ai    import MainAI, detect_module, _MODULE_NAMES
 from education_orchestrator import EducationOrchestrator, MODULE_INFO
+from humanloop.intent_analyzer  import IntentAnalyzer
+from humanloop.outline_generator import OutlineGenerator
+from humanloop.style_applier    import StyleApplier
 from export_utils       import export_pdf, export_docx
 from advanced_export    import export_html, export_markdown, export_txt, export_json, export_zip
 from workspace_store    import save_workspace_item, list_workspace_items
@@ -67,6 +70,9 @@ app.add_middleware(
 _brain    = MainAI()
 _edu      = EducationOrchestrator()
 _upload   = UploadAI()
+_intent_analyzer  = IntentAnalyzer()
+_outline_gen      = OutlineGenerator()
+_style_applier    = StyleApplier()
 _citation = CitationAI()
 _search   = get_search_engine()
 
@@ -946,7 +952,109 @@ def premium_dashboard(user: User = Depends(get_current_user), db: Session = Depe
     }
 
 
-# ── REAL-TIME COLLABORATION (WebSockets) ───────────────────────────────────
+# ── HUMANLOOP – ADVANCED GENERATION BRAIN ─────────────────────────────────
+
+class HumanloopAnalyzeRequest(BaseModel):
+    prompt: str
+
+class HumanloopOutlineRequest(BaseModel):
+    doc_type:      str
+    custom_topics: list[str] = []
+
+class HumanloopGenerateRequest(BaseModel):
+    prompt:   str
+    style:    str = "professional"
+    tone:     str = "formal"
+    outline:  list[dict] = []
+    module:   str = ""
+
+@app.post("/api/humanloop/analyze")
+def humanloop_analyze(req: HumanloopAnalyzeRequest) -> dict:
+    """Step 1 – deep-analyze the user's prompt."""
+    a = _intent_analyzer.analyze(req.prompt)
+    return {
+        "document_type":    a.document_type,
+        "industry":         a.industry,
+        "target_audience":  a.target_audience,
+        "estimated_length": a.estimated_length,
+        "complexity":       a.complexity,
+        "key_topics":       a.key_topics,
+        "suggested_style":  a.suggested_style.value,
+        "suggested_format": a.suggested_format.value,
+        "suggested_tone":   a.suggested_tone.value,
+        "confidence":       a.confidence,
+    }
+
+@app.post("/api/humanloop/outline")
+def humanloop_outline(req: HumanloopOutlineRequest) -> dict:
+    """Step 3 – generate an editable document outline."""
+    sections = _outline_gen.generate_outline(req.doc_type, req.custom_topics)
+    return {
+        "outline": [
+            {"title": s.title, "description": s.description, "selected": True}
+            for s in sections
+        ]
+    }
+
+@app.post("/api/humanloop/generate")
+def humanloop_generate(
+    req: HumanloopGenerateRequest,
+    db: Session = Depends(get_db),
+    user: "User | None" = Depends(get_current_user_optional),
+) -> dict:
+    """Step 4 – generate with style, tone, and outline applied."""
+    active_sections = [s for s in req.outline if s.get("selected", True)]
+    outline_fragment = _outline_gen.outline_to_prompt_fragment(
+        [type("S", (), {"title": s["title"], "description": s["description"]})()
+         for s in active_sections]
+    ) if active_sections else ""
+
+    enhanced_prompt = _style_applier.apply_to_prompt(
+        f"{req.prompt}\n\n{outline_fragment}" if outline_fragment else req.prompt,
+        req.style,
+        req.tone,
+    )
+
+    module_hint = req.module or None
+    try:
+        raw = _brain.run(enhanced_prompt, module_hint=module_hint)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Generation failed: {exc}")
+
+    if user:
+        allowed, _ = check_rate_limit(db, user)
+        if not allowed:
+            raise HTTPException(
+                status_code=429,
+                detail="Daily generation limit reached. Upgrade to Pro for unlimited access.",
+            )
+        increment_gen_count(db, user)
+
+    _save_to_db_and_search(
+        db, user.id if user else None,
+        req.prompt, raw.get("module", "document"),
+        raw["title"], raw["body"], raw["sections"], raw,
+    )
+
+    return {
+        "success":    True,
+        "module":     raw.get("module", "document"),
+        "module_name":raw.get("module_name", "Easy AI"),
+        "title":      raw["title"],
+        "body":       raw["body"],
+        "sections":   raw["sections"],
+        "pdf_url":    _url(raw.get("pdf_path")),
+        "docx_url":   _url(raw.get("docx_path")),
+        "pptx_url":   _url(raw.get("pptx_path")),
+        "xlsx_url":   _url(raw.get("xlsx_path")),
+        "style":      req.style,
+        "tone":       req.tone,
+    }
+
+
+
 
 @app.websocket("/ws/{document_id}")
 async def websocket_endpoint(websocket: WebSocket, document_id: str,
