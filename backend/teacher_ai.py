@@ -2,63 +2,89 @@
 
 from __future__ import annotations
 
+from prompt_parser import extract_topic, extract_keywords, detect_domain
+
 
 class TeacherAI:
     """Generates lesson plans, explanations, class activities, and study notes."""
 
     def generate(self, prompt: str) -> dict:
-        title = f"Lesson Material: {prompt[:70]}"
+        topic = extract_topic(prompt)
+        domain = detect_domain(prompt)
+        keywords = extract_keywords(prompt, max_kw=5)
+        kw_str = ", ".join(keywords) if keywords else topic.lower()
+
+        title = f"Lesson Material: {topic}"
         sections = [
             {
                 "heading": "Lesson Objectives",
                 "content": (
-                    f"Topic: {prompt}\n\n"
-                    "By the end of this lesson, students will be able to:\n"
-                    "• Explain the core concepts in their own words.\n"
-                    "• Apply the concepts to real-world examples.\n"
-                    "• Identify connections to prior learning."
+                    f"Topic: {topic}\n"
+                    f"Subject area: {domain.title()}\n\n"
+                    f"By the end of this lesson, students will be able to:\n"
+                    f"• Explain {topic.lower()} in their own words with clear examples.\n"
+                    f"• Identify and apply the core principles of {kw_str.split(',')[0].strip()}.\n"
+                    f"• Analyse how {topic.lower()} connects to real-world situations.\n"
+                    f"• Evaluate competing perspectives on {kw_str.split(',')[-1].strip() if keywords else topic.lower()}."
                 ),
             },
             {
                 "heading": "Lesson Plan (60 minutes)",
                 "content": (
-                    "0–5 min   : Warm-up / hook question\n"
-                    "5–15 min  : Direct instruction – introduce key terms and concepts\n"
-                    "15–30 min : Guided practice – worked examples with class discussion\n"
-                    "30–45 min : Independent or group activity\n"
-                    "45–55 min : Review and Q&A\n"
-                    "55–60 min : Exit ticket / formative check"
+                    f"Lesson: {topic}\n\n"
+                    f"0–5 min   : Warm-up — Ask: 'What do you already know about {topic.lower()}?'\n"
+                    f"5–15 min  : Direct instruction — Introduce key terms: {kw_str}\n"
+                    f"15–30 min : Guided practice — Work through 2–3 examples of {topic.lower()} together\n"
+                    f"30–45 min : Group activity — Students apply {kw_str.split(',')[0].strip()} to a scenario\n"
+                    f"45–55 min : Class discussion — Review findings, address misconceptions\n"
+                    f"55–60 min : Exit ticket — 'Name one key thing you learned about {topic.lower()} today'"
                 ),
             },
             {
                 "heading": "Topic Explanation",
                 "content": (
-                    "The topic is introduced through concrete, relatable examples before "
-                    "moving to abstract theory. Key vocabulary is highlighted and defined "
-                    "in accessible language. Visual aids, analogies, and real-world "
-                    "connections are used throughout to maximise understanding."
+                    f"Introduction to {topic}:\n\n"
+                    f"{topic} is a fundamental concept in {domain.title()}. "
+                    f"At its core, it refers to {kw_str}.\n\n"
+                    f"How to explain it simply:\n"
+                    f"Imagine you are explaining {topic.lower()} to someone with no background "
+                    f"in {domain}. Start with a familiar analogy, then introduce the technical "
+                    f"vocabulary step by step.\n\n"
+                    f"Key vocabulary to teach:\n"
+                    + "\n".join(f"  • {kw.title()}: [definition and example]" for kw in keywords[:4])
+                    + f"\n\nCommon student misconceptions about {topic.lower()} and how to address them:\n"
+                    f"  • Misconception 1: [common error] → Clarification: [correct understanding]\n"
+                    f"  • Misconception 2: [common error] → Clarification: [correct understanding]"
                 ),
             },
             {
                 "heading": "Homework Assignment",
                 "content": (
-                    "1. Read the assigned section and take margin notes on the three most "
-                    "important ideas.\n"
-                    "2. Complete the five practice questions at the end of the chapter.\n"
-                    "3. Bring one real-world example related to today's topic to share "
-                    "with the class next session."
+                    f"Homework: {topic}\n\n"
+                    f"Task 1 (Comprehension): Read the assigned section on {topic.lower()} and "
+                    f"write a 150-word summary in your own words.\n\n"
+                    f"Task 2 (Application): Find one real-world example of {topic.lower()} in "
+                    f"the news or your community. Explain how it relates to what we learned today.\n\n"
+                    f"Task 3 (Reflection): Answer: 'What is the most important thing to understand "
+                    f"about {topic.lower()} and why?' (3–5 sentences)\n\n"
+                    f"Due: Next lesson. Bring your answers to share with the class."
                 ),
             },
             {
-                "heading": "Class Activity / Study Notes",
+                "heading": "Class Activity & Study Notes",
                 "content": (
-                    "Activity: Think-Pair-Share\n"
-                    "Students individually reflect on the prompt question, then discuss "
-                    "with a partner, and finally share key insights with the full class.\n\n"
-                    "Study Notes:\n"
-                    "• Concept map template provided (attach or distribute separately)\n"
-                    "• Summary sheet with key definitions and formulas\n"
-                    "• Review checklist for self-assessment"
+                    f"Activity: Think-Pair-Share on {topic}\n\n"
+                    f"Step 1 – Think (2 min): Each student writes their thoughts on: "
+                    f"'How does {topic.lower()} affect everyday life?'\n"
+                    f"Step 2 – Pair (3 min): Discuss with a partner, identify two points of agreement.\n"
+                    f"Step 3 – Share (5 min): Pairs share key insights with the class.\n\n"
+                    f"Key Study Notes:\n"
+                    + "\n".join(f"  • {kw.title()}: [Core definition and importance]" for kw in keywords)
+                    + f"\n\nRevision checklist:\n"
+                    f"  □ I can define {topic.lower()} accurately\n"
+                    f"  □ I can give 2 examples from real life\n"
+                    f"  □ I can explain the key concepts in {kw_str}\n"
+                    f"  □ I am ready for the next assessment"
                 ),
             },
         ]
