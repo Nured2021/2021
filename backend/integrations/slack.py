@@ -2,16 +2,35 @@
 
 from __future__ import annotations
 
+from urllib.parse import urlparse
+
 import requests
+
+# Only POST to the official Slack webhook hostname; never to a caller-supplied host
+_SLACK_WEBHOOK_HOST = "hooks.slack.com"
 
 
 class SlackIntegration:
     """Send messages to a Slack channel using a webhook URL."""
 
     def __init__(self, webhook_url: str) -> None:
-        if not webhook_url or not webhook_url.startswith("https://hooks.slack.com/"):
-            raise ValueError("Invalid Slack webhook URL.")
-        self.webhook_url = webhook_url
+        parsed = urlparse(webhook_url)
+        if (
+            parsed.scheme != "https"
+            or parsed.netloc != _SLACK_WEBHOOK_HOST
+            or not parsed.path.startswith("/services/")
+        ):
+            raise ValueError(
+                "Invalid Slack webhook URL. Must be https://hooks.slack.com/services/…"
+            )
+        # Store ONLY the validated path; reconstruct the final URL internally
+        # so that no user-supplied host can ever be forwarded to requests.
+        self._hook_path = parsed.path
+
+    @property
+    def _safe_url(self) -> str:
+        """Return the hardcoded-hostname URL, not the raw user-supplied string."""
+        return f"https://{_SLACK_WEBHOOK_HOST}{self._hook_path}"
 
     def send_notification(self, message: str,
                           document_url: str | None = None,
@@ -31,10 +50,7 @@ class SlackIntegration:
                     "footer":     "Easy AI Platform",
                 }
             ]
-        # The webhook URL is already validated in __init__ to start with the
-        # official Slack hook domain, so we construct the final URL from the
-        # stored (validated) attribute rather than any request parameter.
-        resp = requests.post(self.webhook_url, json=payload, timeout=10)
+        resp = requests.post(self._safe_url, json=payload, timeout=10)
         return resp.status_code == 200
 
     def send_document_ready(self, title: str, module: str,
