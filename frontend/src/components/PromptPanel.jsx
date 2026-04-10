@@ -1,6 +1,24 @@
 import { useState } from "react";
 import styles from "./PromptPanel.module.css";
 
+const FEATURE_CARDS = [
+  {
+    icon: "📄",
+    title: "Built for Documents",
+    desc: "Generate professional docs, reports, contracts, and academic content with a single prompt.",
+  },
+  {
+    icon: "🗂️",
+    title: "AI-Managed Workspace",
+    desc: "Your generated files are tracked in the workspace. Download PDF or Word any time.",
+  },
+  {
+    icon: "🧠",
+    title: "Learns From You",
+    desc: "Upload your own files and let the AI summarise, explain, and build study guides from them.",
+  },
+];
+
 const EDU_PLACEHOLDERS = {
   edu_professor:    "e.g. Create a syllabus for a Business Law course at postgraduate level...",
   edu_teacher:      "e.g. Lesson plan for teaching recursion in Computer Science to Year 12...",
@@ -30,7 +48,22 @@ const EDU_TITLES = {
   edu_integrity:    "Academic Integrity AI",
 };
 
-export default function PromptPanel({ docType, onGenerate, loading }) {
+const FORMAT_LABELS = {
+  doc:    "Word Document",
+  pdf:    "PDF Document",
+  slides: "Presentation",
+  excel:  "Spreadsheet",
+};
+
+export default function PromptPanel({
+  docType,
+  docFormat,
+  onGenerate,
+  onTranslate,
+  loading,
+  status,
+  uploadedFileName,
+}) {
   const [prompt, setPrompt] = useState("");
 
   const handleSubmit = (e) => {
@@ -38,10 +71,14 @@ export default function PromptPanel({ docType, onGenerate, loading }) {
     if (prompt.trim()) onGenerate(prompt.trim());
   };
 
+  const handleTranslate = () => {
+    if (prompt.trim()) onTranslate(prompt.trim());
+  };
+
   const isEducation = docType.startsWith("edu_");
   const title = isEducation
     ? EDU_TITLES[docType] || "Education AI"
-    : "Generate Document";
+    : FORMAT_LABELS[docFormat] || "Generate Document";
 
   const subtitle = isEducation
     ? "Describe your academic request and let AI create it for you."
@@ -52,11 +89,16 @@ export default function PromptPanel({ docType, onGenerate, loading }) {
     DOC_PLACEHOLDERS[docType] ||
     "e.g. Write a project proposal for a new mobile app...";
 
+  const showFeatureCards = !loading && !prompt.trim();
+
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
         <h2 className={styles.title}>{title}</h2>
         <p className={styles.subtitle}>{subtitle}</p>
+        {uploadedFileName && (
+          <span className={styles.uploadBadge}>📎 {uploadedFileName}</span>
+        )}
       </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
@@ -68,21 +110,52 @@ export default function PromptPanel({ docType, onGenerate, loading }) {
           rows={8}
           disabled={loading}
         />
-        <button
-          type="submit"
-          className={styles.button}
-          disabled={loading || !prompt.trim()}
-        >
-          {loading ? (
-            <>
-              <span className={styles.spinner} />
-              Generating…
-            </>
-          ) : (
-            <>✦ Generate</>
-          )}
-        </button>
+
+        <div className={styles.actionRow}>
+          <button
+            type="submit"
+            className={styles.button}
+            disabled={loading || !prompt.trim()}
+          >
+            {loading ? (
+              <>
+                <span className={styles.spinner} />
+                {status || "Generating…"}
+              </>
+            ) : (
+              <>✦ Generate</>
+            )}
+          </button>
+
+          <button
+            type="button"
+            className={`${styles.button} ${styles.outlineBtn}`}
+            disabled={loading || !prompt.trim()}
+            onClick={handleTranslate}
+            title="Translate content to English"
+          >
+            🌐 Translate
+          </button>
+        </div>
+
+        {status && status !== "Ready" && (
+          <p className={styles.statusText}>{status}</p>
+        )}
       </form>
+
+      {showFeatureCards && (
+        <div className={styles.cards}>
+          {FEATURE_CARDS.map((card) => (
+            <div key={card.title} className={styles.card}>
+              <span className={styles.cardIcon}>{card.icon}</span>
+              <div>
+                <p className={styles.cardTitle}>{card.title}</p>
+                <p className={styles.cardDesc}>{card.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

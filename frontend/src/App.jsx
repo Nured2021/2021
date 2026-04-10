@@ -1,16 +1,29 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Sidebar from "./components/Sidebar";
 import PromptPanel from "./components/PromptPanel";
 import PreviewPanel from "./components/PreviewPanel";
 import { generateDocument } from "./api/documentApi";
-import { generateEducation } from "./api/educationApi";
+import { generateEducation, uploadMaterial } from "./api/educationApi";
 import "./App.css";
 
+// Map doc-hub format ids to backend doc_type strings
+const FORMAT_TO_DOC_TYPE = {
+  doc:    "document",
+  pdf:    "document",
+  slides: "presentation",
+  excel:  "excel",
+};
+
 function App() {
-  const [activeTab, setActiveTab] = useState("document");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab]           = useState("document");
+  const [docFormat, setDocFormat]           = useState("doc");
+  const [loading, setLoading]               = useState(false);
+  const [result, setResult]                 = useState(null);
+  const [error, setError]                   = useState(null);
+  const [status, setStatus]                 = useState("Ready");
+  const [workspaceFiles, setWorkspaceFiles] = useState([]);
+  const [uploadedFileName, setUploadedFileName] = useState("");
+  const fileInputRef = useRef(null);
 
   const isEducationTab = activeTab.startsWith("edu_");
 
@@ -18,41 +31,145 @@ function App() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setStatus("Generating…");
     try {
       let data;
       if (isEducationTab) {
-        // Strip the "edu_" prefix to get the module id
         const module = activeTab.replace("edu_", "");
         data = await generateEducation({ prompt, module });
       } else {
-        data = await generateDocument({ prompt, docType: activeTab });
+        const docType = FORMAT_TO_DOC_TYPE[docFormat] || "document";
+        data = await generateDocument({ prompt, docType });
       }
       setResult(data);
+
+      // Add to workspace history
+      setWorkspaceFiles((prev) => [
+        {
+          id: Date.now(),
+          name: data.title || `${docFormat.toUpperCase()} Output`,
+          format: isEducationTab ? "edu" : docFormat,
+          pdf_url:  data.pdf_url  || null,
+          docx_url: data.docx_url || null,
+        },
+        ...prev.slice(0, 9), // keep last 10
+      ]);
+      setStatus("Done");
     } catch (err) {
       setError(err.message);
+      setStatus("Error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadedFileName(file.name);
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    setStatus("Uploading…");
+    try {
+      const module = isEducationTab ? activeTab.replace("edu_", "") : "student";
+      const data = await uploadMaterial(file, module);
+      setResult(data);
+      setWorkspaceFiles((prev) => [
+        {
+          id: Date.now(),
+          name: data.title || `Upload: ${file.name}`,
+          format: "edu",
+          pdf_url:  data.pdf_url  || null,
+          docx_url: data.docx_url || null,
+        },
+        ...prev.slice(0, 9),
+      ]);
+      setStatus("Upload complete");
+    } catch (err) {
+      setError(err.message);
+      setStatus("Error");
+    } finally {
+      setLoading(false);
+      // reset so same file can be re-uploaded
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleTranslate = async (currentPrompt) => {
+    if (!currentPrompt.trim()) return;
+    const translatePrompt = `Translate to clear professional English:\n\n${currentPrompt}`;
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    setStatus("Translating…");
+    try {
+      const data = await generateEducation({ prompt: translatePrompt, module: "multilingual" });
+      setResult(data);
+      setWorkspaceFiles((prev) => [
+        {
+          id: Date.now(),
+          name: data.title || "Translation",
+          format: "edu",
+          pdf_url:  data.pdf_url  || null,
+          docx_url: data.docx_url || null,
+        },
+        ...prev.slice(0, 9),
+      ]);
+      setStatus("Translated");
+    } catch (err) {
+      setError(err.message);
+      setStatus("Error");
     } finally {
       setLoading(false);
     }
   };
 
   const handleTabSelect = (tab) => {
-    if (tab === "uploads") return;
+    if (tab === "uploads") {
+      // Trigger file picker
+      fileInputRef.current?.click();
+      return;
+    }
     setActiveTab(tab);
     setResult(null);
     setError(null);
+    setStatus("Ready");
   };
 
   return (
     <div className="layout">
-      <Sidebar active={activeTab} onSelect={handleTabSelect} />
+      <Sidebar
+        active={activeTab}
+        onSelect={handleTabSelect}
+        docFormat={docFormat}
+        onDocFormat={setDocFormat}
+      />
       <main className="main">
         <PromptPanel
           docType={activeTab}
+          docFormat={docFormat}
           onGenerate={handleGenerate}
+          onTranslate={handleTranslate}
           loading={loading}
+          status={status}
+          uploadedFileName={uploadedFileName}
         />
       </main>
-      <PreviewPanel result={result} error={error} loading={loading} />
+      <PreviewPanel
+        result={result}
+        error={error}
+        loading={loading}
+        workspaceFiles={workspaceFiles}
+      />
+      {/* Hidden file input for uploads */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".txt,.md,.csv,.json,.pdf,.docx"
+        style={{ display: "none" }}
+        onChange={handleUpload}
+      />
     </div>
   );
 }

@@ -84,3 +84,34 @@
   padding: 12px 12px 4px;
   display: block;
 }
+
+.formatRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 12px 8px;
+}
+
+.formatPill {
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid #2a2a3e;
+  background: transparent;
+  color: #7a7a90;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.formatPill:hover {
+  background: #1a1a2e;
+  color: #d0d0e8;
+  border-color: #4a4a62;
+}
+
+.formatPill.formatActive {
+  background: #2a1f6e;
+  color: #a89cf7;
+  border-color: #5a4fd4;
+}

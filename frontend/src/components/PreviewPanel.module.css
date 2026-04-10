@@ -127,3 +127,84 @@
   white-space: pre-wrap;
   line-height: 1.6;
 }
+
+/* Empty state */
+.emptyState {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+}
+
+/* Workspace section */
+.workspace {
+  border-top: 1px solid #1e1e2e;
+  padding: 14px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wsTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #4a4a62;
+  margin: 0 0 4px;
+}
+
+.wsItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: #1a1a2e;
+  border-radius: 8px;
+}
+
+.wsIcon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.wsName {
+  flex: 1;
+  font-size: 12px;
+  color: #9090a8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wsActions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.wsBtn {
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.wsBtn:hover {
+  opacity: 0.8;
+}
+
+/* reuse pdf/docx colours for ws buttons */
+.wsBtn.pdf {
+  background: #3b1f5e;
+  color: #c084fc;
+}
+
+.wsBtn.docx {
+  background: #1a3050;
+  color: #60a5fa;
+}

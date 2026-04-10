@@ -13,6 +13,20 @@ export async function generateEducation({ prompt, module }) {
   return res.json();
 }
 
+export async function uploadMaterial(file, module = "student") {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(
+    `${API_BASE}/education/upload-material?module=${encodeURIComponent(module)}`,
+    { method: "POST", body: formData }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || "Upload failed");
+  }
+  return res.json();
+}
+
 export async function fetchModules() {
   const res = await fetch(`${API_BASE}/education/modules`);
   if (!res.ok) throw new Error("Could not load education modules");

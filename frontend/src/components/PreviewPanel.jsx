@@ -13,7 +13,48 @@ const MODULE_LABELS = {
   integrity:    "🛡️ Integrity AI",
 };
 
-export default function PreviewPanel({ result, error, loading }) {
+const FORMAT_ICONS = {
+  doc:    "📄",
+  pdf:    "📑",
+  slides: "📽️",
+  excel:  "📊",
+  edu:    "🎓",
+};
+
+function WorkspaceItem({ item }) {
+  return (
+    <div className={styles.wsItem}>
+      <span className={styles.wsIcon}>{FORMAT_ICONS[item.format] || "📄"}</span>
+      <span className={styles.wsName}>{item.name}</span>
+      <div className={styles.wsActions}>
+        {item.pdf_url && (
+          <a
+            href={downloadUrl(item.pdf_url)}
+            download
+            className={`${styles.wsBtn} ${styles.pdf}`}
+            title="Download PDF"
+          >
+            PDF
+          </a>
+        )}
+        {item.docx_url && (
+          <a
+            href={downloadUrl(item.docx_url)}
+            download
+            className={`${styles.wsBtn} ${styles.docx}`}
+            title="Download Word"
+          >
+            .docx
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function PreviewPanel({ result, error, loading, workspaceFiles }) {
+  const hasWorkspace = workspaceFiles && workspaceFiles.length > 0;
+
   if (loading) {
     return (
       <div className={`${styles.panel} ${styles.center}`}>
@@ -27,16 +68,20 @@ export default function PreviewPanel({ result, error, loading }) {
     return (
       <div className={`${styles.panel} ${styles.center}`}>
         <p className={styles.error}>⚠ {error}</p>
+        {hasWorkspace && <WorkspaceSection files={workspaceFiles} />}
       </div>
     );
   }
 
   if (!result) {
     return (
-      <div className={`${styles.panel} ${styles.center}`}>
-        <p className={styles.placeholder}>
-          Your document preview will appear here.
-        </p>
+      <div className={styles.panel}>
+        <div className={styles.emptyState}>
+          <p className={styles.placeholder}>
+            Your document preview will appear here.
+          </p>
+        </div>
+        {hasWorkspace && <WorkspaceSection files={workspaceFiles} />}
       </div>
     );
   }
@@ -70,6 +115,19 @@ export default function PreviewPanel({ result, error, loading }) {
           </div>
         ))}
       </div>
+
+      {hasWorkspace && <WorkspaceSection files={workspaceFiles} />}
+    </div>
+  );
+}
+
+function WorkspaceSection({ files }) {
+  return (
+    <div className={styles.workspace}>
+      <p className={styles.wsTitle}>🗂️ Workspace</p>
+      {files.map((item) => (
+        <WorkspaceItem key={item.id} item={item} />
+      ))}
     </div>
   );
 }

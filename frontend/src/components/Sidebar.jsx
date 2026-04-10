@@ -1,10 +1,10 @@
 import styles from "./Sidebar.module.css";
 
 const DOC_ITEMS = [
-  { id: "document", label: "Documents", icon: "📄" },
-  { id: "excel", label: "Excel", icon: "📊" },
-  { id: "presentation", label: "Presentation", icon: "📽️" },
-  { id: "uploads", label: "Uploads", icon: "📁" },
+  { id: "document",      label: "Documents",    icon: "📄" },
+  { id: "excel",         label: "Excel",        icon: "📊" },
+  { id: "presentation",  label: "Presentation", icon: "📽️" },
+  { id: "uploads",       label: "Upload File",  icon: "📁" },
 ];
 
 const EDU_ITEMS = [
@@ -19,16 +19,51 @@ const EDU_ITEMS = [
   { id: "edu_integrity",    label: "Integrity",         icon: "🛡️" },
 ];
 
-export default function Sidebar({ active, onSelect }) {
+const DOC_FORMATS = [
+  { id: "doc",    label: "Doc"    },
+  { id: "pdf",    label: "PDF"    },
+  { id: "slides", label: "Slides" },
+  { id: "excel",  label: "Excel"  },
+];
+
+export default function Sidebar({ active, onSelect, docFormat, onDocFormat }) {
+  const isOfficeActive = !active.startsWith("edu_");
+
   return (
     <aside className={styles.sidebar}>
       <div className={styles.logo}>
         <span className={styles.logoIcon}>✦</span>
-        <span className={styles.logoText}>DocGen AI</span>
+        <span className={styles.logoText}>Easy AI</span>
       </div>
 
       <nav className={styles.nav}>
         <span className={styles.sectionLabel}>Office</span>
+
+        {/* Doc format pills — always visible in Office section */}
+        <div className={styles.formatRow}>
+          {DOC_FORMATS.map((f) => (
+            <button
+              key={f.id}
+              className={`${styles.formatPill} ${
+                isOfficeActive && docFormat === f.id ? styles.formatActive : ""
+              }`}
+              onClick={() => {
+                onDocFormat(f.id);
+                // map pill to an office tab
+                if (f.id === "slides") {
+                  onSelect("presentation");
+                } else if (f.id === "excel") {
+                  onSelect("excel");
+                } else {
+                  onSelect("document");
+                }
+              }}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
         {DOC_ITEMS.map((item) => (
           <button
             key={item.id}

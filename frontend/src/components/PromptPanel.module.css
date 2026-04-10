@@ -99,3 +99,88 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Action row: Generate + Translate side by side */
+.actionRow {
+  display: flex;
+  gap: 10px;
+}
+
+.actionRow .button {
+  flex: 1;
+}
+
+/* Outline/secondary button variant */
+.outlineBtn {
+  background: transparent !important;
+  border: 1.5px solid #2a2a3e !important;
+  color: #9090a8 !important;
+}
+
+.outlineBtn:hover:not(:disabled) {
+  border-color: #7c6af7 !important;
+  color: #a89cf7 !important;
+  opacity: 1 !important;
+}
+
+/* Status text */
+.statusText {
+  font-size: 12px;
+  color: #7c6af7;
+  margin: 0;
+  text-align: center;
+}
+
+/* Upload file badge */
+.uploadBadge {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #a89cf7;
+  background: #1e1a3a;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+/* Feature cards */
+.cards {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  background: #1a1a2e;
+  border: 1px solid #2a2a3e;
+  border-radius: 12px;
+  transition: border-color 0.2s;
+}
+
+.card:hover {
+  border-color: #4a3aaa;
+}
+
+.cardIcon {
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cardTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #d0d0e8;
+  margin: 0 0 4px;
+}
+
+.cardDesc {
+  font-size: 12px;
+  color: #6a6a82;
+  margin: 0;
+  line-height: 1.5;
+}

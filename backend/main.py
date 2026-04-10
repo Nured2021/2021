@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -220,14 +220,23 @@ def education_chat(req: EducationChatRequest) -> dict:
 
 
 @app.post("/education/upload-material")
-def education_upload_material(req: EducationUploadMaterialRequest) -> dict:
-    """Accept uploaded text content and generate a study guide from it."""
+async def education_upload_material(
+    file: UploadFile = File(...),
+    module: str = "student",
+) -> dict:
+    """Accept an uploaded file and generate a study guide from its text content."""
+    try:
+        raw = await file.read()
+        text_content = raw.decode("utf-8", errors="replace")
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Could not read file: {exc}") from exc
+
     combined_prompt = (
         f"Summarise and create a study guide for the following material "
-        f"from '{req.filename}':\n\n{req.text_content[:4000]}"
+        f"from '{file.filename}':\n\n{text_content[:4000]}"
     )
     try:
-        result = _edu.generate(combined_prompt, module=req.module or "student")
+        result = _edu.generate(combined_prompt, module=module or "student")
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except Exception as exc:
