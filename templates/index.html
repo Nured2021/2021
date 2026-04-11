@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORD AI Platform — 50 Cores / 50 Engines / 50 AI Builders</title>
+<link rel="stylesheet" href="/static/css/style.css">
+<!-- CodeMirror -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<!-- Socket.IO -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════ MENU BAR ═══════════════════ -->
+<header class="menubar">
+  <span class="logo">⚡ ORD AI</span>
+  <nav>
+    <button onclick="openPanel('save')">📁 FILE</button>
+    <button onclick="openPanel('save')">💾 EDIT</button>
+    <button onclick="openPanel('collab')">👥 VIEW</button>
+    <button onclick="openPanel('deploy')">🚀 DEPLOY</button>
+    <button onclick="openPanel('templates')">🔧 TOOLS</button>
+    <button onclick="openPanel('marketplace')">🏪 MARKETPLACE</button>
+    <button onclick="openPanel('ai')">❓ HELP</button>
+  </nav>
+  <div class="menu-right">
+    <span id="versionTag">v1.0.0</span>
+    <span class="dot green"></span>
+    <span id="teamCount">👥 3 online</span>
+  </div>
+</header>
+
+<!-- ═══════════════════ QUICK ACTIONS ═══════════════════ -->
+<div class="quickbar">
+  <button class="qbtn" onclick="openPanel('save')">💾 SAVE</button>
+  <button class="qbtn" onclick="openPanel('save')">📂 LOAD</button>
+  <button class="qbtn" onclick="openPanel('version')">🔄 VERSION</button>
+  <button class="qbtn" onclick="openPanel('deploy')">🚀 DEPLOY</button>
+  <button class="qbtn" onclick="openPanel('collab')">👥 COLLAB</button>
+  <button class="qbtn" onclick="openPanel('test')">🧪 TEST</button>
+  <button class="qbtn" onclick="openPanel('analytics')">📊 ANALYTICS</button>
+  <button class="qbtn" onclick="openPanel('marketplace')">🏪 MARKETPLACE</button>
+  <button class="qbtn" onclick="openPanel('export')">📦 EXPORT</button>
+  <button class="qbtn" onclick="openPanel('ai')">🤖 AI HELP</button>
+</div>
+
+<!-- ═══════════════════ THREE WINDOWS ═══════════════════ -->
+<div class="workspace">
+
+  <!-- WINDOW 1: PROMPT BLOCK -->
+  <div class="win win-prompt">
+    <div class="win-header">
+      <span>💬 PROMPT BLOCK</span>
+      <span class="pilot-badge">🤖 AI PILOT — 100% ALIVE</span>
+    </div>
+    <div class="pilot-greeting">Welcome! I'm your AI Pilot. Tell me what to build — I'll never stop working until it's done.</div>
+    <textarea id="promptInput" placeholder="Build me a ChatGPT clone..." rows="3"></textarea>
+    <div class="prompt-btns">
+      <button class="btn-primary" onclick="sendBuild()">🔨 BUILD</button>
+      <button class="btn-secondary" onclick="sendPromptCmd('fix')">🔧 FIX</button>
+      <button class="btn-secondary" onclick="sendPromptCmd('update')">🔄 UPDATE</button>
+      <button class="btn-secondary" onclick="sendPromptCmd('deploy')">🚀 DEPLOY</button>
+      <button class="btn-secondary" onclick="sendPromptCmd('test')">🧪 TEST</button>
+      <button class="btn-secondary" onclick="sendPromptCmd('help')">❓ HELP</button>
+    </div>
+    <div class="response-box" id="responseBox">
+      <div class="rline info">▶ ORD AI Platform ready. Type your request and click BUILD.</div>
+      <div class="rline info">∞ Loop active — 50 Cores / 50 Engines / 50 AI Builders standing by.</div>
+    </div>
+    <!-- Job Queue -->
+    <div class="queue-box" id="queueBox" style="display:none">
+      <strong>📋 Job Queue:</strong>
+      <span id="queueList"></span>
+    </div>
+  </div>
+
+  <!-- WINDOW 2: LIVE PREVIEW -->
+  <div class="win win-preview">
+    <div class="win-header">
+      <span>👁 LIVE PREVIEW</span>
+      <div>
+        <button class="btn-tiny" onclick="loadState()">🔄</button>
+        <button class="btn-tiny" onclick="stopBuild()">⏹ STOP</button>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="section-label">🔨 BUILD STATUS</div>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="progress-label"><span id="progressPct">0%</span> — <span id="buildTask">Idle</span></div>
+
+    <!-- 50/50/50 meters -->
+    <div class="meters">
+      <div class="meter">
+        <span>CORES</span>
+        <div class="meter-track"><div class="meter-fill blue" id="coresFill" style="width:0%"></div></div>
+        <span id="coresLbl">0/50</span>
+      </div>
+      <div class="meter">
+        <span>ENGINES</span>
+        <div class="meter-track"><div class="meter-fill green" id="enginesFill" style="width:0%"></div></div>
+        <span id="enginesLbl">0/50</span>
+      </div>
+      <div class="meter">
+        <span>AI</span>
+        <div class="meter-track"><div class="meter-fill purple" id="aiFill" style="width:0%"></div></div>
+        <span id="aiLbl">0/50</span>
+      </div>
+    </div>
+
+    <!-- Files -->
+    <div class="section-label">📦 FILES CREATED</div>
+    <div class="file-tree" id="fileTree"><span class="muted">Awaiting build...</span></div>
+
+    <!-- Tests + Fixes -->
+    <div class="stats-row">
+      <span>🧪 Tests: <strong id="testsLbl">0/50</strong></span>
+      <span>🔧 Fixes: <strong id="fixesLbl">0</strong></span>
+      <span>📊 Perf: <strong id="perfLbl">98%</strong></span>
+    </div>
+
+    <!-- Bottlenecks -->
+    <div class="section-label" id="bnLabel" style="display:none">⚠ BOTTLENECKS</div>
+    <div id="bottlenecks"></div>
+  </div>
+
+  <!-- WINDOW 3: LIVE CODING -->
+  <div class="win win-coding">
+    <div class="win-header">
+      <span>💻 LIVE CODING</span>
+      <div>
+        <select id="langSelect" class="lang-select">
+          <option value="python">Python</option>
+          <option value="javascript">JavaScript</option>
+        </select>
+        <button class="btn-primary" onclick="runCode()">▶ RUN</button>
+        <button class="btn-secondary" onclick="saveCode()">💾 SAVE</button>
+        <button class="btn-secondary" onclick="clearCode()">🗑 CLEAR</button>
+      </div>
+    </div>
+    <textarea id="codeEditor">from core import CoreAI
+
+# Initialize the ORD AI system
+core = CoreAI()
+core.activate_engines(50)
+
+# Custom function to add
+def add_custom_feature():
+    print("Adding custom feature...")
+    core.add_route("/custom", lambda: "OK")
+    print("Custom route added: /custom")
+
+add_custom_feature()
+print("System updated successfully")
+</textarea>
+    <div class="output-label">OUTPUT:</div>
+    <div class="code-output" id="codeOutput">
+      <span class="muted">&gt; Ready. Click RUN to execute code.</span>
+    </div>
+  </div>
+
+</div><!-- /workspace -->
+
+<!-- ═══════════════════ LIVE DASHBOARD (50/50/50) ═══════════════════ -->
+<div class="dashboard">
+  <div class="dash-title">╔═ LIVE BUILD STATUS — 50 CORES / 50 ENGINES / 50 AI BUILDERS ═╗</div>
+  <div class="dash-grid">
+    <div class="dash-cell">
+      <div class="dash-key">Current Task</div>
+      <div class="dash-val" id="dashTask">Idle</div>
+    </div>
+    <div class="dash-cell">
+      <div class="dash-key">Queued Jobs</div>
+      <div class="dash-val" id="dashQueue">None</div>
+    </div>
+    <div class="dash-cell">
+      <div class="dash-key">CPU</div>
+      <div class="dash-val" id="dashCpu">34%</div>
+    </div>
+    <div class="dash-cell">
+      <div class="dash-key">RAM</div>
+      <div class="dash-val" id="dashRam">56%</div>
+    </div>
+    <div class="dash-cell">
+      <div class="dash-key">REQ/s</div>
+      <div class="dash-val" id="dashRps">0</div>
+    </div>
+    <div class="dash-cell">
+      <div class="dash-key">Uptime</div>
+      <div class="dash-val green">99.99%</div>
+    </div>
+    <div class="dash-cell">
+      <div class="dash-key">Version</div>
+      <div class="dash-val" id="dashVer">v1.0.0</div>
+    </div>
+    <div class="dash-cell">
+      <div class="dash-key">Loop #</div>
+      <div class="dash-val" id="dashLoop">0</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ BOTTOM STATUS BAR ═══════════════════ -->
+<footer class="statusbar">
+  <button onclick="openPanel('ai')">💬 AI ASSISTANT</button>
+  <span id="statusVer">📜 v1.0.0</span>
+  <span id="statusTeam">👥 3 online</span>
+  <button onclick="openPanel('analytics')">📊 METRICS</button>
+  <button onclick="openPanel('test')">🧪 TESTS</button>
+  <span id="loopIndicator" class="loop-badge">∞ LOOP ACTIVE</span>
+</footer>
+
+<!-- ═══════════════════ PANELS (modals) ═══════════════════ -->
+<div id="panelOverlay" class="overlay" onclick="closePanel()"></div>
+<div id="panel" class="panel" style="display:none">
+  <div class="panel-header">
+    <span id="panelTitle">Panel</span>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div id="panelBody" class="panel-body"></div>
+</div>
+
+<!-- AI Chat floating bubble -->
+<div id="aiChatBubble" class="ai-bubble" onclick="openPanel('ai')">🤖</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
