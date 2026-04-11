@@ -13,7 +13,7 @@ from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "ord-ai-secret-2024"
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 # ─────────────────────────────────────────────────────────────
 # DATABASE — persistent state (Blueprint 4: durable execution)
@@ -526,4 +526,4 @@ if __name__ == "__main__":
     print("  All 4 Blueprints Unified — Real System Running")
     print(f"  http://0.0.0.0:5000")
     print("═"*60 + "\n")
-    socketio.run(app, host="0.0.0.0", port=5000, debug=False)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=False, allow_unsafe_werkzeug=True)
