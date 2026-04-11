@@ -3,720 +3,126 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ORD AI — ∞-Loop Human-AI Factory</title>
+<title>EASY AI DOC & EDUCATION CORE</title>
 <link rel="stylesheet" href="/static/css/style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js" integrity="sha512-uvwbFBPPAkBHMHuH9NQUovYMVGZN9MFcRkEIiLzMFX4MuCYC0S4zd4jTZKCzRYBFUlvXivJFdL9P6UfN9/NQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js" integrity="sha512-F5P2xFcUMXqZbT1dMGUKC7XHSN6LGxHqaTfOhVxJN4ILuaLyGQQxpIkFHjikgAjIDVAEOFfp5m6DVVm/Hx4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js" integrity="sha512-/CvTzFkU+bRMXBNgBIWmajChOW3v5o+mAblOO3alMhGnPIDxNr5x77cXrjFBvXqLSEsTBbHqsNXSiVz13XREQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js" integrity="sha512-luMnTJZ7onog1LSD+KQ0mhHQH/dFm4t0SbKMDFc5cIhFMkOL3gSmAnm7ePKKP/0VqCNZsrsmFvqYK/nHaOdg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
 
-<!-- TOP NAV -->
+<!-- NAV -->
 <nav class="topnav">
   <div class="nav-brand">
     <div class="brand-icon">⚡</div>
-    <div class="brand-text">
-      <span class="brand-name">ORD AI</span>
-      <span class="brand-sub">∞-Loop Human-AI Factory · 50/50/50</span>
+    <div>
+      <span class="brand-name">EASY AI</span>
+      <span class="brand-sub">DOC & EDUCATION CORE</span>
     </div>
-    <div class="pilot-status"><span class="pulse-dot"></span>AI PILOT 100% ALIVE</div>
   </div>
-  <div class="nav-center">
-    <button class="nav-btn active" onclick="showSection('dashboard',this)">⊞ Dashboard</button>
-    <button class="nav-btn" onclick="showSection('builder',this)">🔨 Builder</button>
-    <button class="nav-btn" onclick="showSection('editor',this)">💻 Editor</button>
-    <button class="nav-btn" onclick="showSection('analytics',this)">📊 Analytics</button>
-    <button class="nav-btn" onclick="showSection('engine',this)">⚙ Engine</button>
-    <button class="nav-btn" onclick="showSection('blueprint',this)">📐 Blueprint</button>
-    <button class="nav-btn" onclick="showSection('protection',this)">🛡 Protection</button>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('generator',this)">📄 Generator</button>
+    <button class="nav-tab" onclick="showTab('education',this)">🎓 Education</button>
+    <button class="nav-tab" onclick="showTab('files',this)">📁 Files</button>
   </div>
-  <div class="nav-right">
-    <div class="nav-stat"><span class="ns-val" id="navCpu">34%</span><span class="ns-key">CPU</span></div>
-    <div class="nav-stat"><span class="ns-val" id="navRam">56%</span><span class="ns-key">RAM</span></div>
-    <div class="nav-stat green"><span class="ns-val" id="navRps">0</span><span class="ns-key">REQ/s</span></div>
-    <div class="nav-version" id="navVersion">v1.0.0</div>
-    <button class="btn-deploy" onclick="openModal('deploy')">🚀 Deploy</button>
+  <div class="nav-health">
+    <span class="pulse-dot"></span>
+    <span id="healthStatus">Loading...</span>
   </div>
 </nav>
 
 <main class="main">
 
-<!-- ════ DASHBOARD ════ -->
-<section id="sec-dashboard" class="section active">
+<!-- ═══ GENERATOR ═══ -->
+<section id="sec-generator" class="section active">
+  <div class="hero">
+    <h1>EASY AI DOC & EDUCATION CORE</h1>
+    <p>Generate professional PDF, DOCX, XLSX, and PPTX documents instantly. Powered by AI with 20 specialist professors.</p>
+  </div>
 
-  <!-- KPI CARDS -->
-  <div class="kpi-row">
-    <div class="kpi-card blue">
-      <div class="kpi-icon">🔵</div>
-      <div class="kpi-body">
-        <div class="kpi-val" id="kpiCores">0<span>/50</span></div>
-        <div class="kpi-key">CORES ACTIVE</div>
-        <div class="kpi-bar"><div class="kpi-fill" id="kpiBCores" style="width:0%"></div></div>
-      </div>
+  <div class="status-bar">
+    <div class="status-item"><div class="status-val">4</div><div class="status-label">Engines</div></div>
+    <div class="status-item"><div class="status-val">20</div><div class="status-label">Professors</div></div>
+    <div class="status-item"><div class="status-val">4</div><div class="status-label">File Types</div></div>
+    <div class="status-item"><div class="status-val" style="color:var(--green)">Ready</div><div class="status-label">Status</div></div>
+  </div>
+
+  <div class="prompt-box">
+    <textarea id="mainPrompt" placeholder="Describe what you need...&#10;&#10;Examples:&#10;• Write a business proposal for a tech startup&#10;• Create a financial budget spreadsheet for Q1 2025&#10;• Make a presentation about artificial intelligence&#10;• Generate a legal contract for freelance services" rows="4"></textarea>
+
+    <div class="format-row">
+      <label>FORMAT:</label>
+      <button class="format-btn active" onclick="selectFormat('pdf',this)">📄 PDF</button>
+      <button class="format-btn" onclick="selectFormat('docx',this)">📝 DOCX</button>
+      <button class="format-btn" onclick="selectFormat('xlsx',this)">📊 XLSX</button>
+      <button class="format-btn" onclick="selectFormat('pptx',this)">📽️ PPTX</button>
     </div>
-    <div class="kpi-card green">
-      <div class="kpi-icon">🟢</div>
-      <div class="kpi-body">
-        <div class="kpi-val" id="kpiEngines">0<span>/50</span></div>
-        <div class="kpi-key">ENGINES RUNNING</div>
-        <div class="kpi-bar"><div class="kpi-fill" id="kpiBEngines" style="width:0%"></div></div>
-      </div>
+
+    <div class="prompt-actions">
+      <button class="btn btn-primary btn-lg" onclick="smartGenerate()">🧠 Smart Generate (Auto-Detect)</button>
+      <button class="btn btn-secondary btn-lg" onclick="generateFile()">⬇ Generate Selected Format</button>
     </div>
-    <div class="kpi-card purple">
-      <div class="kpi-icon">🟣</div>
-      <div class="kpi-body">
-        <div class="kpi-val" id="kpiAI">0<span>/50</span></div>
-        <div class="kpi-key">AI BUILDERS</div>
-        <div class="kpi-bar"><div class="kpi-fill" id="kpiBAI" style="width:0%"></div></div>
-      </div>
-    </div>
-    <div class="kpi-card amber">
-      <div class="kpi-icon">🔥</div>
-      <div class="kpi-body">
-        <div class="kpi-val" id="kpiProgress">0<span>%</span></div>
-        <div class="kpi-key">BUILD PROGRESS</div>
-        <div class="kpi-bar"><div class="kpi-fill" id="kpiBProgress" style="width:0%"></div></div>
-      </div>
-    </div>
-    <div class="kpi-card teal">
-      <div class="kpi-icon">✅</div>
-      <div class="kpi-body">
-        <div class="kpi-val" id="kpiTests">0<span>/50</span></div>
-        <div class="kpi-key">TESTS PASSED</div>
-        <div class="kpi-bar"><div class="kpi-fill" id="kpiBTests" style="width:0%"></div></div>
-      </div>
-    </div>
-    <div class="kpi-card red">
-      <div class="kpi-icon">🔧</div>
-      <div class="kpi-body">
-        <div class="kpi-val" id="kpiFixes">0</div>
-        <div class="kpi-key">AUTO-FIXES</div>
-        <div class="kpi-sub" id="kpiLoop">∞ Loop #0</div>
-      </div>
+
+    <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Write a comprehensive business proposal for a technology startup focusing on AI-powered solutions')">💼 Business Proposal</button>
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Create a detailed financial budget spreadsheet with quarterly breakdown and projections')">📊 Budget Sheet</button>
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Make a professional presentation about the future of artificial intelligence in healthcare')">📽️ AI Presentation</button>
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Draft a legal contract for freelance software development services')">⚖️ Legal Contract</button>
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Write an academic research paper on machine learning applications in finance')">📚 Research Paper</button>
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Create an invoice template with tax calculations and payment terms')">🧾 Invoice</button>
     </div>
   </div>
 
-  <!-- MAIN 3-COLUMN GRID -->
-  <div class="dash-grid">
-
-    <!-- LEFT: PROMPT BLOCK + AI PILOT CHAT -->
-    <div class="panel panel-prompt">
-      <div class="panel-head">
-        <span class="ph-title">💬 PROMPT BOX — AI PILOT</span>
-        <span class="ph-badge pulse">● ALWAYS LISTENING</span>
-      </div>
-      <div class="chat-log" id="chatLog">
-        <div class="chat-msg ai">
-          <span class="cm-icon">🤖</span>
-          <div class="cm-bubble">I'm your ORD AI Pilot — 100% alive. 50 Cores · 50 Engines · 50 AI Builders all standing by. What shall I build?</div>
-        </div>
-      </div>
-      <div class="prompt-input-area">
-        <textarea id="promptInput" placeholder='Type "Build me a chatbot" or any request...' rows="2"></textarea>
-        <div class="prompt-actions">
-          <button class="pa-btn primary" onclick="sendBuild()">🔨 BUILD</button>
-          <button class="pa-btn" onclick="sendCmd('fix all bugs')">🔧 FIX</button>
-          <button class="pa-btn" onclick="sendCmd('run tests')">🧪 TEST</button>
-          <button class="pa-btn" onclick="sendCmd('deploy now')">🚀 DEPLOY</button>
-          <button class="pa-btn" onclick="sendCmd('show status')">📊 STATUS</button>
-          <button class="pa-btn danger" onclick="sendCmd('done')">⏹ DONE</button>
-        </div>
-      </div>
-      <div class="queue-strip" id="queueStrip" style="display:none">
-        <span class="qs-label">📋 QUEUE:</span><span id="queueItems"></span>
-      </div>
-    </div>
-
-    <!-- CENTER: LIVE BUILD STATUS -->
-    <div class="panel panel-build">
-      <div class="panel-head">
-        <span class="ph-title">⚡ LIVE BUILD STATUS — 50/50/50</span>
-        <div style="display:flex;gap:4px">
-          <button class="ph-btn" onclick="refreshState()">↺</button>
-          <button class="ph-btn danger" onclick="stopBuild()">⏹ STOP</button>
-        </div>
-      </div>
-
-      <div class="build-progress-area">
-        <div class="bpa-task" id="buildTask">Idle — Ready to build</div>
-        <div class="big-progress">
-          <div class="big-progress-fill" id="bigProgress" style="width:0%"></div>
-          <span class="big-progress-pct" id="bigPct">0%</span>
-        </div>
-      </div>
-
-      <!-- SVG Gauges -->
-      <div class="gauge-grid">
-        <div class="gauge">
-          <div class="gauge-ring">
-            <svg viewBox="0 0 80 80"><circle class="gr-track" cx="40" cy="40" r="32"/><circle class="gr-fill blue" id="grCores" cx="40" cy="40" r="32" stroke-dasharray="0 201"/></svg>
-            <div class="gauge-inner"><span id="gCoresVal">0</span><small>/50</small></div>
-          </div>
-          <div class="gauge-label">CORES</div>
-        </div>
-        <div class="gauge">
-          <div class="gauge-ring">
-            <svg viewBox="0 0 80 80"><circle class="gr-track" cx="40" cy="40" r="32"/><circle class="gr-fill green" id="grEngines" cx="40" cy="40" r="32" stroke-dasharray="0 201"/></svg>
-            <div class="gauge-inner"><span id="gEnginesVal">0</span><small>/50</small></div>
-          </div>
-          <div class="gauge-label">ENGINES</div>
-        </div>
-        <div class="gauge">
-          <div class="gauge-ring">
-            <svg viewBox="0 0 80 80"><circle class="gr-track" cx="40" cy="40" r="32"/><circle class="gr-fill purple" id="grAI" cx="40" cy="40" r="32" stroke-dasharray="0 201"/></svg>
-            <div class="gauge-inner"><span id="gAIVal">0</span><small>/50</small></div>
-          </div>
-          <div class="gauge-label">AI BUILDERS</div>
-        </div>
-      </div>
-
-      <!-- Agent Pipeline (Blueprint 4) -->
-      <div class="agent-pipeline">
-        <div class="ap-title">Agent Pipeline: Planner → Implementer → Validator → Reviewer → Merger</div>
-        <div id="agentPipeline">
-          <div class="ap-row"><span class="ap-icon">🗺</span><span class="ap-name">Planner</span><div class="ap-bar-wrap"><div class="ap-bar" style="width:0%"></div></div><span class="ap-status idle">idle</span></div>
-          <div class="ap-row"><span class="ap-icon">⚙</span><span class="ap-name">Implementer</span><div class="ap-bar-wrap"><div class="ap-bar" style="width:0%"></div></div><span class="ap-status idle">idle</span></div>
-          <div class="ap-row"><span class="ap-icon">🧪</span><span class="ap-name">Validator</span><div class="ap-bar-wrap"><div class="ap-bar" style="width:0%"></div></div><span class="ap-status idle">idle</span></div>
-          <div class="ap-row"><span class="ap-icon">🔍</span><span class="ap-name">Reviewer</span><div class="ap-bar-wrap"><div class="ap-bar" style="width:0%"></div></div><span class="ap-status idle">idle</span></div>
-          <div class="ap-row"><span class="ap-icon">🔀</span><span class="ap-name">Merger</span><div class="ap-bar-wrap"><div class="ap-bar" style="width:0%"></div></div><span class="ap-status idle">idle</span></div>
-        </div>
-      </div>
-
-      <div class="section-sub">⚠ BOTTLENECKS</div>
-      <div id="bottlenecks" class="bn-list"><div class="bn-empty">No bottlenecks ✓</div></div>
-
-      <div class="section-sub">📦 FILES CREATED</div>
-      <div id="fileList" class="file-list"><span class="fl-empty">Awaiting build...</span></div>
-
-      <div style="padding:6px 14px;display:flex;gap:12px;font-size:11px;background:var(--bg3);border-top:1px solid var(--border);margin-top:auto">
-        <span>🧪 Tests: <strong id="testsLbl">0/50</strong></span>
-        <span>🔧 Fixes: <strong id="fixesLbl">0</strong></span>
-        <span>🔄 Loop: <strong id="loopLbl">#0</strong></span>
-        <span style="margin-left:auto">📜 <strong id="verLbl">v1.0.0</strong></span>
-      </div>
-    </div>
-
-    <!-- RIGHT: LOOP FLOW + QUICK ACTIONS -->
-    <div class="panel panel-loop">
-      <div class="panel-head">
-        <span class="ph-title">∞ LOOP FLOW — Blueprint</span>
-        <span class="ph-badge green">● ACTIVE</span>
-      </div>
-      <div class="loop-flow">
-        <div class="lf-node top" id="lf0">👤 HUMAN INPUT</div>
-        <div class="lf-arrow">▼</div>
-        <div class="lf-node" id="lf1">💬 PROMPT BOX "Creating Reality"</div>
-        <div class="lf-arrow">▼</div>
-        <div class="lf-node accent" id="lf2">🤖 AI PILOT — 100% Alive (7 Commitments)</div>
-        <div class="lf-arrow">▼</div>
-        <div class="lf-node" id="lf3">🔒 PERIMETRELER (Boundaries)</div>
-        <div class="lf-arrow">▼</div>
-        <div class="lf-node" id="lf4">🔍 CODEINSPEKTE-LECKEC! (Auto-Test)</div>
-        <div class="lf-arrow">▼</div>
-        <div class="lf-node" id="lf5">⚙ DESTEKIMAKLER EVERY (Builds All)</div>
-        <div class="lf-arrow">▼</div>
-        <div class="lf-node resource" id="lf6">50 CORES · 50 ENGINES · 50 AI BUILDERS</div>
-        <div class="lf-arrow">▼</div>
-        <div class="lf-node output" id="lf7">📦 AI Apps · AIs · Systems · Anything</div>
-        <div class="lf-arrow lf-loop">↩ ∞ LOOP BACK (Figure-8)</div>
-        <div class="lf-node done" id="lf8">✅ PERFECTED OUTPUT</div>
-      </div>
-
-      <!-- HITL Queue (Blueprint 4) -->
-      <div class="hitl-panel" id="hitlPanel">
-        <div class="hitl-title">👤 HUMAN-IN-THE-LOOP (HITL) QUEUE</div>
-        <div id="hitlList"><div class="hitl-empty">No HITL items — AI Pilot running autonomously ✓</div></div>
-      </div>
-
-      <div class="section-sub">⚡ QUICK ACTIONS</div>
-      <div class="qa-grid">
-        <button class="qa-btn" onclick="openModal('save')">💾 Save</button>
-        <button class="qa-btn" onclick="openModal('load')">📂 Load</button>
-        <button class="qa-btn" onclick="openModal('deploy')">🚀 Deploy</button>
-        <button class="qa-btn" onclick="openModal('collab')">👥 Team</button>
-        <button class="qa-btn" onclick="openModal('version')">🔄 Version</button>
-        <button class="qa-btn" onclick="runTests()">🧪 Tests</button>
-        <button class="qa-btn" onclick="openModal('marketplace')">🏪 Market</button>
-        <button class="qa-btn" onclick="openModal('templates')">📚 Templates</button>
-        <button class="qa-btn" onclick="openModal('export')">📦 Export</button>
-        <button class="qa-btn" onclick="openModal('ai')">🤖 AI Help</button>
-      </div>
-    </div>
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div style="color:var(--muted)">Generating your document...</div>
   </div>
 
-  <!-- METRICS BAR -->
-  <div class="metrics-bar">
-    <div class="mb-cell"><div class="mb-label">CPU</div><div class="mb-bar"><div class="mb-fill blue" id="mbCpu" style="width:34%"></div></div><div class="mb-val" id="mbCpuVal">34%</div></div>
-    <div class="mb-cell"><div class="mb-label">RAM</div><div class="mb-bar"><div class="mb-fill purple" id="mbRam" style="width:56%"></div></div><div class="mb-val" id="mbRamVal">56%</div></div>
-    <div class="mb-cell"><div class="mb-label">REQ/s</div><div class="mb-bar"><div class="mb-fill green" id="mbRps" style="width:0%"></div></div><div class="mb-val" id="mbRpsVal">0</div></div>
-    <div class="mb-cell"><div class="mb-label">RESPONSE</div><div class="mb-bar"><div class="mb-fill amber" style="width:20%"></div></div><div class="mb-val">45ms</div></div>
-    <div class="mb-cell"><div class="mb-label">UPTIME</div><div class="mb-bar"><div class="mb-fill teal" style="width:99.99%"></div></div><div class="mb-val green">99.99%</div></div>
-    <div class="mb-cell"><div class="mb-label">VERSION</div><div class="mb-val accent" id="mbVer">v1.0.0</div></div>
-    <div class="mb-cell"><div class="mb-label">∞ LOOP #</div><div class="mb-val" id="mbLoop">0</div></div>
-    <div class="mb-cell"><div class="mb-label">TEAM ONLINE</div><div class="mb-val green" id="mbTeam">3</div></div>
-  </div>
+  <div id="resultsArea" class="results-area"></div>
 </section>
 
-<!-- ════ BUILDER ════ -->
-<section id="sec-builder" class="section">
-  <div class="section-title">🔨 ORD AI BUILDER — Build Any System, AI, or App</div>
-  <div class="builder-layout">
-    <div class="panel" style="flex:1">
-      <div class="panel-head"><span class="ph-title">📝 Describe what to build</span></div>
-      <div style="padding:14px">
-        <textarea id="builderPrompt" class="big-textarea" placeholder="Examples:&#10;• Build me a full ChatGPT clone with voice recognition and memory&#10;• Create an ecommerce platform with Stripe payments&#10;• Build a social media app with real-time chat&#10;• Create a RAG pipeline with vector database&#10;• Build an AI agent that can write and run code"></textarea>
-        <div class="builder-presets">
-          <div class="preset-label">Quick presets:</div>
-          <button class="preset-btn" onclick="setPreset('ChatGPT Clone with voice, memory, plugins, and multi-modal')">🤖 ChatGPT Clone</button>
-          <button class="preset-btn" onclick="setPreset('Full Ecommerce Platform with Stripe, inventory, and admin panel')">🛒 Ecommerce</button>
-          <button class="preset-btn" onclick="setPreset('Social Media App with real-time chat, posts, and video calls')">📱 Social Media</button>
-          <button class="preset-btn" onclick="setPreset('RAG Pipeline with vector DB, embeddings, and retrieval chain')">🧠 RAG Pipeline</button>
-          <button class="preset-btn" onclick="setPreset('AI Agent that can plan, execute code, browse web, and learn')">🤖 AI Agent</button>
-          <button class="preset-btn" onclick="setPreset('REST API with auth, rate limiting, docs, and PostgreSQL')">⚙ API Server</button>
-          <button class="preset-btn" onclick="setPreset('Analytics Dashboard with real-time charts and ML predictions')">📊 Dashboard</button>
-          <button class="preset-btn" onclick="setPreset('Mobile App with React Native, push notifications, and offline mode')">📲 Mobile App</button>
-        </div>
-        <button class="big-build-btn" onclick="buildFromBuilder()">🚀 START BUILD — Activate All 50 Cores · 50 Engines · 50 AI Builders</button>
-      </div>
+<!-- ═══ EDUCATION ═══ -->
+<section id="sec-education" class="section">
+  <div class="hero">
+    <h1>🎓 20 AI Professors</h1>
+    <p>Select a professor, enter a topic, and get a full semester course: 15-week syllabus, lecture notes, and examination.</p>
+  </div>
+
+  <div id="profGrid" class="prof-grid"></div>
+
+  <div class="prompt-box" style="margin-top:20px">
+    <textarea id="eduTopic" placeholder="Enter your study topic...&#10;&#10;Examples:&#10;• Introduction to Machine Learning&#10;• Quantum Mechanics Fundamentals&#10;• Contract Law Principles&#10;• Microeconomic Theory" rows="3"></textarea>
+    <div class="prompt-actions">
+      <button class="btn btn-purple btn-lg" onclick="generateCourse()">🎓 Generate Full Course</button>
     </div>
-    <div class="panel" style="width:300px">
-      <div class="panel-head"><span class="ph-title">⚡ Active Jobs</span></div>
-      <div id="jobList" style="padding:10px;display:flex;flex-direction:column;gap:4px">
-        <div class="job-item idle">No active jobs — type a request above</div>
-      </div>
-      <div class="panel-head" style="margin-top:auto"><span class="ph-title">📋 Recent Builds</span></div>
-      <div id="recentBuilds" style="padding:10px;font-size:11px;overflow-y:auto;max-height:200px"></div>
+    <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('eduTopic').value='Introduction to Machine Learning and Neural Networks'">🤖 Machine Learning</button>
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('eduTopic').value='Quantum Mechanics: Wave-Particle Duality'">⚛️ Quantum Physics</button>
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('eduTopic').value='International Contract Law and Trade Agreements'">⚖️ Contract Law</button>
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('eduTopic').value='Human Anatomy: Cardiovascular System'">🏥 Anatomy</button>
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('eduTopic').value='Data Structures and Algorithm Design'">💻 Algorithms</button>
     </div>
   </div>
+
+  <div id="eduLoading" class="loading">
+    <div class="spinner"></div>
+    <div style="color:var(--muted)">Generating course content...</div>
+  </div>
+
+  <div id="courseOutput" class="course-output"></div>
 </section>
 
-<!-- ════ EDITOR ════ -->
-<section id="sec-editor" class="section">
-  <div class="editor-layout">
-    <div class="panel" style="flex:1;display:flex;flex-direction:column">
-      <div class="panel-head">
-        <span class="ph-title">💻 LIVE CODING WINDOW</span>
-        <div style="display:flex;gap:6px;align-items:center">
-          <select id="editorLang" class="ed-select">
-            <option value="python">Python</option>
-            <option value="javascript">JavaScript</option>
-          </select>
-          <button class="pa-btn primary" onclick="runCode()">▶ RUN</button>
-          <button class="pa-btn" onclick="saveCode()">💾 SAVE</button>
-          <button class="pa-btn" onclick="clearEditor()">🗑 CLEAR</button>
-          <button class="pa-btn" onclick="openModal('deploy')">🚀 DEPLOY</button>
-          <button class="pa-btn" onclick="sendCmd('fix all errors in this code')">🔧 AI FIX</button>
-        </div>
-      </div>
-      <textarea id="codeEditor">"""
-ORD AI — Live Coding Window
-50 Cores · 50 Engines · 50 AI Builders
-All 4 Blueprints: One Working System
-"""
-
-# Example: Build a simple AI system
-class ORDAI:
-    def __init__(self):
-        self.cores = 50
-        self.engines = 50
-        self.ai_builders = 50
-        self.loop = "infinite"
-        print(f"ORD AI initialized: {self.cores} cores, {self.engines} engines, {self.ai_builders} AI builders")
-
-    def build(self, prompt):
-        """Build any system from a prompt."""
-        print(f"Building: {prompt}")
-        print(f"Activating {self.cores} cores...")
-        print(f"Starting {self.engines} engines...")
-        print(f"Deploying {self.ai_builders} AI builders...")
-        return {"status": "complete", "version": "v1.0.1"}
-
-    def loop_forever(self):
-        """The ∞ loop — never stops until user says DONE."""
-        print("∞ Loop active — add jobs at any time")
-        return True
-
-
-# Initialize ORD AI
-ord_ai = ORDAI()
-
-# Build anything
-result = ord_ai.build("Create a ChatGPT clone with voice recognition")
-print(f"Build result: {result}")
-
-# Start the infinite loop
-ord_ai.loop_forever()
-</textarea>
-      <div class="ed-output-head">OUTPUT:</div>
-      <div id="edOutput" class="ed-output">&gt; Ready. Click RUN to execute. Use AI FIX to auto-correct errors.</div>
-    </div>
+<!-- ═══ FILES ═══ -->
+<section id="sec-files" class="section">
+  <div class="hero">
+    <h1>📁 Generated Files</h1>
+    <p>All your generated documents in one place. Click to download.</p>
   </div>
-</section>
-
-<!-- ════ ANALYTICS ════ -->
-<section id="sec-analytics" class="section">
-  <div class="section-title">📊 ANALYTICS & METRICS — All Systems</div>
-  <div class="analytics-grid">
-    <div class="panel an-panel">
-      <div class="panel-head"><span class="ph-title">🧪 Test Suite Results</span></div>
-      <div class="test-suite">
-        <div class="test-row"><span>Unit Tests</span><span class="tr-val green">145/145 ✅</span></div>
-        <div class="test-row"><span>Integration</span><span class="tr-val green">67/67 ✅</span></div>
-        <div class="test-row"><span>Performance</span><span class="tr-val amber">49/50 ⚠</span></div>
-        <div class="test-row"><span>Security</span><span class="tr-val green">20/20 ✅</span></div>
-        <div class="test-row"><span>UI Tests</span><span class="tr-val green">89/89 ✅</span></div>
-        <div class="test-row coverage"><span>Coverage</span><span class="tr-val accent">97%</span></div>
-      </div>
-      <div style="padding:0 14px 12px"><button class="pa-btn primary" style="width:100%" onclick="runTests()">▶ Run Full Test Suite</button></div>
-    </div>
-    <div class="panel an-panel">
-      <div class="panel-head"><span class="ph-title">💻 System Metrics</span></div>
-      <div class="sys-metrics">
-        <div class="sm-row"><span>CPU</span><div class="sm-bar"><div class="sm-fill blue" id="smCpu" style="width:34%"></div></div><span id="smCpuV">34%</span></div>
-        <div class="sm-row"><span>RAM</span><div class="sm-bar"><div class="sm-fill purple" id="smRam" style="width:56%"></div></div><span id="smRamV">56%</span></div>
-        <div class="sm-row"><span>Network</span><div class="sm-bar"><div class="sm-fill green" style="width:45%"></div></div><span>45%</span></div>
-        <div class="sm-row"><span>Disk I/O</span><div class="sm-bar"><div class="sm-fill amber" style="width:22%"></div></div><span>22%</span></div>
-        <div class="sm-row"><span>Uptime</span><div class="sm-bar"><div class="sm-fill teal" style="width:99.99%"></div></div><span class="green">99.99%</span></div>
-      </div>
-    </div>
-    <div class="panel an-panel">
-      <div class="panel-head"><span class="ph-title">🔄 Version History</span></div>
-      <div id="versionList" class="version-list">
-        <div class="vl-item"><span class="vl-ver">v1.0.0</span><span class="vl-msg">ORD AI — All blueprints unified</span><span class="vl-time muted">Now</span></div>
-      </div>
-    </div>
-    <div class="panel an-panel">
-      <div class="panel-head"><span class="ph-title">🤖 AI Pilot 100% Commitments</span></div>
-      <div class="commitments">
-        <div class="cm-row"><span class="cm-pct">100%</span><span>ANSWER — Every question instantly, no waiting</span></div>
-        <div class="cm-row"><span class="cm-pct">100%</span><span>BUILD — While user adds new jobs</span></div>
-        <div class="cm-row"><span class="cm-pct">100%</span><span>SHOW — Real-time progress always visible</span></div>
-        <div class="cm-row"><span class="cm-pct">100%</span><span>FEELINGS — Detects frustration/excitement</span></div>
-        <div class="cm-row"><span class="cm-pct">100%</span><span>LEARNING — Improves during mid-build</span></div>
-        <div class="cm-row"><span class="cm-pct">100%</span><span>CORRECTING — Fixes errors without being asked</span></div>
-        <div class="cm-row"><span class="cm-pct">100%</span><span>TALKING — Never silent, always updating</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ════ ENGINE ════ -->
-<section id="sec-engine" class="section">
-  <div class="section-title">⚙ ORD AI ENGINE LAYER — ModelRouter · Memory · RAG · FineTuner</div>
-
-  <div class="engine-grid">
-
-    <!-- MODEL ROUTER PANEL -->
-    <div class="panel engine-panel">
-      <div class="panel-head">
-        <span class="ph-title">🔀 MultiModelRouter</span>
-        <span id="routerActiveBadge" class="badge badge-green">mock</span>
-      </div>
-      <div class="router-sub">Dynamic LLM routing — LMStudio · Ollama · OpenAI · Mock</div>
-      <div id="routerBackends" class="router-backends"></div>
-      <div class="engine-prompt-row">
-        <input id="routerPrompt" class="engine-input" placeholder="Ask the AI directly…" />
-        <select id="routerTaskType" class="engine-select">
-          <option value="default">Default</option>
-          <option value="code_generation">Code Gen</option>
-          <option value="system_architecture">Architecture</option>
-          <option value="fast_iteration">Fast Iter</option>
-          <option value="validation">Validation</option>
-          <option value="review">Review</option>
-        </select>
-        <button class="btn-engine" onclick="routerAsk()">Ask ⟶</button>
-      </div>
-      <div id="routerResponse" class="engine-response"></div>
-    </div>
-
-    <!-- MEMORY PANEL -->
-    <div class="panel engine-panel">
-      <div class="panel-head">
-        <span class="ph-title">🧠 Memory Bank</span>
-        <button class="btn-sm" onclick="loadMemory()">Refresh</button>
-      </div>
-      <div class="memory-tiers">
-        <div class="mem-tier">
-          <div class="mt-header blue">Short-Term <span class="mt-ttl">TTL 1h</span></div>
-          <div id="memShortCount" class="mt-count">0 keys</div>
-        </div>
-        <div class="mem-tier">
-          <div class="mt-header green">Long-Term <span class="mt-ttl">SQLite FTS</span></div>
-          <div id="memLongCount" class="mt-count">0 docs</div>
-        </div>
-        <div class="mem-tier">
-          <div class="mt-header purple">Episodic <span class="mt-ttl">Events</span></div>
-          <div id="memEpiCount" class="mt-count">0 events</div>
-        </div>
-      </div>
-      <div class="engine-prompt-row">
-        <input id="memSearchQ" class="engine-input" placeholder="Search long-term memory…" />
-        <button class="btn-engine" onclick="memSearch()">Search</button>
-      </div>
-      <div id="memResults" class="engine-response"></div>
-      <div class="panel-head" style="margin-top:8px"><span class="ph-title">Recent Events</span></div>
-      <div id="episodicFeed" class="episodic-feed"></div>
-    </div>
-
-    <!-- RAG PANEL -->
-    <div class="panel engine-panel">
-      <div class="panel-head">
-        <span class="ph-title">📚 Hybrid RAG</span>
-        <span id="ragDocBadge" class="badge badge-blue">0 docs</span>
-      </div>
-      <div class="router-sub">BM25 keyword + vector semantic search · Zero-dep fallback</div>
-      <div class="rag-stats-row">
-        <div class="rag-stat"><span id="ragTotal">0</span><br><small>Documents</small></div>
-        <div class="rag-stat"><span id="ragVectorized">0</span><br><small>Vectorized</small></div>
-        <div class="rag-stat"><span id="ragVectorOk" class="badge badge-amber">BM25</span><br><small>Mode</small></div>
-      </div>
-      <div class="engine-prompt-row">
-        <input id="ragQuery" class="engine-input" placeholder="Query knowledge base…" />
-        <select id="ragMode" class="engine-select">
-          <option value="hybrid">Hybrid</option>
-          <option value="bm25">BM25 only</option>
-          <option value="vector">Vector only</option>
-        </select>
-        <button class="btn-engine" onclick="ragQuery()">Search</button>
-      </div>
-      <div id="ragResults" class="engine-response"></div>
-      <div class="panel-head" style="margin-top:8px"><span class="ph-title">Ingest Document</span></div>
-      <div class="ingest-form">
-        <input id="ingestTitle" class="engine-input" placeholder="Title" style="width:100%;margin-bottom:4px" />
-        <textarea id="ingestContent" class="engine-textarea" placeholder="Content to add to knowledge base…" rows="3"></textarea>
-        <div class="engine-prompt-row">
-          <input id="ingestTags" class="engine-input" placeholder="tags (comma-separated)" />
-          <button class="btn-engine" onclick="ragIngest()">Ingest ⟶</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- FINE-TUNER PANEL -->
-    <div class="panel engine-panel">
-      <div class="panel-head">
-        <span class="ph-title">🎓 FineTuner</span>
-        <span id="ftStatusBadge" class="badge badge-amber">idle</span>
-      </div>
-      <div class="router-sub">LoRA/QLoRA fine-tuning from build history · GGUF/ONNX export</div>
-      <div class="ft-config">
-        <div class="ft-row-cfg">
-          <label>Base Model</label>
-          <select id="ftModel" class="engine-select" style="flex:1">
-            <option value="llama-3.1-8b">LLaMA 3.1 8B</option>
-            <option value="qwen2.5-coder-7b">Qwen2.5-Coder 7B</option>
-            <option value="mistral-7b">Mistral 7B</option>
-            <option value="codellama-7b">CodeLLaMA 7B</option>
-          </select>
-        </div>
-        <div class="ft-row-cfg">
-          <label>Method</label>
-          <select id="ftMethod" class="engine-select" style="flex:1">
-            <option value="lora">LoRA</option>
-            <option value="qlora">QLoRA (4-bit)</option>
-          </select>
-        </div>
-        <div class="ft-row-cfg">
-          <label>Epochs</label>
-          <input id="ftEpochs" type="number" value="3" min="1" max="10" class="engine-input" style="width:60px" />
-          <button class="btn-engine" style="margin-left:auto" onclick="startFinetune()">▶ Start Training</button>
-        </div>
-      </div>
-      <div class="ft-progress-wrap">
-        <div class="ft-progress-bar"><div id="ftProgressFill" class="ft-progress-fill" style="width:0%"></div></div>
-        <span id="ftProgressPct">0%</span>
-      </div>
-      <div id="ftStatus" class="engine-response">
-        Ready. Training data auto-generated from your build history.
-      </div>
-      <div class="panel-head" style="margin-top:8px"><span class="ph-title">Training History</span></div>
-      <div id="ftHistory" class="episodic-feed"></div>
-    </div>
-
-  </div><!-- /engine-grid -->
-
-  <!-- TASK BOARD — full width below 2-col grid -->
-  <div class="panel" style="margin-top:12px">
-    <div class="panel-head">
-      <span class="ph-title">📋 DAG Task Board — Real-time Build Pipeline</span>
-      <div style="display:flex;gap:6px;align-items:center">
-        <span id="orchTaskCount" class="badge badge-blue">0 tasks</span>
-        <span id="orchHitlCount" class="badge badge-amber">0 HITL</span>
-        <button class="btn-sm" onclick="loadTaskBoard()">Refresh</button>
-      </div>
-    </div>
-    <div id="taskBoard" class="task-board"></div>
-  </div>
-
-  <!-- HITL APPROVAL QUEUE — full width -->
-  <div class="panel" style="margin-top:12px">
-    <div class="panel-head">
-      <span class="ph-title">👤 HITL Approval Queue — Human-in-the-Loop Gates</span>
-      <span class="badge badge-red" id="hitlQueueBadge">0 pending</span>
-    </div>
-    <div id="hitlApprovalQueue" class="hitl-queue"></div>
-  </div>
-
-</section>
-
-<!-- ════ BLUEPRINT ════ -->
-<section id="sec-blueprint" class="section">
-  <div class="section-title">📐 ORD AI MASTER BLUEPRINT — ∞ = ONE SYSTEM (All 4 Merged)</div>
-  <div class="blueprint-layout">
-    <div class="panel" style="flex:1">
-      <div class="panel-head"><span class="ph-title">Complete System Diagram</span></div>
-<pre class="bp-ascii">
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                    ORD AI — ∞ = ONE SYSTEM (All 4 Blueprints Merged)                 │
-├─────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                      │
-│   ╔═══════════════╗                                                                  │
-│   ║  HUMAN INPUT  ║  ← You type here                                                 │
-│   ╚───────┬───────╝                                                                  │
-│           │                                                                          │
-│           ▼                                                                          │
-│   ╔═══════════════╗     ┌─────────────────────────────────────────────────────────┐ │
-│   ║  PROMPT BOX   ║     │  AI PILOT — 100% ALIVE (Blueprint 2)                    │ │
-│   ║ "Creating     ║────►│  • 100% Answer  • 100% Build   • 100% Show              │ │
-│   ║  Reality by   ║     │  • 100% Feelings  • 100% Learning  • 100% Correcting    │ │
-│   ║  Building"    ║     │  • 100% Talking (never silent, never stops)             │ │
-│   ╚───────┬───────╝     └──────────────────────────┬──────────────────────────────┘ │
-│           │                                        │                                 │
-│           ▼                                        ▼                                 │
-│   ╔═══════════════╗         ┌───────────────────────────────────────────────────┐   │
-│   ║ PERIMETRELER  ║         │  AGENT PIPELINE (Blueprint 4 — SpecKit Autopilot) │   │
-│   ║ (Boundaries & ║         │  🗺 Planner → ⚙ Implementer → 🧪 Validator        │   │
-│   ║  Constraints) ║         │  → 🔍 Reviewer → 🔀 Merger                        │   │
-│   ╚───────┬───────╝         │                                                    │   │
-│           │                 │  HITL GATES: REQUIRED / OPTIONAL / NONE            │   │
-│           ▼                 └───────────────────────────────────────────────────┘   │
-│   ╔═══════════════╗                                │                                 │
-│   ║CODEINSPEKTE-  ║                                ▼                                 │
-│   ║  LECKEC!      ║    ┌────────────────────────────────────────────────────────┐   │
-│   ║ (Auto-Test)   ║    │           50 / 50 / 50  RESOURCE LAYER                 │   │
-│   ╚───────┬───────╝    │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐   │   │
-│           │            │  │  50  CORES   │ │  50 ENGINES  │ │ 50 AI BUILD  │   │   │
-│           ▼            │  │  Processing  │ │  Execution   │ │ Generative   │   │   │
-│   ╔═══════════════╗    │  │  Parallelism │ │  Pipelines   │ │ Agents       │   │   │
-│   ║ DESTEKIMAKLER ║───►│  └──────────────┘ └──────────────┘ └──────────────┘   │   │
-│   ║    EVERY      ║    └────────────────────────────────────────────────────────┘   │
-│   ╚───────┬───────╝                            │                                    │
-│           │                                    ▼                                    │
-│           │    ╔═══════════════════════════════════════════════════════════════╗    │
-│           │    ║ LIVE DASHBOARD (Blueprint 3 — Three Window System)           ║    │
-│           │    ║ Window 1: Prompt Block  Window 2: Live Preview               ║    │
-│           │    ║ Window 3: Live Coding   + 10 Quick Actions                   ║    │
-│           │    ║ Current: 65%  Queued: Voice(30%) Memory(0%)                  ║    │
-│           │    ║ Core 17 bottleneck → [FIXING NOW]                            ║    │
-│           │    ╚═══════════════════════════════════════════════════════════════╝    │
-│           │                                    │                                    │
-│           └────────────────────────────────────┘                                    │
-│                                                 │                                    │
-│                                                 ▼                                    │
-│   ╔═══════════════════════════════════════════════════════════════════════════════╗  │
-│   ║  OUTPUTS:  AI Apps  │  AIs  │  Systems  │  Prototypes  │  Anything            ║  │
-│   ╚═══════════════════════════════════════════════════════════════════════════════╝  │
-│                                                 │                                    │
-│                                                 ▼                                    │
-│   ╔═══════════╗                                                                      │
-│   ║ ∞ LOOP    ║──► Output → Human Review → Prompt Box (Figure-8 Continuous)         │
-│   ║  BACK     ║◄── User adds jobs at any time ── System never waits                 │
-│   ╚═══════════╝                                                                      │
-│                                                 │                                    │
-│                                                 ▼                                    │
-│   ╔═══════════════╗                                                                  │
-│   ║   PERFECTED   ║                                                                  │
-│   ║    OUTPUT     ║  ← Production ready. Loop stops only when user says "DONE"      │
-│   ╚═══════════════╝                                                                  │
-└─────────────────────────────────────────────────────────────────────────────────────┘</pre>
-    </div>
-    <div class="panel" style="width:300px">
-      <div class="panel-head"><span class="ph-title">Flow Summary</span></div>
-      <div class="flow-table">
-        <div class="ft-row head"><span>#</span><span>Component</span><span>Blueprint</span></div>
-        <div class="ft-row"><span>1</span><span>Human Input</span><span>BP1</span></div>
-        <div class="ft-row"><span>2</span><span>Prompt Box</span><span>BP1</span></div>
-        <div class="ft-row"><span>3</span><span>AI Pilot (100%)</span><span>BP2</span></div>
-        <div class="ft-row"><span>4</span><span>Perimetreler</span><span>BP1</span></div>
-        <div class="ft-row"><span>5</span><span>CodeInspekt!</span><span>BP1</span></div>
-        <div class="ft-row"><span>6</span><span>Destekimakler</span><span>BP1</span></div>
-        <div class="ft-row"><span>7</span><span>50/50/50 Layer</span><span>BP1</span></div>
-        <div class="ft-row"><span>8</span><span>Agent Pipeline</span><span>BP4</span></div>
-        <div class="ft-row"><span>9</span><span>HITL Gates</span><span>BP4</span></div>
-        <div class="ft-row"><span>10</span><span>3-Window UI</span><span>BP3</span></div>
-        <div class="ft-row"><span>11</span><span>Live Dashboard</span><span>BP2+3</span></div>
-        <div class="ft-row highlight"><span>12</span><span>Perfected Output</span><span>ALL</span></div>
-      </div>
-      <div class="panel-head" style="margin-top:8px"><span class="ph-title">System Specs</span></div>
-      <div class="spec-list">
-        <div class="spec-row"><span>Cores</span><span class="blue">50 parallel</span></div>
-        <div class="spec-row"><span>Engines</span><span class="green">50 pipelines</span></div>
-        <div class="spec-row"><span>AI Builders</span><span class="purple">50 agents</span></div>
-        <div class="spec-row"><span>AI Pilot</span><span class="accent">7 × 100%</span></div>
-        <div class="spec-row"><span>Loop</span><span class="amber">∞ Figure-8</span></div>
-        <div class="spec-row"><span>HITL Lanes</span><span>3 (Req/Opt/None)</span></div>
-        <div class="spec-row"><span>Agent Pipeline</span><span>5 agents</span></div>
-        <div class="spec-row"><span>Quick Actions</span><span>10 one-click</span></div>
-        <div class="spec-row"><span>Deployment</span><span>8+ platforms</span></div>
-        <div class="spec-row"><span>Templates</span><span>8+ pre-built</span></div>
-        <div class="spec-row"><span>Builds</span><span class="green">Any system</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     SECTION 7 — 14 PROTECTION SYSTEMS
-═══════════════════════════════════════════════════════════════ -->
-<section id="sec-protection" class="section">
-  <div class="section-title">🛡 ALL 14 PRODUCTION PROTECTION SYSTEMS — Real-time Status</div>
-  <div id="protectionGrid" class="prot-grid">
-    <!-- Cards injected by JS -->
-  </div>
-  <div class="prot-detail">
-    <div class="panel" style="margin-top:16px">
-      <div class="panel-head"><span class="ph-title">🔍 Prompt Injection Inspector</span></div>
-      <div style="padding:12px;display:flex;gap:8px;flex-wrap:wrap">
-        <textarea id="injTestInput" rows="3" style="flex:1;min-width:220px;background:#1a1a2e;color:#e0e0e0;border:1px solid #333;border-radius:6px;padding:8px;font-size:13px" placeholder="Paste any user input to scan for injection attacks..."></textarea>
-        <button class="btn-primary" onclick="testInjection()" style="align-self:flex-end">Scan</button>
-      </div>
-      <div id="injResult" style="padding:0 12px 12px;font-size:13px;color:#aaa">Results will appear here.</div>
-    </div>
-    <div class="panel" style="margin-top:16px">
-      <div class="panel-head"><span class="ph-title">💰 Cost Governor — Daily Budget</span></div>
-      <div id="costDetail" style="padding:12px;font-size:13px;color:#aaa">Loading...</div>
-    </div>
-    <div class="panel" style="margin-top:16px">
-      <div class="panel-head"><span class="ph-title">📋 Post-Mortem Incidents</span></div>
-      <div id="incidentList" style="padding:12px;font-size:13px;color:#aaa">Loading...</div>
-    </div>
-    <div class="panel" style="margin-top:16px">
-      <div class="panel-head"><span class="ph-title">🔄 Rollback Bundles</span></div>
-      <div id="rollbackList" style="padding:12px;font-size:13px;color:#aaa">Loading...</div>
-      <div style="padding:0 12px 12px">
-        <button class="btn-secondary" onclick="snapshotBundle()">📸 Snapshot Now</button>
-      </div>
-    </div>
+  <div id="filesGrid" class="files-grid">
+    <div style="text-align:center;padding:40px;color:var(--muted);grid-column:1/-1">No files yet. Generate a document first.</div>
   </div>
 </section>
 
 </main>
 
-<!-- MODALS -->
-<div id="modalOverlay" class="modal-overlay" onclick="closeModal()"></div>
-<div id="modal" class="modal">
-  <div class="modal-head"><span id="modalTitle"></span><button class="modal-close" onclick="closeModal()">✕</button></div>
-  <div id="modalBody" class="modal-body"></div>
-</div>
-
-<!-- FAB -->
-<button class="fab" onclick="openModal('ai')" title="AI Assistant">🤖</button>
-
-<!-- Toast -->
 <div id="toastContainer" class="toast-container"></div>
-
 <script src="/static/js/app.js"></script>
 </body>
 </html>
