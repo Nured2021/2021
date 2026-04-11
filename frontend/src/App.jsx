@@ -5,25 +5,16 @@ import PreviewPanel from "./components/PreviewPanel";
 import SearchBar from "./components/SearchBar";
 import AuthPage from "./pages/AuthPage";
 import ApiKeysPage from "./pages/ApiKeysPage";
-import Dashboard from "./pages/Dashboard";
-import PremiumDashboard from "./pages/PremiumDashboard";
-import NewDashboard from "./pages/NewDashboard";
 import ClassroomPage from "./pages/ClassroomPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { buildRequest, uploadFile } from "./api/buildApi";
 import { generateEducation } from "./api/educationApi";
 import "./App.css";
 
-/* ── Module routing table ───────────────────────────────────────────
-   Maps each sidebar tab ID → the module key sent to /api/build.
-   Education tabs strip the "edu_" prefix and go via /education/generate.
-   Business & Pro tabs go directly to /api/build with their module key.
-──────────────────────────────────────────────────────────────────── */
 const TAB_TO_MODULE = {
   document:         "document",
   excel:            "excel",
   presentation:     "slides",
-  // Business & Pro tabs
   business:         "business",
   research:         "research",
   analytics:        "analytics",
@@ -38,12 +29,8 @@ const FORMAT_TO_MODULE = {
   excel:  "excel",
 };
 
-// Which tabs render using the education API (for richer edu output)
 const IS_EDU_TAB = (tab) => tab.startsWith("edu_");
-// Which tabs go through /api/build (all non-edu tabs except "uploads")
-const IS_BUILD_TAB = (tab) => !IS_EDU_TAB(tab) && tab !== "uploads";
 
-/* Status message sequences for animated feedback */
 const STATUS_SEQ = {
   default:     ["Analysing your request…", "Routing to specialist AI…", "Generating content…", "Formatting output…", "Almost done…"],
   excel:       ["Parsing your request…", "Building data structure…", "Applying formulas…", "Creating charts…", "Finalising spreadsheet…"],
@@ -58,25 +45,21 @@ const STATUS_SEQ = {
 function App() {
   const { user, logout } = useAuth();
   const { authHeader } = useAuth();
-  const [showAuth, setShowAuth]   = useState(false);
-  const [showKeys, setShowKeys]   = useState(false);
-  const [showDashboard, setShowDashboard] = useState(false);
-  const [showPremiumDashboard, setShowPremiumDashboard] = useState(false);
-  const [showNewDashboard, setShowNewDashboard] = useState(true);
+  const [showAuth, setShowAuth]         = useState(false);
+  const [showKeys, setShowKeys]         = useState(false);
   const [showClassroom, setShowClassroom] = useState(false);
-  const [activeTab, setActiveTab]     = useState("document");
-  const [docFormat, setDocFormat]     = useState("doc");
-  const [loading, setLoading]         = useState(false);
-  const [result, setResult]           = useState(null);
-  const [error, setError]             = useState(null);
-  const [status, setStatus]           = useState("Ready");
+  const [activeTab, setActiveTab]       = useState("document");
+  const [docFormat, setDocFormat]       = useState("doc");
+  const [loading, setLoading]           = useState(false);
+  const [result, setResult]             = useState(null);
+  const [error, setError]               = useState(null);
+  const [status, setStatus]             = useState("Ready");
   const [workspaceFiles, setWorkspaceFiles] = useState([]);
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [pendingPrompt, setPendingPrompt] = useState(null);
   const fileInputRef = useRef(null);
   const statusTimerRef = useRef(null);
 
-  /* Animated status messages */
   const animateStatus = (module) => {
     const seq = STATUS_SEQ[module] || STATUS_SEQ.default;
     let i = 0;
@@ -91,7 +74,6 @@ function App() {
     statusTimerRef.current = null;
   };
 
-  /* Add entry to workspace history */
   const addToWorkspace = (data, prompt, format) => {
     setWorkspaceFiles((prev) => [
       {
@@ -109,7 +91,6 @@ function App() {
     ]);
   };
 
-  /* ── Main generate handler ──────────────────────────────────── */
   const handleGenerate = async (prompt) => {
     setLoading(true);
     setError(null);
@@ -118,13 +99,10 @@ function App() {
     let data;
     try {
       if (IS_EDU_TAB(activeTab)) {
-        // Education tabs use /education/generate
         const module = activeTab.replace("edu_", "");
         animateStatus(module);
         data = await generateEducation({ prompt, module });
-
       } else {
-        // All other tabs use /api/build — the Central Brain auto-routes
         const module = TAB_TO_MODULE[activeTab] || FORMAT_TO_MODULE[docFormat] || "auto";
         animateStatus(module);
         data = await buildRequest(prompt, module);
@@ -142,7 +120,6 @@ function App() {
     }
   };
 
-  /* ── Workflow automation: "Generate Slides from this" ───────── */
   const handleGenerateSlides = async (prompt) => {
     if (!result || !prompt) return;
     setLoading(true);
@@ -165,7 +142,6 @@ function App() {
     }
   };
 
-  /* ── Workflow automation: "Export to Excel" ─────────────────── */
   const handleGenerateExcel = async (prompt) => {
     if (!result || !prompt) return;
     setLoading(true);
@@ -188,7 +164,6 @@ function App() {
     }
   };
 
-  /* ── Upload handler ─────────────────────────────────────────── */
   const handleUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -197,7 +172,6 @@ function App() {
     setError(null);
     setResult(null);
     animateStatus("upload");
-
     try {
       const data = await uploadFile(file, "upload");
       setResult(data);
@@ -213,7 +187,6 @@ function App() {
     }
   };
 
-  /* ── Translate shortcut ─────────────────────────────────────── */
   const handleTranslate = async (currentPrompt) => {
     if (!currentPrompt.trim()) return;
     setLoading(true);
@@ -237,26 +210,20 @@ function App() {
     }
   };
 
-  /* ── Tab selection ──────────────────────────────────────────── */
   const handleTabSelect = (tab) => {
     if (tab === "uploads") {
       fileInputRef.current?.click();
       return;
     }
-    if (tab === "dashboard") {
-      setShowDashboard(true);
-      return;
-    }
-    if (tab === "premium_dashboard") {
-      setShowPremiumDashboard(true);
-      return;
-    }
-    if (tab === "new_dashboard") {
-      setShowNewDashboard(true);
-      return;
-    }
     if (tab === "classroom") {
       setShowClassroom(true);
+      return;
+    }
+    if (tab === "dashboard" || tab === "premium_dashboard" || tab === "new_dashboard") {
+      setActiveTab("document");
+      setResult(null);
+      setError(null);
+      setStatus("Ready");
       return;
     }
     setActiveTab(tab);
@@ -265,7 +232,6 @@ function App() {
     setStatus("Ready");
   };
 
-  /* ── Workspace restore ──────────────────────────────────────── */
   const handleLoadWorkspaceItem = (item) => {
     if (item._result) setResult(item._result);
     if (item.prompt)  setPendingPrompt(item.prompt);
@@ -273,26 +239,8 @@ function App() {
 
   return (
     <div className="layout">
-      {showAuth      && <AuthPage      onDone={() => setShowAuth(false)} />}
-      {showKeys      && <ApiKeysPage  onClose={() => setShowKeys(false)} />}
-      {showDashboard && <Dashboard    onClose={() => setShowDashboard(false)}
-                          onActivateModule={(mod) => { setActiveTab(mod); setShowDashboard(false); }} />}
-      {showPremiumDashboard && <PremiumDashboard onClose={() => setShowPremiumDashboard(false)}
-                          onActivateModule={(mod) => { if (mod === 'classroom') { setShowClassroom(true); } else { setActiveTab(mod); } setShowPremiumDashboard(false); }} />}
-      {showNewDashboard && (
-        <NewDashboard
-          onClose={() => setShowNewDashboard(false)}
-          onActivateModule={(mod) => {
-            if (mod === 'classroom') { setShowClassroom(true); }
-            else { setActiveTab(mod); }
-            setShowNewDashboard(false);
-          }}
-          onGenerate={(wizardResult, mod) => {
-            setResult(wizardResult);
-            if (mod) setActiveTab(mod);
-          }}
-        />
-      )}
+      {showAuth && <AuthPage onDone={() => setShowAuth(false)} />}
+      {showKeys && <ApiKeysPage onClose={() => setShowKeys(false)} />}
       {showClassroom && <ClassroomPage onClose={() => setShowClassroom(false)} />}
       <Sidebar
         active={activeTab}
@@ -332,7 +280,6 @@ function App() {
         onGenerateExcel={handleGenerateExcel}
         currentPrompt={pendingPrompt}
       />
-      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
