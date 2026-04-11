@@ -46,6 +46,11 @@ def _init_db():
         );
         CREATE VIRTUAL TABLE IF NOT EXISTS docs_fts
             USING fts5(title, content, tags, content=documents, content_rowid=id);
+        CREATE TABLE IF NOT EXISTS doc_graph (
+            src_id  INTEGER NOT NULL,
+            dst_id  INTEGER NOT NULL,
+            PRIMARY KEY(src_id, dst_id)
+        );
     """)
     con.commit()
     con.close()
@@ -246,10 +251,59 @@ class HybridRAG:
         vectorized = cur.fetchone()["cnt"]
         cur.execute("SELECT source, COUNT(*) as cnt FROM documents GROUP BY source")
         by_source = {r["source"]: r["cnt"] for r in cur.fetchall()}
+        cur.execute("SELECT COUNT(*) as cnt FROM doc_graph")
+        edges = cur.fetchone()["cnt"]
         con.close()
         return {
             "total_documents": total,
             "vectorized": vectorized,
             "vector_search_enabled": _VECTOR_OK,
+            "graph_edges": edges,
             "by_source": by_source,
         }
+
+    def add_relationship(self, doc_id_1: int, doc_id_2: int) -> None:
+        """Add a knowledge graph edge between two documents."""
+        con = _db()
+        try:
+            con.execute(
+                "INSERT OR IGNORE INTO doc_graph (src_id, dst_id) VALUES (?,?)", (doc_id_1, doc_id_2)
+            )
+            con.execute(
+                "INSERT OR IGNORE INTO doc_graph (src_id, dst_id) VALUES (?,?)", (doc_id_2, doc_id_1)
+            )
+            con.commit()
+        except Exception:
+            pass
+        con.close()
+
+    def _graph_expand(self, seed_ids: list[int], depth: int = 1) -> list[dict]:
+        """Traverse knowledge graph edges to find related documents."""
+        if not seed_ids:
+            return []
+        con = _db()
+        cur = con.cursor()
+        visited = set(seed_ids)
+        frontier = list(seed_ids)
+        extra: list[dict] = []
+        for _ in range(depth):
+            if not frontier:
+                break
+            placeholders = ",".join("?" for _ in frontier)
+            cur.execute(
+                f"SELECT dst_id FROM doc_graph WHERE src_id IN ({placeholders})", frontier
+            )
+            neighbors = [r[0] for r in cur.fetchall() if r[0] not in visited]
+            if not neighbors:
+                break
+            visited.update(neighbors)
+            frontier = neighbors
+            np_holders = ",".join("?" for _ in neighbors)
+            cur.execute(
+                f"SELECT id, title, content, source, tags FROM documents WHERE id IN ({np_holders})",
+                neighbors,
+            )
+            for row in cur.fetchall():
+                extra.append(dict(row))
+        con.close()
+        return extra

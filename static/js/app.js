@@ -4,6 +4,16 @@
 ═══════════════════════════════════════════════════════════ */
 "use strict";
 
+// ─── Security: HTML escaping helper ────────────────────────
+function _esc(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
 // ─── Socket.IO connection ───────────────────────────────────
 const socket = io();
 
@@ -172,22 +182,27 @@ function renderBottlenecks(bns) {
     el.innerHTML = '<div class="bn-empty">No bottlenecks ✓</div>';
     return;
   }
-  el.innerHTML = bns.map(bn =>
+  el.innerHTML = bns.map((bn, i) =>
     `<div class="bn-item">
-      <span>${bn}</span>
-      <button onclick="fixBottleneck(this,'${bn.replace(/'/g, "\\'")}')">Fix</button>
+      <span>${_esc(bn)}</span>
+      <button class="fix-bn-btn" data-idx="${i}">Fix</button>
     </div>`
   ).join("");
-}
-
-function fixBottleneck(btn, bn) {
-  btn.disabled = true;
-  btn.textContent = "Fixing...";
-  fetch("/api/fix_bottleneck", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ bottleneck: bn }),
-  }).then(() => toast("🔧 Fixed: " + bn, "success"));
+  // Store current bottlenecks on element to avoid closure capture
+  el._bns = bns;
+  el.querySelectorAll(".fix-bn-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const bn = (el._bns || [])[parseInt(this.dataset.idx)];
+      if (!bn) return;
+      this.disabled = true;
+      this.textContent = "Fixing...";
+      fetch("/api/fix_bottleneck", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bottleneck: bn }),
+      }).then(() => toast("🔧 Fixed: " + _esc(bn), "success"));
+    });
+  });
 }
 
 // ─── Files ─────────────────────────────────────────────────
@@ -316,7 +331,14 @@ function appendUserMsg(txt) {
   if (!log) return;
   const div = document.createElement("div");
   div.className = "chat-msg user";
-  div.innerHTML = `<span class="cm-icon">👤</span><div class="cm-bubble">${txt}</div>`;
+  const icon = document.createElement("span");
+  icon.className = "cm-icon";
+  icon.textContent = "👤";
+  const bubble = document.createElement("div");
+  bubble.className = "cm-bubble";
+  bubble.textContent = txt;
+  div.appendChild(icon);
+  div.appendChild(bubble);
   log.appendChild(div);
   log.scrollTop = log.scrollHeight;
 }
@@ -358,8 +380,8 @@ function updateJobList(job, status) {
   if (!el) return;
   if (el.querySelector(".job-item.idle")) el.innerHTML = "";
   const div = document.createElement("div");
-  div.className = `job-item ${status}`;
-  div.innerHTML = `${status === "started" ? "🔨" : "📋"} ${job}`;
+  div.className = `job-item ${_esc(status)}`;
+  div.textContent = (status === "started" ? "🔨 " : "📋 ") + job;
   el.insertBefore(div, el.firstChild);
 }
 
@@ -615,7 +637,13 @@ function aiSend() {
   if (log) {
     const userDiv = document.createElement("div");
     userDiv.className = "ai-row user";
-    userDiv.innerHTML = `<span>👤</span><div class="bubble">${msg}</div>`;
+    const uIcon = document.createElement("span");
+    uIcon.textContent = "👤";
+    const uBubble = document.createElement("div");
+    uBubble.className = "bubble";
+    uBubble.textContent = msg;
+    userDiv.appendChild(uIcon);
+    userDiv.appendChild(uBubble);
     log.appendChild(userDiv);
     log.scrollTop = log.scrollHeight;
   }
@@ -629,7 +657,13 @@ function aiSend() {
     if (log) {
       const aiDiv = document.createElement("div");
       aiDiv.className = "ai-row ai";
-      aiDiv.innerHTML = `<span>🤖</span><div class="bubble">${d.reply}</div>`;
+      const aIcon = document.createElement("span");
+      aIcon.textContent = "🤖";
+      const aBubble = document.createElement("div");
+      aBubble.className = "bubble";
+      aBubble.textContent = d.reply;
+      aiDiv.appendChild(aIcon);
+      aiDiv.appendChild(aBubble);
       log.appendChild(aiDiv);
       log.scrollTop = log.scrollHeight;
     }
@@ -801,16 +835,16 @@ async function ragQuery() {
     }
     el.innerHTML = d.results.map(res =>
       `<div class="rag-result">
-        <div class="rag-result-title">${res.title}</div>
-        <div class="rag-result-content">${(res.content||"").slice(0,200)}…</div>
+        <div class="rag-result-title">${_esc(res.title)}</div>
+        <div class="rag-result-content">${_esc((res.content||"").slice(0,200))}…</div>
         <div class="rag-result-meta">
-          <span>score: ${(res.score||0).toFixed(3)}</span>
-          <span>method: ${res.method||mode}</span>
-          <span>source: ${res.source||"-"}</span>
+          <span>score: ${_esc((res.score||0).toFixed(3))}</span>
+          <span>method: ${_esc(res.method||mode)}</span>
+          <span>source: ${_esc(res.source||"-")}</span>
         </div>
       </div>`
     ).join("");
-  } catch(e) { el.innerHTML = "Error: " + e.message; }
+  } catch(e) { el.textContent = "Error: " + e.message; }
 }
 
 document.getElementById("ragQuery")?.addEventListener("keydown", e => {
@@ -879,4 +913,146 @@ async function startFinetune() {
     toast(`🎓 Fine-tuning ${d.status}: ${base_model}`, d.status==="started"?"success":"info");
     loadFinetuneStatus();
   } catch(e) { toast("Finetune error: " + e.message, "error"); }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ORCHESTRATOR — Task Board + HITL Approval Queue
+// ══════════════════════════════════════════════════════════════
+
+(function orchInit() {
+  loadTaskBoard();
+  loadHitlQueue();
+  setInterval(loadTaskBoard, 4000);
+  setInterval(loadHitlQueue, 3000);
+})();
+
+// Live update from socket
+if (typeof socket !== "undefined") {
+  socket.on("orchestrator_update", function(data) {
+    renderTaskBoard(data.tasks || []);
+    renderHitlQueue(data.tasks ? data.tasks.filter(t => t.status === "awaiting_approval") : []);
+  });
+  socket.on("hitl_required", function(task) {
+    toast(`⚠ HITL Required: ${task.name}`, "error");
+    loadHitlQueue();
+  });
+  socket.on("hitl_approved", function(d) {
+    toast(`✅ HITL Approved: ${d.task_id.slice(0,8)}`, "success");
+    loadTaskBoard();
+    loadHitlQueue();
+  });
+  socket.on("build_complete", function(d) {
+    toast(`🎉 Build complete → ${d.version} | ${d.files} files | ${d.tests} tests | [${d.backend}]`, "success");
+    loadTaskBoard();
+    loadEngineStatus();
+  });
+}
+
+async function loadTaskBoard() {
+  try {
+    const r = await fetch("/api/orchestrator/tasks");
+    const tasks = await r.json();
+    renderTaskBoard(tasks);
+    // Update counts
+    const hitl = tasks.filter(t => t.status === "awaiting_approval");
+    document.getElementById("orchTaskCount").textContent = tasks.length + " tasks";
+    document.getElementById("orchHitlCount").textContent = hitl.length + " HITL";
+    document.getElementById("orchHitlCount").className = hitl.length > 0 ? "badge badge-red" : "badge badge-amber";
+    renderHitlQueue(hitl);
+  } catch(e) {}
+}
+
+function renderTaskBoard(tasks) {
+  const board = document.getElementById("taskBoard");
+  if (!board) return;
+  if (!tasks || !tasks.length) {
+    board.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:12px">No active tasks. Trigger a build to see the DAG here.</div>';
+    return;
+  }
+  const statusIcon = {
+    done: "✅", running: "⚡", pending: "⏳",
+    blocked: "🔒", awaiting_approval: "👤", failed: "❌"
+  };
+  board.innerHTML = tasks.map(t => `
+    <div class="task-card status-${t.status}">
+      <div class="tc-header">
+        <div class="tc-status-dot ${t.status}"></div>
+        <span class="tc-name">${t.name}</span>
+        <span class="tc-lane ${t.hitl_lane}">${t.hitl_lane}</span>
+      </div>
+      <div class="tc-desc">${t.description || ""}</div>
+      <div class="tc-meta">
+        <span>${statusIcon[t.status] || "•"} ${t.status}</span>
+        ${t.assigned_backend ? `<span>🔀 ${t.assigned_backend}</span>` : ""}
+        ${t.duration ? `<span>⏱ ${t.duration}s</span>` : ""}
+      </div>
+      ${t.error ? `<div style="color:var(--red);font-size:9px;margin-top:4px">⚠ ${t.error}</div>` : ""}
+      ${t.status === "awaiting_approval" ? `
+        <button class="tc-approve-btn" onclick="approveTask('${t.id}','${t.name}')">✅ Approve</button>
+        <button class="tc-reject-btn" onclick="rejectTask('${t.id}','${t.name}')">✗ Reject</button>
+      ` : ""}
+    </div>
+  `).join("");
+}
+
+async function loadHitlQueue() {
+  try {
+    const r = await fetch("/api/orchestrator/hitl");
+    const tasks = await r.json();
+    renderHitlQueue(tasks);
+    const badge = document.getElementById("hitlQueueBadge");
+    if (badge) {
+      badge.textContent = tasks.length + " pending";
+      badge.className = tasks.length > 0 ? "badge badge-red" : "badge badge-green";
+    }
+  } catch(e) {}
+}
+
+function renderHitlQueue(tasks) {
+  const el = document.getElementById("hitlApprovalQueue");
+  if (!el) return;
+  if (!tasks || !tasks.length) {
+    el.innerHTML = '<div style="color:var(--green);font-size:11px;padding:12px">✅ No pending approvals — all gates clear</div>';
+    return;
+  }
+  el.innerHTML = tasks.map(t => `
+    <div class="hitl-item">
+      <div class="hitl-icon">👤</div>
+      <div class="hitl-body">
+        <div class="hitl-name">${t.name} <span class="tc-lane ${t.hitl_lane}">${t.hitl_lane}</span></div>
+        <div class="hitl-desc">${t.description || ""}</div>
+      </div>
+      <div class="hitl-actions">
+        <button class="hitl-approve" onclick="approveTask('${t.id}','${t.name}')">✅ Approve</button>
+        <button class="hitl-reject" onclick="rejectTask('${t.id}','${t.name}')">✗ Reject</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function approveTask(taskId, taskName) {
+  try {
+    const r = await fetch("/api/orchestrator/approve", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({task_id: taskId})
+    });
+    const d = await r.json();
+    toast(`✅ Approved: ${taskName}`, "success");
+    loadTaskBoard();
+    loadHitlQueue();
+  } catch(e) { toast("Approve error: " + e.message, "error"); }
+}
+
+async function rejectTask(taskId, taskName) {
+  try {
+    await fetch("/api/orchestrator/reject", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({task_id: taskId, reason: "Rejected by user"})
+    });
+    toast(`✗ Rejected: ${taskName}`, "info");
+    loadTaskBoard();
+    loadHitlQueue();
+  } catch(e) { toast("Reject error: " + e.message, "error"); }
 }

@@ -1,29 +1,28 @@
 """
-ORD AI — Complete System Backend
-All 4 Blueprints Unified:
- 1. ∞-Loop Human-AI Factory (50 Cores / 50 Engines / 50 AI Builders)
- 2. AI Pilot (100% Alive — 7 Commitments)
- 3. Three-Window IDE (Prompt Block / Live Coding / Live Preview)
- 4. SpecKit Autopilot (Planner→Implementer→Validator→Reviewer→Merger + HITL)
-
-Engine Layer (New):
- 5. MultiModelRouter (LMStudio / Ollama / OpenAI / Mock)
- 6. MemoryBank (Short-term TTL / Long-term SQLite FTS / Episodic events)
- 7. HybridRAG (BM25 keyword + optional vector search)
- 8. FineTuner (LoRA/QLoRA — builds training data from build history)
- 9. InfinityLoopOrchestrator (coordinates all 50/50/50 components)
+ORD AI — Complete Platform Backend
+All 4 Blueprints + 5 Engine Systems Unified:
+  1. ∞-Loop Human-AI Factory (50 Cores / 50 Engines / 50 AI Builders)
+  2. AI Pilot (100% Alive — 7 Commitments)
+  3. Three-Window IDE (Prompt Block / Live Coding / Live Preview)
+  4. SpecKit Autopilot (Planner→Implementer→Validator→Reviewer→Merger + HITL)
+  5. MultiModelRouter (LMStudio / Ollama / OpenAI / Mock fallback)
+  6. MemoryBank (Short-term TTL / Long-term SQLite FTS / Episodic events)
+  7. HybridRAG (BM25 keyword + optional vector search)
+  8. FineTuner (LoRA/QLoRA — permanent learning from build history)
+  9. PowerfulOrchestrator (async DAG, TaskStatus, HITL gates, bottleneck detection)
 """
 import threading, time, random, subprocess, sys, json, os, sqlite3
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO, emit
 
-# ── Engine layer (new) ──────────────────────────────────────────────
+# ── Engine layer ────────────────────────────────────────────────────
 try:
     from engine.model_router import ModelRouter
     from engine.memory import MemoryBank
     from engine.rag import HybridRAG
     from engine.fine_tuner import FineTuner
+    from engine.orchestrator import PowerfulOrchestrator, TaskStatus
     _ENGINE_OK = True
 except Exception as _e:
     _ENGINE_OK = False
@@ -117,8 +116,10 @@ if _ENGINE_OK:
     _memory  = MemoryBank.get_instance()
     _rag     = HybridRAG.get_instance()
     _tuner   = FineTuner.get_instance()
+    # PowerfulOrchestrator wired to socketio emit
+    _orch    = None   # set after socketio is ready (see bottom of file)
 else:
-    _router = _memory = _rag = _tuner = None
+    _router = _memory = _rag = _tuner = _orch = None
 
 # ─────────────────────────────────────────────────────────────
 # GLOBAL STATE — 50/50/50 live counters
@@ -418,6 +419,13 @@ def api_pilot_log():
 def api_build():
     data = request.get_json(silent=True) or {}
     job  = (data.get("job") or "Custom System").strip()
+    pilot_say(f"🚀 Build requested: {job[:80]}", "start")
+    # Route through PowerfulOrchestrator if available, else legacy
+    if _orch:
+        result = _orch.build(job)
+        socketio.emit("orchestrator_update", _orch.snapshot())
+        return jsonify(result)
+    # Legacy path
     if STATE["build_active"]:
         STATE["job_queue"].append(job)
         pilot_say(f"📋 Queued: {job} (position {len(STATE['job_queue'])})", "info")
@@ -666,6 +674,72 @@ def api_engine_status():
         "memory":    _memory.summary()       if _memory  else None,
         "rag":       _rag.stats()            if _rag     else None,
         "finetune":  _tuner.get_status()     if _tuner   else None,
+        "orchestrator": _orch.snapshot()     if _orch    else None,
+    })
+
+# ─────────────────────────────────────────────────────────────
+# ORCHESTRATOR ROUTES — DAG tasks, HITL approvals
+# ─────────────────────────────────────────────────────────────
+
+@app.route("/api/orchestrator/status")
+def api_orch_status():
+    """Full orchestrator snapshot including task DAG."""
+    if not _orch:
+        return jsonify({"error": "Orchestrator not loaded"})
+    return jsonify(_orch.snapshot())
+
+@app.route("/api/orchestrator/tasks")
+def api_orch_tasks():
+    """Current task list with statuses."""
+    if not _orch:
+        return jsonify([])
+    return jsonify([t.to_dict() for t in _orch.tasks.values()])
+
+@app.route("/api/orchestrator/hitl")
+def api_orch_hitl():
+    """Tasks waiting for human approval."""
+    if not _orch:
+        return jsonify([])
+    return jsonify(_orch.hitl_pending())
+
+@app.route("/api/orchestrator/approve", methods=["POST"])
+def api_orch_approve():
+    """Approve a HITL task."""
+    data    = request.get_json(silent=True) or {}
+    task_id = data.get("task_id", "")
+    if not _orch or not task_id:
+        return jsonify({"error": "Missing task_id or orchestrator not loaded"})
+    ok = _orch.approve_task(task_id)
+    if ok and _memory:
+        _memory.ep_record(f"HITL approved via API: {task_id[:8]}", kind="done")
+    pilot_say(f"👤 HITL task approved: {task_id[:8]}", "done")
+    socketio.emit("hitl_approved", {"task_id": task_id})
+    return jsonify({"status": "approved" if ok else "not_found", "task_id": task_id})
+
+@app.route("/api/orchestrator/reject", methods=["POST"])
+def api_orch_reject():
+    """Reject a HITL task."""
+    data    = request.get_json(silent=True) or {}
+    task_id = data.get("task_id", "")
+    reason  = data.get("reason", "Rejected by human reviewer")
+    if not _orch or not task_id:
+        return jsonify({"error": "Missing task_id"})
+    ok = _orch.reject_task(task_id)
+    pilot_say(f"✗ HITL task rejected: {task_id[:8]} — {reason}", "warn")
+    return jsonify({"status": "rejected" if ok else "not_found", "task_id": task_id})
+
+@app.route("/api/orchestrator/plan", methods=["POST"])
+def api_orch_plan():
+    """Plan a spec into task DAG without building."""
+    data = request.get_json(silent=True) or {}
+    spec = (data.get("spec") or data.get("job") or "").strip()
+    if not spec or not _orch:
+        return jsonify({"error": "No spec or orchestrator unavailable"})
+    tasks = _orch.plan(spec)
+    return jsonify({
+        "spec": spec,
+        "tasks": [t.to_dict() for t in tasks],
+        "total": len(tasks),
     })
 
 # ─────────────────────────────────────────────────────────────
@@ -678,6 +752,8 @@ def on_connect():
     emit("pilot_history",   STATE["pilot_log"][-80:])
     emit("agent_update",    STATE["agent_pipeline"])
     emit("hitl_update",     db_hitl_pending())
+    if _orch:
+        emit("orchestrator_update", _orch.snapshot())
 
 @socketio.on("ping_state")
 def on_ping():
@@ -696,7 +772,13 @@ if __name__ == "__main__":
     print("\n" + "═"*60)
     print("  ORD AI — ∞-Loop Human-AI Factory")
     print("  50 Cores · 50 Engines · 50 AI Builders")
-    print("  All 4 Blueprints Unified — Real System Running")
+    print("  All 4 Blueprints + 5 Engine Systems Unified")
     print(f"  http://0.0.0.0:5000")
     print("═"*60 + "\n")
+    # Wire PowerfulOrchestrator to socketio.emit after app is ready
+    if _ENGINE_OK:
+        import engine.orchestrator as _orch_mod
+        _orch = PowerfulOrchestrator.get_instance(
+            emit_fn=lambda event, data: socketio.emit(event, data)
+        )
     socketio.run(app, host="0.0.0.0", port=5000, debug=False, allow_unsafe_werkzeug=True)

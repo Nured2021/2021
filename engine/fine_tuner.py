@@ -6,6 +6,7 @@ Without: generates training data + config ready for offline fine-tuning.
 """
 import json
 import os
+import random
 import sqlite3
 import threading
 import time
@@ -221,8 +222,5 @@ class FineTuner:
             "current_run": self.current_run,
             "history": self.history[-5:],
             "real_finetune_available": _REAL_FINETUNE,
-            "output_dir": FINETUNE_DIR,
+                    "output_dir": FINETUNE_DIR,
         }
-
-
-import random  # noqa: E402 (needed for simulation in thread)
