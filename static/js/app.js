@@ -229,9 +229,9 @@ function renderQueue(queue, current) {
     return;
   }
   strip.style.display = "block";
-  const tags = queue.map(j => `<span style="background:rgba(245,158,11,.2);padding:1px 6px;border-radius:10px;margin:0 2px;font-size:10px">${j}</span>`).join("");
+  const tags = queue.map(j => `<span style="background:rgba(245,158,11,.2);padding:1px 6px;border-radius:10px;margin:0 2px;font-size:10px">${_esc(j)}</span>`).join("");
   items.innerHTML = current
-    ? `<strong style="color:var(--accent)">Building: ${current}</strong>  ${tags}`
+    ? `<strong style="color:var(--accent)">Building: ${_esc(current)}</strong>  ${tags}`
     : tags;
 }
 

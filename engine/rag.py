@@ -289,18 +289,21 @@ class HybridRAG:
         for _ in range(depth):
             if not frontier:
                 break
-            placeholders = ",".join("?" for _ in frontier)
+            # placeholders is a string of "?,?,?" — only "?" chars, never user data
+            edge_params = ",".join("?" for _ in frontier)
             cur.execute(
-                f"SELECT dst_id FROM doc_graph WHERE src_id IN ({placeholders})", frontier
+                "SELECT dst_id FROM doc_graph WHERE src_id IN (" + edge_params + ")",
+                frontier,
             )
             neighbors = [r[0] for r in cur.fetchall() if r[0] not in visited]
             if not neighbors:
                 break
             visited.update(neighbors)
             frontier = neighbors
-            np_holders = ",".join("?" for _ in neighbors)
+            doc_params = ",".join("?" for _ in neighbors)
             cur.execute(
-                f"SELECT id, title, content, source, tags FROM documents WHERE id IN ({np_holders})",
+                "SELECT id, title, content, source, tags FROM documents WHERE id IN ("
+                + doc_params + ")",
                 neighbors,
             )
             for row in cur.fetchall():
