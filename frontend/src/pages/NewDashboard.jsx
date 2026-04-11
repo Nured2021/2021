@@ -120,9 +120,9 @@ export default function NewDashboard({ onClose, onActivateModule, onGenerate }) 
         {/* ── Header ───────────────────────────────────────────────────── */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
-            <div className={styles.brandBadge}>✦ AI Doc Maker</div>
+            <div className={styles.brandBadge}>✦ Easy AI</div>
             <h1 className={styles.title}>
-              {user ? `Welcome back, ${user.name || user.email}!` : 'AI Doc Maker — New Dashboard'}
+              {user ? `Welcome back, ${user.name || user.email}!` : 'Easy AI — New Dashboard'}
             </h1>
             <p className={styles.subtitle}>
               HumanLoop Brain · 5-Step Wizard · 9 AI Modules · Real-file Generation
