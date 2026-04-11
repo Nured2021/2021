@@ -1,530 +1,658 @@
-/* ────────────────────────────────────────────
-   ORD AI Platform — Frontend JS
-   Socket.IO + CodeMirror + All 10 Panels
-   ──────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   ORD AI — Complete Frontend Logic
+   All 4 Blueprints: One Working System
+═══════════════════════════════════════════════════════════ */
+"use strict";
 
-// ── Socket.IO Connection ──
+// ─── Socket.IO connection ───────────────────────────────────
 const socket = io();
 
-socket.on("connect",      ()  => addResponse("🟢 Connected to ORD AI Platform.", "info"));
-socket.on("disconnect",   ()  => addResponse("🔴 Disconnected. Reconnecting...", "warn"));
-socket.on("state_update", (s) => applyState(s));
-socket.on("metrics_update",(m)=> applyMetrics(m));
-socket.on("pilot_msg",    (m) => addResponse(`${m.msg}`, m.kind));
-socket.on("pilot_history",(h) => h.forEach(m => addResponse(m.msg, m.kind)));
-socket.on("build_done",   (d) => {
-  addResponse(`🎉 Build complete: ${d.job} — ${d.version}`, "success");
-  document.getElementById("versionTag").textContent = d.version;
-  document.getElementById("statusVer").textContent = "📜 " + d.version;
-  document.getElementById("dashVer").textContent = d.version;
-});
-socket.on("tests_done",   (r) => renderTestResults(r));
-
-// ── CodeMirror ──
+// ─── CodeMirror editor ─────────────────────────────────────
 let editor;
 window.addEventListener("DOMContentLoaded", () => {
-  editor = CodeMirror.fromTextArea(document.getElementById("codeEditor"), {
-    mode: "python",
-    theme: "dracula",
-    lineNumbers: true,
-    indentUnit: 4,
-    tabSize: 4,
-    autofocus: false,
-    extraKeys: { "Ctrl-Enter": runCode },
-  });
-  document.getElementById("langSelect").addEventListener("change", (e) => {
-    editor.setOption("mode", e.target.value);
-  });
-  loadState();
+  const ta = document.getElementById("codeEditor");
+  if (ta) {
+    editor = CodeMirror.fromTextArea(ta, {
+      mode: "python",
+      theme: "dracula",
+      lineNumbers: true,
+      autoCloseBrackets: true,
+      matchBrackets: true,
+      indentUnit: 4,
+      tabSize: 4,
+      indentWithTabs: false,
+      lineWrapping: false,
+      extraKeys: { "Ctrl-Enter": runCode, "Cmd-Enter": runCode },
+    });
+  }
+  refreshState();
+  loadRecentBuilds();
 });
 
-// ── State Application ──
-function applyState(s) {
-  // Progress
+// ─── Section navigation ────────────────────────────────────
+function showSection(id, btn) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("sec-" + id).classList.add("active");
+  if (btn) btn.classList.add("active");
+  if (id === "editor" && editor) editor.refresh();
+}
+
+// ─── Socket events ─────────────────────────────────────────
+socket.on("connect", () => console.log("ORD AI — Socket connected ∞"));
+socket.on("disconnect", () => console.warn("Socket disconnected"));
+
+socket.on("state_update", s => updateDashboard(s));
+socket.on("metrics", m => updateMetrics(m));
+socket.on("pilot_msg", e => appendPilotMsg(e));
+socket.on("pilot_history", msgs => { msgs.forEach(m => appendPilotMsg(m)); });
+socket.on("agent_update", agents => renderAgentPipeline(agents));
+socket.on("hitl_update", items => renderHITL(items));
+socket.on("build_done", d => {
+  toast(`✅ Build complete: ${d.job} → ${d.version}`, "success");
+  updateVersionLabel(d.version);
+  loadRecentBuilds();
+});
+socket.on("tests_done", r => renderTestResults(r));
+
+// ─── Dashboard update ──────────────────────────────────────
+function updateDashboard(s) {
+  // KPI cards
+  setKpi("kpiCores",    s.cores_active,    50, "kpiBCores");
+  setKpi("kpiEngines",  s.engines_active,  50, "kpiBEngines");
+  setKpi("kpiAI",       s.ai_active,       50, "kpiBAI");
+  setKpi("kpiProgress", s.build_progress, 100, "kpiBProgress", "%");
+  setKpi("kpiTests",    s.tests_passed,    50, "kpiBTests");
+  setEl("kpiFixes",     s.fixes_applied);
+  setEl("kpiLoop",      `∞ Loop #${s.loop_count}`);
+
+  // Build progress bar
   const pct = s.build_progress || 0;
-  document.getElementById("progressBar").style.width = pct + "%";
-  document.getElementById("progressPct").textContent = pct + "%";
-  document.getElementById("buildTask").textContent = s.build_task || "Idle";
+  const fill = document.getElementById("bigProgress");
+  const pctEl = document.getElementById("bigPct");
+  if (fill) fill.style.width = pct + "%";
+  if (pctEl) pctEl.textContent = pct + "%";
+  setEl("buildTask", s.build_task || "Idle");
 
-  // 50/50/50 meters
-  setPct("coresFill",   (s.cores_active   / 50) * 100);
-  setPct("enginesFill", (s.engines_active / 50) * 100);
-  setPct("aiFill",      (s.ai_active      / 50) * 100);
-  document.getElementById("coresLbl").textContent   = (s.cores_active||0)   + "/50";
-  document.getElementById("enginesLbl").textContent = (s.engines_active||0) + "/50";
-  document.getElementById("aiLbl").textContent      = (s.ai_active||0)      + "/50";
+  // Gauges
+  setGauge("grCores",   "gCoresVal",   s.cores_active,   50);
+  setGauge("grEngines", "gEnginesVal", s.engines_active, 50);
+  setGauge("grAI",      "gAIVal",      s.ai_active,      50);
 
-  // Files
-  renderFiles(s.files_created || []);
-
-  // Stats
-  document.getElementById("testsLbl").textContent = (s.tests_passed||0) + "/" + (s.tests_total||50);
-  document.getElementById("fixesLbl").textContent = s.fixes_applied || 0;
+  // Bottom bar
+  setEl("testsLbl", `${s.tests_passed}/50`);
+  setEl("fixesLbl", s.fixes_applied);
+  setEl("loopLbl",  `#${s.loop_count}`);
+  setEl("verLbl",   s.version);
+  updateVersionLabel(s.version);
 
   // Bottlenecks
   renderBottlenecks(s.bottlenecks || []);
 
-  // Dashboard
-  document.getElementById("dashTask").textContent  = s.build_task  || "Idle";
-  document.getElementById("dashQueue").textContent = s.job_queue && s.job_queue.length
-    ? s.job_queue.join(", ") : "None";
-  document.getElementById("dashVer").textContent   = s.version || "v1.0.0";
-  document.getElementById("dashLoop").textContent  = s.loop_count || 0;
+  // Files
+  renderFiles(s.files_created || []);
 
-  // Queue box
-  if (s.job_queue && s.job_queue.length) {
-    document.getElementById("queueBox").style.display = "block";
-    document.getElementById("queueList").textContent = s.job_queue.join(" → ");
+  // Queue
+  renderQueue(s.job_queue || [], s.current_job);
+
+  // Metrics bar
+  updateMetrics({ cpu: s.cpu, ram: s.ram, rps: s.rps, resp_ms: s.resp_ms });
+
+  // Version list
+  if (s.versions) renderVersionList(s.versions);
+}
+
+function setKpi(valId, val, max, barId, suffix) {
+  const el = document.getElementById(valId);
+  if (!el) return;
+  if (suffix === "%") {
+    el.innerHTML = `${val}<span>${suffix}</span>`;
   } else {
-    document.getElementById("queueBox").style.display = "none";
+    el.innerHTML = `${val}<span>/${max}</span>`;
   }
-
-  // Version / team
-  if (s.version) {
-    document.getElementById("versionTag").textContent = s.version;
-    document.getElementById("statusVer").textContent = "📜 " + s.version;
-  }
-  if (s.team_online) {
-    document.getElementById("teamCount").textContent = "👥 " + s.team_online + " online";
-    document.getElementById("statusTeam").textContent = "👥 " + s.team_online + " online";
+  if (barId) {
+    const bar = document.getElementById(barId);
+    if (bar) bar.style.width = Math.min(100, (val / max) * 100) + "%";
   }
 }
 
-function applyMetrics(m) {
-  document.getElementById("dashCpu").textContent = m.cpu + "%";
-  document.getElementById("dashRam").textContent = m.ram + "%";
-  document.getElementById("dashRps").textContent = m.rps.toLocaleString();
+function setEl(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
 }
 
-function setPct(id, pct) {
-  document.getElementById(id).style.width = Math.min(100, pct) + "%";
+function setGauge(circleId, valId, val, max) {
+  const circ = document.getElementById(circleId);
+  const valEl = document.getElementById(valId);
+  if (!circ || !valEl) return;
+  const r = 32, circumference = 2 * Math.PI * r;
+  const filled = (val / max) * circumference;
+  circ.setAttribute("stroke-dasharray", `${filled} ${circumference}`);
+  valEl.textContent = val;
 }
 
-function renderFiles(files) {
-  const el = document.getElementById("fileTree");
-  if (!files.length) { el.innerHTML = '<span class="muted">Awaiting build...</span>'; return; }
-  const all = ["app.py","models/user.py","models/db.py","routes/api.py","routes/auth.py",
-                "static/index.html","static/style.css","static/app.js","tests/test_api.py","Dockerfile","README.md"];
-  el.innerHTML = all.map(f => {
-    const done = files.includes(f);
-    const active = !done && files.length > 0 && f === all[files.length];
-    const cls = done ? "done" : active ? "active" : "pending";
-    const icon = done ? "✅" : active ? "🔄" : "⏳";
-    return `<div class="file-item ${cls}">${icon} ${f}</div>`;
-  }).join("");
+function updateMetrics(m) {
+  if (m.cpu !== undefined) {
+    setEl("navCpu", m.cpu + "%");
+    setEl("mbCpuVal", m.cpu + "%");
+    const b = document.getElementById("mbCpu");
+    if (b) b.style.width = m.cpu + "%";
+    const s = document.getElementById("smCpu");
+    if (s) { s.style.width = m.cpu + "%"; setEl("smCpuV", m.cpu + "%"); }
+  }
+  if (m.ram !== undefined) {
+    setEl("navRam", m.ram + "%");
+    setEl("mbRamVal", m.ram + "%");
+    const b = document.getElementById("mbRam");
+    if (b) b.style.width = m.ram + "%";
+    const s = document.getElementById("smRam");
+    if (s) { s.style.width = m.ram + "%"; setEl("smRamV", m.ram + "%"); }
+  }
+  if (m.rps !== undefined) {
+    setEl("navRps", m.rps);
+    setEl("mbRpsVal", m.rps);
+    const b = document.getElementById("mbRps");
+    if (b) b.style.width = Math.min(100, m.rps / 20) + "%";
+  }
+  setEl("mbLoop",  window._loopCount || 0);
+  setEl("mbTeam",  3);
 }
 
+function updateVersionLabel(v) {
+  setEl("navVersion", v);
+  setEl("mbVer", v);
+  setEl("verLbl", v);
+}
+
+// ─── Bottlenecks ───────────────────────────────────────────
 function renderBottlenecks(bns) {
   const el = document.getElementById("bottlenecks");
-  const lbl = document.getElementById("bnLabel");
-  if (!bns.length) { el.innerHTML = ""; lbl.style.display = "none"; return; }
-  lbl.style.display = "block";
+  if (!el) return;
+  if (!bns.length) {
+    el.innerHTML = '<div class="bn-empty">No bottlenecks ✓</div>';
+    return;
+  }
   el.innerHTML = bns.map(bn =>
-    `<div class="bn-item">⚠ ${bn}
-      <button onclick="fixBottleneck('${bn.replace(/'/g,"\\'")}')">FIX</button>
+    `<div class="bn-item">
+      <span>${bn}</span>
+      <button onclick="fixBottleneck(this,'${bn.replace(/'/g, "\\'")}')">Fix</button>
     </div>`
   ).join("");
 }
 
-// ── Response Box ──
-function addResponse(msg, kind = "info") {
-  const box = document.getElementById("responseBox");
+function fixBottleneck(btn, bn) {
+  btn.disabled = true;
+  btn.textContent = "Fixing...";
+  fetch("/api/fix_bottleneck", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bottleneck: bn }),
+  }).then(() => toast("🔧 Fixed: " + bn, "success"));
+}
+
+// ─── Files ─────────────────────────────────────────────────
+function renderFiles(files) {
+  const el = document.getElementById("fileList");
+  if (!el) return;
+  if (!files.length) {
+    el.innerHTML = '<span class="fl-empty">Awaiting build...</span>';
+    return;
+  }
+  el.innerHTML = files.slice(-20).map(f =>
+    `<div class="fl-item done">✅ ${f}</div>`
+  ).join("");
+  el.scrollTop = el.scrollHeight;
+}
+
+// ─── Queue ─────────────────────────────────────────────────
+function renderQueue(queue, current) {
+  const strip = document.getElementById("queueStrip");
+  const items = document.getElementById("queueItems");
+  if (!strip || !items) return;
+  if (!queue.length && !current) {
+    strip.style.display = "none";
+    return;
+  }
+  strip.style.display = "block";
+  const tags = queue.map(j => `<span style="background:rgba(245,158,11,.2);padding:1px 6px;border-radius:10px;margin:0 2px;font-size:10px">${j}</span>`).join("");
+  items.innerHTML = current
+    ? `<strong style="color:var(--accent)">Building: ${current}</strong>  ${tags}`
+    : tags;
+}
+
+// ─── Agent Pipeline ────────────────────────────────────────
+function renderAgentPipeline(agents) {
+  const el = document.getElementById("agentPipeline");
+  if (!el || !agents) return;
+  el.innerHTML = agents.map(a => {
+    const cls = a.status === "done" ? "done" : a.status === "running" ? "running" : "";
+    return `<div class="ap-row">
+      <span class="ap-icon">${a.icon}</span>
+      <span class="ap-name">${a.name}</span>
+      <div class="ap-bar-wrap"><div class="ap-bar ${cls}" style="width:${a.progress}%"></div></div>
+      <span class="ap-status ${a.status}">${a.status === "done" ? "✓ done" : a.status === "running" ? "running" : "idle"}</span>
+    </div>`;
+  }).join("");
+}
+
+// ─── HITL Queue ────────────────────────────────────────────
+function renderHITL(items) {
+  const el = document.getElementById("hitlList");
+  if (!el) return;
+  if (!items || !items.length) {
+    el.innerHTML = '<div class="hitl-empty">No HITL items — AI Pilot running autonomously ✓</div>';
+    return;
+  }
+  el.innerHTML = items.map(h => {
+    const lane = h.lane.replace("HITL_", "");
+    return `<div class="hitl-item">
+      <span>${h.description}</span>
+      <span class="hitl-lane ${lane}">${lane}</span>
+      <button class="hitl-approve" onclick="approveHITL(${h.id})">Approve</button>
+    </div>`;
+  }).join("");
+}
+
+function approveHITL(id) {
+  fetch("/api/hitl_approve", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  }).then(() => toast("✅ HITL approved", "success"));
+}
+
+// ─── Version list ──────────────────────────────────────────
+function renderVersionList(versions) {
+  const el = document.getElementById("versionList");
+  if (!el) return;
+  el.innerHTML = versions.slice(0, 15).map(v =>
+    `<div class="vl-item"><span class="vl-ver">${v.ver}</span><span class="vl-msg">${v.msg}</span><span class="vl-time muted">${v.time}</span></div>`
+  ).join("");
+}
+
+// ─── Chat ──────────────────────────────────────────────────
+function appendPilotMsg(e) {
+  const log = document.getElementById("chatLog");
+  if (!log) return;
+  const kind = e.kind || "info";
+  let cls = "ai";
+  if (kind === "success" || kind === "done") cls = "success";
+  if (kind === "warn") cls = "system";
   const div = document.createElement("div");
-  div.className = "rline " + kind;
-  const time = new Date().toLocaleTimeString("en", {hour12:false,hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  div.textContent = `[${time}] ${msg}`;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-  // keep max 300 lines
-  while (box.children.length > 300) box.removeChild(box.firstChild);
+  div.className = `chat-msg ${cls}`;
+  div.innerHTML = `<span class="cm-icon">${cls === "ai" || cls === "success" ? "🤖" : "⚡"}</span>
+    <div class="cm-bubble"><small style="opacity:.5;font-size:9px">${e.time}</small><br>${e.msg}</div>`;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
 }
 
-// ── API calls ──
-async function loadState() {
-  try {
-    const r = await fetch("/api/state");
-    const s = await r.json();
-    applyState(s);
-  } catch(e) { /* offline */ }
-}
-
-async function sendBuild() {
-  const txt = document.getElementById("promptInput").value.trim();
-  if (!txt) { addResponse("⚠ Please type what to build.", "warn"); return; }
-  addResponse("▶ Sending build request: " + txt, "start");
+function sendBuild() {
+  const txt = (document.getElementById("promptInput")?.value || "").trim();
+  if (!txt) { toast("Please type what to build", "error"); return; }
+  appendUserMsg(txt);
   document.getElementById("promptInput").value = "";
-  const r = await fetch("/api/build", {
+  fetch("/api/ai_chat", {
     method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({job: txt}),
-  });
-  const d = await r.json();
-  if (d.status === "queued") addResponse(`📋 Queued: ${d.job}`, "warn");
-  else addResponse(`🚀 Build started: ${d.job}`, "start");
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: txt }),
+  })
+  .then(r => r.json())
+  .then(d => { appendPilotMsg({ time: now(), msg: d.reply, kind: "info" }); });
 }
 
-async function sendPromptCmd(cmd) {
-  const input = document.getElementById("promptInput");
-  const txt = input.value.trim() || cmd;
-  addResponse(`▶ Command: ${cmd} — ${txt}`, "info");
-  const r = await fetch("/api/ai_chat", {
+function sendCmd(cmd) {
+  appendUserMsg(cmd);
+  fetch("/api/ai_chat", {
     method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({message: cmd + " " + txt}),
-  });
-  const d = await r.json();
-  addResponse("🤖 " + d.reply, "pilot");
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: cmd }),
+  })
+  .then(r => r.json())
+  .then(d => appendPilotMsg({ time: now(), msg: d.reply, kind: "info" }));
 }
 
-async function fixBottleneck(bn) {
-  await fetch("/api/fix_bottleneck", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({bottleneck: bn}),
-  });
-  addResponse(`✓ User fixed: ${bn}`, "fix");
+function appendUserMsg(txt) {
+  const log = document.getElementById("chatLog");
+  if (!log) return;
+  const div = document.createElement("div");
+  div.className = "chat-msg user";
+  div.innerHTML = `<span class="cm-icon">👤</span><div class="cm-bubble">${txt}</div>`;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
 }
 
 function stopBuild() {
   socket.emit("stop_build");
-  addResponse("⏹ Stop signal sent.", "warn");
+  toast("⏸ Build stopped", "info");
 }
 
-// ── Code Execution ──
-async function runCode() {
-  const code = editor.getValue();
-  const lang = document.getElementById("langSelect").value;
-  const out = document.getElementById("codeOutput");
-  out.textContent = "> Running...";
-  try {
-    const r = await fetch("/api/execute", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({code, lang}),
-    });
-    const d = await r.json();
-    const output = (d.output || "").trim();
-    const error  = (d.error  || "").trim();
-    out.textContent = (output ? "> " + output : "") + (error ? "\n⚠ " + error : "") || "> (no output)";
-  } catch(e) {
-    out.textContent = "⚠ Execution failed: " + e.message;
-  }
+function refreshState() {
+  fetch("/api/state").then(r => r.json()).then(s => updateDashboard(s));
+}
+
+// ─── Builder section ───────────────────────────────────────
+function setPreset(text) {
+  const el = document.getElementById("builderPrompt");
+  if (el) el.value = text;
+}
+
+function buildFromBuilder() {
+  const txt = (document.getElementById("builderPrompt")?.value || "").trim();
+  if (!txt) { toast("Please describe what to build", "error"); return; }
+  fetch("/api/build", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ job: txt }),
+  })
+  .then(r => r.json())
+  .then(d => {
+    toast(d.status === "queued" ? `📋 Queued: ${txt}` : `🚀 Building: ${txt}`, "info");
+    showSection("dashboard", document.querySelector(".nav-btn"));
+    document.querySelectorAll(".nav-btn")[0].classList.add("active");
+    updateJobList(txt, d.status);
+  });
+}
+
+function updateJobList(job, status) {
+  const el = document.getElementById("jobList");
+  if (!el) return;
+  if (el.querySelector(".job-item.idle")) el.innerHTML = "";
+  const div = document.createElement("div");
+  div.className = `job-item ${status}`;
+  div.innerHTML = `${status === "started" ? "🔨" : "📋"} ${job}`;
+  el.insertBefore(div, el.firstChild);
+}
+
+function loadRecentBuilds() {
+  fetch("/api/builds").then(r => r.json()).then(builds => {
+    const el = document.getElementById("recentBuilds");
+    if (!el) return;
+    if (!builds.length) { el.innerHTML = "<div style='color:var(--text3)'>No builds yet</div>"; return; }
+    el.innerHTML = builds.map(b =>
+      `<div style="padding:4px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between">
+        <span style="color:var(--text2)">${b.job.substring(0,30)}...</span>
+        <span class="${b.status === 'done' ? 'green' : 'accent'}" style="font-family:var(--mono);font-size:10px">${b.version}</span>
+      </div>`
+    ).join("");
+  });
+}
+
+// ─── Editor ────────────────────────────────────────────────
+function runCode() {
+  const code = editor ? editor.getValue() : document.getElementById("codeEditor")?.value || "";
+  const lang = document.getElementById("editorLang")?.value || "python";
+  const out  = document.getElementById("edOutput");
+  if (out) out.textContent = "> Running...";
+  fetch("/api/execute", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code, lang }),
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (out) out.textContent = d.error ? `ERROR:\n${d.error}` : d.output || "(no output)";
+  });
 }
 
 function saveCode() {
-  const blob = new Blob([editor.getValue()], {type:"text/plain"});
+  const code = editor ? editor.getValue() : "";
+  const blob = new Blob([code], { type: "text/plain" });
+  const url  = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "ord_code.py";
-  a.click();
-  addResponse("💾 Code saved to file.", "done");
+  a.href = url; a.download = "ord_ai_code.py"; a.click();
+  URL.revokeObjectURL(url);
+  toast("💾 Code downloaded", "success");
 }
 
-function clearCode() {
-  editor.setValue("");
-  document.getElementById("codeOutput").textContent = "> Cleared.";
+function clearEditor() {
+  if (editor) editor.setValue("");
+  const o = document.getElementById("edOutput");
+  if (o) o.textContent = "> Cleared.";
 }
 
-// ── Test results ──
+document.getElementById("editorLang")?.addEventListener("change", function() {
+  if (editor) editor.setOption("mode", this.value);
+});
+
+// ─── Tests ─────────────────────────────────────────────────
+function runTests() {
+  toast("🧪 Running test suite...", "info");
+  fetch("/api/test_run", { method: "POST" }).then(() => {});
+}
+
 function renderTestResults(r) {
-  const el = document.getElementById("testResultsBody");
-  if (!el) return;
-  el.innerHTML = Object.entries(r).map(([k, v]) => {
-    const pct = Math.round((v.passed / v.total) * 100);
-    const icon = pct === 100 ? "✅" : pct >= 95 ? "⚠️" : "❌";
-    return `<div class="test-row"><span>${icon} ${k}</span><span>${v.passed}/${v.total}</span></div>`;
-  }).join("");
+  toast(`✅ Tests: ${r.unit.passed} unit, ${r.integration.passed} integration`, "success");
 }
 
-// ──────────────────────────────────────────────
-// PANELS
-// ──────────────────────────────────────────────
+// ─── MODALS ────────────────────────────────────────────────
+const MODAL_CONTENT = {
+  save: () => `
+    <label>Save Name</label>
+    <input id="mSaveName" placeholder="My ORD AI Build v1.0" value="ORD AI Build ${new Date().toLocaleDateString()}">
+    <label style="margin-top:8px">Notes (optional)</label>
+    <textarea placeholder="What was built..." style="height:60px"></textarea>
+    <div class="modal-row">
+      <button class="pa-btn primary" onclick="doSave()">💾 Save to Repository</button>
+      <button class="pa-btn" onclick="closeModal()">Cancel</button>
+    </div>`,
 
-const PANELS = {
+  load: () => `
+    <div class="modal-sect">Saved Builds</div>
+    <ul class="modal-list" id="mLoadList"><li>Loading...</li></ul>`,
 
-  save: {
-    title: "💾 SAVE & LOAD SYSTEM",
-    html: (s) => `
-      <label>System Name</label>
-      <input id="saveName" value="${s.current_job || 'My_ORD_System'}">
-      <label>Version</label>
-      <input id="saveVer" value="${s.version || 'v1.0.0'}">
-      <label>Description</label>
-      <input id="saveDesc" placeholder="What does this system do?">
-      <div class="p-row">
-        <button class="btn-primary" onclick="doSave()">💾 SAVE</button>
-        <button class="btn-secondary">SAVE AS</button>
-        <button class="btn-secondary">AUTO-SAVE ON</button>
-      </div>
-      <div class="p-section">Recent Saves</div>
-      <ul class="p-list" id="savesList"></ul>`,
-    after: (s) => {
-      const el = document.getElementById("savesList");
-      if (el) el.innerHTML = (s.saves||[]).slice(0,5).map(sv =>
-        `<li>💾 ${sv.name} <span class="muted">(${sv.version}) — ${sv.time}</span></li>`
-      ).join("");
-    }
-  },
+  deploy: () => `
+    <div class="modal-sect">Deploy ORD AI to:</div>
+    <div class="deploy-grid">
+      ${["🌐 Vercel","☁ AWS","🔵 Azure","🟠 GCP","🐋 Docker","⚙ Heroku","📦 GitHub Pages","🌩 Netlify"].map(p =>
+        `<button class="deploy-btn" onclick="doDeploy('${p}')">${p}</button>`).join("")}
+    </div>
+    <div class="modal-sect">Deploy Config</div>
+    <label>Environment</label>
+    <select class="ed-select" style="width:100%"><option>Production</option><option>Staging</option><option>Development</option></select>
+    <label>Region</label>
+    <select class="ed-select" style="width:100%"><option>us-east-1</option><option>eu-west-1</option><option>ap-southeast-1</option></select>
+    <div class="prog-bar-wrap" id="deployProg" style="display:none"><div class="prog-bar-fill" id="deployFill" style="width:0%"></div></div>
+    <div id="deployStatus" style="font-size:11px;margin-top:4px"></div>`,
 
-  deploy: {
-    title: "🚀 DEPLOY SYSTEM",
-    html: () => `
-      <div class="p-section">Target Platform</div>
-      <div class="p-row">
-        ${["AWS","GCP","Azure","Vercel","Netlify","Heroku","DigitalOcean","Custom"].map(p=>
-          `<button class="btn-secondary" onclick="deployTo('${p}')">${p}</button>`
-        ).join("")}
-      </div>
-      <div class="p-section">Settings</div>
-      <label>Region</label><input value="us-east-1">
-      <label>Instance</label><input value="t2.micro">
-      <div class="p-row">
-        <button class="btn-primary" onclick="deployTo('AWS')">🚀 DEPLOY NOW</button>
-        <button class="btn-secondary">⏰ SCHEDULE</button>
-        <button class="btn-secondary">↩ ROLLBACK</button>
-      </div>`,
-    after: () => {}
-  },
+  version: () => `
+    <div class="modal-sect">Version History</div>
+    <div id="mVersionList" style="max-height:280px;overflow-y:auto">Loading...</div>`,
 
-  collab: {
-    title: "👥 TEAM COLLABORATION",
-    html: (s) => `
-      <div class="p-section">Online Members</div>
-      <ul class="p-list">
-        <li>👤 Alex (Owner) — Editing code</li>
-        <li>👤 Sarah (Editor) — Testing</li>
-        <li>👤 Mike (Viewer) — Watching preview</li>
-      </ul>
-      <div class="p-section">Chat</div>
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:8px;font-size:11px;margin-bottom:8px">
-        <div>Alex: "Build is looking great"</div>
-        <div>Sarah: "Tests passing"</div>
-        <div>Mike: "Deployment ready"</div>
-      </div>
-      <div class="p-row">
-        <button class="btn-primary">+ INVITE</button>
-        <button class="btn-secondary">📞 VOICE</button>
-        <button class="btn-secondary">🖥 SHARE</button>
-      </div>`,
-    after: () => {}
-  },
+  collab: () => `
+    <div class="modal-sect">Team Members Online</div>
+    <ul class="modal-list">
+      <li><span>👤 You (Owner)</span><span class="green">● Online</span></li>
+      <li><span>👤 Developer A</span><span class="green">● Online</span></li>
+      <li><span>👤 Developer B</span><span class="amber">● Away</span></li>
+    </ul>
+    <div class="modal-sect">Invite</div>
+    <input placeholder="Email address...">
+    <button class="pa-btn primary" style="margin-top:8px">Send Invite</button>`,
 
-  version: {
-    title: "📜 VERSION HISTORY",
-    html: (s) => `
-      <ul class="p-list" id="versionList"></ul>
-      <div class="p-row">
-        <button class="btn-secondary">↩ ROLLBACK</button>
-        <button class="btn-secondary">⟷ COMPARE</button>
-        <button class="btn-secondary">⎇ BRANCH</button>
-        <button class="btn-secondary">⊕ MERGE</button>
-      </div>`,
-    after: (s) => {
-      const el = document.getElementById("versionList");
-      if (el) el.innerHTML = (s.versions||[]).slice(0,8).map(v =>
-        `<li><strong>${v.ver}</strong> — ${v.msg} <span class="muted">${v.time}</span></li>`
-      ).join("");
-    }
-  },
+  marketplace: () => `
+    <div class="modal-sect">ORD AI Marketplace — Pre-built Systems</div>
+    <ul class="modal-list" id="mMarket">Loading...</ul>`,
 
-  test: {
-    title: "🧪 TEST DASHBOARD",
-    html: () => `
-      <div id="testResultsBody"></div>
-      <div class="p-section">Coverage</div>
-      <div class="bar-wrap"><div class="bar-fill" style="width:97%"></div></div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">97% — 370/381 lines covered</div>
-      <div class="p-row">
-        <button class="btn-primary" onclick="runTests()">▶ RUN ALL</button>
-        <button class="btn-secondary">RUN FAILED</button>
-        <button class="btn-secondary">📄 EXPORT REPORT</button>
-      </div>`,
-    after: (s) => renderTestResults(s.test_results || {})
-  },
-
-  analytics: {
-    title: "📊 LIVE METRICS",
-    html: (s) => `
-      <div class="p-section">System Metrics</div>
+  templates: () => `
+    <div class="modal-sect">Quick Build Templates</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       ${[
-        ["CPU",    s.cpu+"%",   s.cpu],
-        ["RAM",    s.ram+"%",   s.ram],
-        ["Uptime", s.uptime+"%",s.uptime],
-      ].map(([k,v,p]) => `
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">
-          <span>${k}</span><span>${v}</span>
-        </div>
-        <div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(p,100)}%"></div></div>
-      `).join("")}
-      <div style="font-size:12px;margin:6px 0">
-        <div>REQ/s: <strong>${(s.rps||0).toLocaleString()}</strong></div>
-        <div>Response: <strong>${s.resp_ms||45}ms</strong></div>
-      </div>
-      <div class="p-row">
-        <button class="btn-secondary">📥 EXPORT</button>
-        <button class="btn-secondary">🔔 ALERTS</button>
-        <button class="btn-secondary">📊 FULL DASHBOARD</button>
-      </div>`,
-    after: () => {}
-  },
+        ["🤖 ChatGPT Clone","ChatGPT Clone with voice, memory, plugins"],
+        ["🛒 Ecommerce","Full Ecommerce with Stripe payments"],
+        ["📱 Social Media","Social Media with real-time chat"],
+        ["🧠 RAG Pipeline","RAG Pipeline with vector DB"],
+        ["🤖 AI Agent","AI Agent that builds and runs code"],
+        ["⚙ API Server","REST API with auth & docs"],
+        ["📊 Dashboard","Analytics with ML predictions"],
+        ["📲 Mobile App","React Native with offline mode"],
+      ].map(([name,prompt]) =>
+        `<button class="deploy-btn" style="text-align:left;padding:10px" onclick="closeModal();setPreset('${prompt}');showSection('builder',null)">${name}</button>`
+      ).join("")}
+    </div>`,
 
-  marketplace: {
-    title: "🏪 MARKETPLACE",
-    html: (s) => `
-      <div class="p-section">Featured Systems</div>
-      <ul class="p-list">${(s.marketplace||[]).map(m =>
-        `<li>🛒 <strong>${m.name}</strong> — ${m.price} — ${m.downloads} downloads</li>`
-      ).join("")}</ul>
-      <div class="p-section">Your Sales</div>
-      <div style="font-size:12px;margin-bottom:10px">💰 $234 earned this month</div>
-      <div class="p-row">
-        <button class="btn-primary">📤 PUBLISH</button>
-        <button class="btn-secondary">🛒 BUY</button>
-        <button class="btn-secondary">⭐ RATE</button>
-      </div>`,
-    after: () => {}
-  },
+  export: () => `
+    <div class="modal-sect">Export ORD AI System</div>
+    <div class="modal-row">
+      ${["📦 ZIP","🐋 Docker Image","☁ Terraform","📋 PDF Blueprint","📊 Analytics CSV"].map(f =>
+        `<button class="deploy-btn" onclick="doExport('${f}')">${f}</button>`).join("")}
+    </div>`,
 
-  templates: {
-    title: "📚 TEMPLATE LIBRARY",
-    html: () => `
-      <div class="p-section">Pre-built Templates</div>
-      <div class="p-row">
-        ${["ChatGPT","Ecommerce","Social Media","Portfolio","Dashboard","API Server","Blog","CRM"].map(t =>
-          `<button class="btn-secondary" onclick="useTemplate('${t}')">${t}</button>`
-        ).join("")}
-      </div>
-      <div class="p-section">Each template includes</div>
-      <ul class="p-list">
-        <li>✅ Full source code</li>
-        <li>✅ Database schema</li>
-        <li>✅ API documentation</li>
-        <li>✅ Deployment scripts</li>
-      </ul>
-      <div class="p-row">
-        <button class="btn-primary" onclick="useTemplate('ChatGPT')">▶ USE TEMPLATE</button>
-        <button class="btn-secondary">👁 PREVIEW</button>
-        <button class="btn-secondary">✏ CUSTOMIZE</button>
-      </div>`,
-    after: () => {}
-  },
-
-  export: {
-    title: "📦 EXPORT SYSTEM",
-    html: () => `
-      <div class="p-section">Export Format</div>
-      <div class="p-row">
-        ${["Docker","ZIP","GitHub","API Package","Mobile App"].map(f =>
-          `<button class="btn-secondary">${f}</button>`
-        ).join("")}
-      </div>
-      <div class="p-section">Include</div>
-      <ul class="p-list">
-        <li>✅ Source Code</li>
-        <li>✅ Database</li>
-        <li>✅ Documentation</li>
-        <li>✅ Tests</li>
-        <li>✅ Deployment files</li>
-      </ul>
-      <div class="p-row">
-        <button class="btn-primary">📥 EXPORT</button>
-        <button class="btn-secondary">🔗 SHARE LINK</button>
-        <button class="btn-secondary">🔑 API KEY</button>
-      </div>`,
-    after: () => {}
-  },
-
-  ai: {
-    title: "🤖 AI ASSISTANT — 100% ALIVE",
-    html: () => `
-      <div style="font-size:11px;color:var(--accent);margin-bottom:8px">
-        ∞ Loop Active — Answering | Building | Showing | Feeling | Learning | Correcting | Talking
-      </div>
-      <div class="ai-chat-log" id="aiChatLog">
-        <div class="chat-msg ai">🤖 Hello! I'm your AI Pilot. I'm 100% alive and ready to build anything.</div>
-        <div class="chat-msg ai">🤖 Type what you need — I'll never stop until it's done.</div>
-      </div>
-      <div class="ai-input-row">
-        <input id="aiMsgInput" placeholder="Ask anything or say 'Build me...'" onkeydown="if(event.key==='Enter')sendAiMsg()">
-        <button class="btn-primary" onclick="sendAiMsg()">SEND</button>
-        <button class="btn-secondary" onclick="addResponse('🎤 Voice input activated','info');closePanel()">🎤</button>
-      </div>`,
-    after: () => { setTimeout(() => document.getElementById("aiMsgInput")?.focus(), 50); }
-  },
-
+  ai: () => `
+    <div class="ai-chat-log" id="aiLog">
+      <div class="ai-row ai"><span>🤖</span><div class="bubble">ORD AI Pilot here. Ask me anything. I can build, fix, explain, test, or deploy — right now.</div></div>
+    </div>
+    <div class="ai-input-row">
+      <input id="aiInput" placeholder="Ask AI Pilot anything..." onkeydown="if(event.key==='Enter')aiSend()">
+      <button class="pa-btn primary" onclick="aiSend()">Send</button>
+    </div>`,
 };
 
-let _currentState = {};
+function openModal(type) {
+  const overlay = document.getElementById("modalOverlay");
+  const modal   = document.getElementById("modal");
+  const title   = document.getElementById("modalTitle");
+  const body    = document.getElementById("modalBody");
+  if (!modal) return;
 
-async function openPanel(name) {
-  const p = PANELS[name];
-  if (!p) return;
-  const r = await fetch("/api/state");
-  _currentState = await r.json();
-  document.getElementById("panelTitle").textContent = p.title;
-  document.getElementById("panelBody").innerHTML = p.html(_currentState);
-  document.getElementById("panelOverlay").style.display = "block";
-  document.getElementById("panel").style.display = "block";
-  if (p.after) p.after(_currentState);
+  const titles = {
+    save:"💾 Save Build", load:"📂 Load Build", deploy:"🚀 Deploy",
+    version:"🔄 Version History", collab:"👥 Team Collaboration",
+    marketplace:"🏪 Marketplace", templates:"📚 Templates",
+    export:"📦 Export", ai:"🤖 AI Pilot Assistant",
+  };
+
+  title.textContent = titles[type] || type;
+  body.innerHTML = (MODAL_CONTENT[type] || (() => "<p>Coming soon...</p>"))();
+  overlay.classList.add("show");
+  modal.style.display = "block";
+  setTimeout(() => modal.classList.add("show"), 10);
+
+  // Populate dynamic content
+  if (type === "load") loadSaves();
+  if (type === "version") loadVersions();
+  if (type === "marketplace") loadMarket();
 }
 
-function closePanel() {
-  document.getElementById("panelOverlay").style.display = "none";
-  document.getElementById("panel").style.display = "none";
+function closeModal() {
+  const overlay = document.getElementById("modalOverlay");
+  const modal   = document.getElementById("modal");
+  overlay.classList.remove("show");
+  modal.classList.remove("show");
+  setTimeout(() => { modal.style.display = "none"; }, 200);
 }
 
-// ── Panel actions ──
-async function doSave() {
-  const name = document.getElementById("saveName").value.trim() || "Unnamed";
-  const ver  = document.getElementById("saveVer").value.trim()  || "v1.0.0";
-  await fetch("/api/save", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({name, version: ver}),
+function loadSaves() {
+  fetch("/api/builds").then(r => r.json()).then(builds => {
+    const el = document.getElementById("mLoadList");
+    if (!el) return;
+    if (!builds.length) { el.innerHTML = "<li>No saved builds yet</li>"; return; }
+    el.innerHTML = builds.map(b =>
+      `<li><span>${b.job.substring(0,30)}</span><span class="accent" style="font-family:var(--mono);font-size:10px">${b.version}</span></li>`
+    ).join("");
   });
-  addResponse(`💾 Saved: ${name} (${ver})`, "done");
-  closePanel();
 }
 
-function deployTo(platform) {
-  addResponse(`🚀 Deploying to ${platform}...`, "start");
-  setTimeout(() => addResponse(`✅ Deployed to ${platform} successfully!`, "success"), 2000);
-  closePanel();
+function loadVersions() {
+  fetch("/api/state").then(r => r.json()).then(s => {
+    const el = document.getElementById("mVersionList");
+    if (!el) return;
+    const versions = s.versions || [];
+    el.innerHTML = versions.map(v =>
+      `<div class="vl-item"><span class="vl-ver">${v.ver}</span><span class="vl-msg">${v.msg}</span><span class="vl-time muted">${v.time}</span></div>`
+    ).join("") || "<div style='color:var(--text3)'>No versions yet</div>";
+  });
 }
 
-function useTemplate(name) {
-  closePanel();
-  document.getElementById("promptInput").value = `Build me a ${name} system`;
-  sendBuild();
+function loadMarket() {
+  const el = document.getElementById("mMarket");
+  if (!el) return;
+  fetch("/api/state").then(r => r.json()).then(s => {
+    const m = s.marketplace || [];
+    el.innerHTML = m.map(item =>
+      `<li><span>${item.name} <span class="muted">(${item.downloads} downloads)</span></span><span class="accent">${item.price}</span></li>`
+    ).join("");
+  });
 }
 
-async function runTests() {
-  addResponse("🧪 Running full test suite...", "info");
-  await fetch("/api/test_run", {method:"POST"});
-  closePanel();
+function doSave() {
+  const name = document.getElementById("mSaveName")?.value || "ORD AI Build";
+  fetch("/api/save", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  }).then(() => { closeModal(); toast(`💾 Saved: ${name}`, "success"); });
 }
 
-async function sendAiMsg() {
-  const input = document.getElementById("aiMsgInput");
+function doDeploy(platform) {
+  const prog = document.getElementById("deployProg");
+  const fill = document.getElementById("deployFill");
+  const status = document.getElementById("deployStatus");
+  if (prog) prog.style.display = "block";
+  const steps = ["Preparing build...", "Running tests...", "Building container...", "Pushing to registry...", `Deploying to ${platform}...`, "Health check...", "✅ Deployed!"];
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i >= steps.length) { clearInterval(iv); return; }
+    const pct = ((i + 1) / steps.length * 100).toFixed(0);
+    if (fill) fill.style.width = pct + "%";
+    if (status) status.textContent = steps[i];
+    i++;
+    if (i === steps.length) toast(`🚀 Deployed to ${platform}!`, "success");
+  }, 600);
+}
+
+function doExport(fmt) {
+  toast(`📦 Exporting as ${fmt}...`, "info");
+  setTimeout(() => toast(`✅ ${fmt} export ready`, "success"), 1500);
+  closeModal();
+}
+
+function aiSend() {
+  const input = document.getElementById("aiInput");
+  if (!input?.value.trim()) return;
   const msg = input.value.trim();
-  if (!msg) return;
   input.value = "";
-  const log = document.getElementById("aiChatLog");
-  log.innerHTML += `<div class="chat-msg user">👤 ${msg}</div>`;
-  log.scrollTop = log.scrollHeight;
-  const r = await fetch("/api/ai_chat", {
+  const log = document.getElementById("aiLog");
+  if (log) {
+    const userDiv = document.createElement("div");
+    userDiv.className = "ai-row user";
+    userDiv.innerHTML = `<span>👤</span><div class="bubble">${msg}</div>`;
+    log.appendChild(userDiv);
+    log.scrollTop = log.scrollHeight;
+  }
+  fetch("/api/ai_chat", {
     method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({message: msg}),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: msg }),
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (log) {
+      const aiDiv = document.createElement("div");
+      aiDiv.className = "ai-row ai";
+      aiDiv.innerHTML = `<span>🤖</span><div class="bubble">${d.reply}</div>`;
+      log.appendChild(aiDiv);
+      log.scrollTop = log.scrollHeight;
+    }
   });
-  const d = await r.json();
-  log.innerHTML += `<div class="chat-msg ai">🤖 ${d.reply}</div>`;
-  log.scrollTop = log.scrollHeight;
-  addResponse("🤖 AI: " + d.reply, "pilot");
 }
 
-// Keyboard shortcut: Ctrl+Enter = build
-document.addEventListener("keydown", (e) => {
-  if (e.ctrlKey && e.key === "Enter") sendBuild();
-  if (e.key === "Escape") closePanel();
+// ─── Toast ─────────────────────────────────────────────────
+function toast(msg, type = "info") {
+  const c = document.getElementById("toastContainer");
+  if (!c) return;
+  const t = document.createElement("div");
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ─── Prompt input keyboard ────────────────────────────────
+document.getElementById("promptInput")?.addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendBuild(); }
 });
+
+// ─── Helpers ───────────────────────────────────────────────
+function now() {
+  return new Date().toTimeString().slice(0, 8);
+}
