@@ -7,10 +7,10 @@
 <link rel="stylesheet" href="/static/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js" integrity="sha512-uvwbFBPPAkBHMHuH9NQUovYMVGZN9MFcRkEIiLzMFX4MuCYC0S4zd4jTZKCzRYBFUlvXivJFdL9P6UfN9/NQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js" integrity="sha512-F5P2xFcUMXqZbT1dMGUKC7XHSN6LGxHqaTfOhVxJN4ILuaLyGQQxpIkFHjikgAjIDVAEOFfp5m6DVVm/Hx4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js" integrity="sha512-/CvTzFkU+bRMXBNgBIWmajChOW3v5o+mAblOO3alMhGnPIDxNr5x77cXrjFBvXqLSEsTBbHqsNXSiVz13XREQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js" integrity="sha512-luMnTJZ7onog1LSD+KQ0mhHQH/dFm4t0SbKMDFc5cIhFMkOL3gSmAnm7ePKKP/0VqCNZsrsmFvqYK/nHaOdg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
 
@@ -31,6 +31,7 @@
     <button class="nav-btn" onclick="showSection('analytics',this)">📊 Analytics</button>
     <button class="nav-btn" onclick="showSection('engine',this)">⚙ Engine</button>
     <button class="nav-btn" onclick="showSection('blueprint',this)">📐 Blueprint</button>
+    <button class="nav-btn" onclick="showSection('protection',this)">🛡 Protection</button>
   </div>
   <div class="nav-right">
     <div class="nav-stat"><span class="ns-val" id="navCpu">34%</span><span class="ns-key">CPU</span></div>
@@ -661,6 +662,41 @@ ord_ai.loop_forever()
         <div class="spec-row"><span>Deployment</span><span>8+ platforms</span></div>
         <div class="spec-row"><span>Templates</span><span>8+ pre-built</span></div>
         <div class="spec-row"><span>Builds</span><span class="green">Any system</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 7 — 14 PROTECTION SYSTEMS
+═══════════════════════════════════════════════════════════════ -->
+<section id="sec-protection" class="section">
+  <div class="section-title">🛡 ALL 14 PRODUCTION PROTECTION SYSTEMS — Real-time Status</div>
+  <div id="protectionGrid" class="prot-grid">
+    <!-- Cards injected by JS -->
+  </div>
+  <div class="prot-detail">
+    <div class="panel" style="margin-top:16px">
+      <div class="panel-head"><span class="ph-title">🔍 Prompt Injection Inspector</span></div>
+      <div style="padding:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <textarea id="injTestInput" rows="3" style="flex:1;min-width:220px;background:#1a1a2e;color:#e0e0e0;border:1px solid #333;border-radius:6px;padding:8px;font-size:13px" placeholder="Paste any user input to scan for injection attacks..."></textarea>
+        <button class="btn-primary" onclick="testInjection()" style="align-self:flex-end">Scan</button>
+      </div>
+      <div id="injResult" style="padding:0 12px 12px;font-size:13px;color:#aaa">Results will appear here.</div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <div class="panel-head"><span class="ph-title">💰 Cost Governor — Daily Budget</span></div>
+      <div id="costDetail" style="padding:12px;font-size:13px;color:#aaa">Loading...</div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <div class="panel-head"><span class="ph-title">📋 Post-Mortem Incidents</span></div>
+      <div id="incidentList" style="padding:12px;font-size:13px;color:#aaa">Loading...</div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <div class="panel-head"><span class="ph-title">🔄 Rollback Bundles</span></div>
+      <div id="rollbackList" style="padding:12px;font-size:13px;color:#aaa">Loading...</div>
+      <div style="padding:0 12px 12px">
+        <button class="btn-secondary" onclick="snapshotBundle()">📸 Snapshot Now</button>
       </div>
     </div>
   </div>

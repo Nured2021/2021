@@ -1056,3 +1056,150 @@ async function rejectTask(taskId, taskName) {
     loadHitlQueue();
   } catch(e) { toast("Reject error: " + e.message, "error"); }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PROTECTION SYSTEMS — 14 Live Status Cards
+═══════════════════════════════════════════════════════════════ */
+const PROTECTION_SYSTEMS = [
+  { id:1,  icon:"🔄", title:"Infinite Loop Protection",     sev:"CRITICAL", desc:"Escape hatch + frustration metric + forced mode switching",  endpoint:"/api/loop_protection/status" },
+  { id:2,  icon:"👤", title:"Human Judgment Stabilizer",    sev:"CRITICAL", desc:"Detect inconsistent feedback + loss aversion correction",     endpoint:"/api/judgment/status" },
+  { id:3,  icon:"🔒", title:"Memory Poisoning Protection",  sev:"CRITICAL", desc:"Database-backed memory + audit trail + rollback",             endpoint:"/api/secure_memory/status" },
+  { id:4,  icon:"🧩", title:"Agent Composability",          sev:"HIGH",     desc:"Primitives-based architecture — fix parts without rewriting",  endpoint:null },
+  { id:5,  icon:"🏗",  title:"Structure-in-the-Loop",       sev:"HIGH",     desc:"Sandbox + database + version control identity layers",         endpoint:"/api/structural_defense/status" },
+  { id:6,  icon:"🧠", title:"Continuous Memory",            sev:"HIGH",     desc:"Portable memory that persists across sessions",                endpoint:"/api/continuous_memory/status" },
+  { id:7,  icon:"📡", title:"Observability & Monitoring",   sev:"CRITICAL", desc:"Engineering traces · Executive cost · Customer quality",       endpoint:"/api/observability/status" },
+  { id:8,  icon:"⚡", title:"Load & Stress Testing",        sev:"HIGH",     desc:"Normal / surge / adversarial three-scenario testing",          endpoint:null },
+  { id:9,  icon:"⏪", title:"Rollback & Recovery",          sev:"CRITICAL", desc:"One-command versioned bundle revert in under 10 minutes",      endpoint:"/api/rollback/status" },
+  { id:10, icon:"📂", title:"Agent Filesystem (AgentFS)",   sev:"HIGH",     desc:"SQLite-backed POSIX FS + KV store + append-only audit trail",  endpoint:null },
+  { id:11, icon:"🛡", title:"Prompt Injection Defense",     sev:"CRITICAL", desc:"Multi-agent pipeline: detect → classify → sanitize → verify", endpoint:"/api/prompt_defense/status" },
+  { id:12, icon:"💰", title:"Cost Controls & Budget",       sev:"HIGH",     desc:"Per-workflow tracking · quota enforcement · ROI calculation",  endpoint:"/api/cost/status" },
+  { id:13, icon:"📋", title:"Continuous Post-Mortems",      sev:"MEDIUM",   desc:"Incident capture → root cause → improvement tasks pipeline",   endpoint:"/api/postmortem/status" },
+  { id:14, icon:"🪪", title:"Identity & Guardrails (Soul)", sev:"HIGH",     desc:"Non-overridable agent identity + absolute/soft guardrail rules",endpoint:"/api/identity/status" },
+];
+
+async function loadProtectionSystems() {
+  const grid = document.getElementById('protectionGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  for (const sys of PROTECTION_SYSTEMS) {
+    let statusClass = 'active', badgeClass = 'badge-active', statusText = '✅ ACTIVE';
+    if (sys.endpoint) {
+      try {
+        const r = await fetch(sys.endpoint);
+        if (!r.ok) throw new Error('http ' + r.status);
+        const d = await r.json();
+        if (d.error) { statusClass = 'error'; badgeClass = 'badge-error'; statusText = '❌ ERROR'; }
+        else if (d.status === 'partial') { statusClass = 'warning'; badgeClass = 'badge-partial'; statusText = '⚠ PARTIAL'; }
+      } catch(e) {
+        statusClass = 'warning'; badgeClass = 'badge-partial'; statusText = '⚠ LOADING';
+      }
+    }
+    const sevClass = sys.sev === 'CRITICAL' ? 'sev-critical' : sys.sev === 'HIGH' ? 'sev-high' : 'sev-medium';
+    grid.innerHTML += `
+      <div class="prot-card ${statusClass}">
+        <div class="prot-card-header">
+          <span class="prot-card-icon">${sys.icon}</span>
+          <span class="prot-card-title">#${sys.id} ${sys.title}</span>
+          <span class="prot-card-sev ${sevClass}">${sys.sev}</span>
+        </div>
+        <span class="prot-status-badge ${badgeClass}">${statusText}</span>
+        <div class="prot-card-desc">${sys.desc}</div>
+      </div>`;
+  }
+
+  loadCostDetail();
+  loadIncidents();
+  loadRollbackBundles();
+}
+
+async function loadCostDetail() {
+  const el = document.getElementById('costDetail');
+  if (!el) return;
+  try {
+    const r = await fetch('/api/cost/summary');
+    const d = await r.json();
+    el.innerHTML = `<b>Daily Budget:</b> $${d.daily_budget ?? '—'} &nbsp;|&nbsp;
+      <b>Spent Today:</b> $${(d.spent_today ?? 0).toFixed(4)} &nbsp;|&nbsp;
+      <b>Requests:</b> ${d.total_requests ?? 0} &nbsp;|&nbsp;
+      <b>Budget OK:</b> ${d.budget_ok ? '✅' : '❌ EXCEEDED'}`;
+  } catch(e) { el.textContent = 'Cost Governor: active (no data yet)'; }
+}
+
+async function loadIncidents() {
+  const el = document.getElementById('incidentList');
+  if (!el) return;
+  try {
+    const r = await fetch('/api/postmortem/incidents');
+    const d = await r.json();
+    const items = d.incidents ?? [];
+    if (!items.length) { el.textContent = '✅ No incidents recorded — system healthy'; return; }
+    el.innerHTML = items.slice(0,5).map(i =>
+      `<div style="margin-bottom:8px;padding:8px;background:#1a1a2e;border-radius:6px">
+        <b>${i.id ?? '?'}</b> · <span style="color:#ffaa00">${i.category ?? 'unknown'}</span>
+        · ${i.status ?? ''} · <span style="color:#888">${i.timestamp ?? ''}</span>
+       </div>`).join('');
+  } catch(e) { el.textContent = 'Post-mortem system: active (no incidents yet)'; }
+}
+
+async function loadRollbackBundles() {
+  const el = document.getElementById('rollbackList');
+  if (!el) return;
+  try {
+    const r = await fetch('/api/rollback/bundles');
+    const d = await r.json();
+    const bundles = d.bundles ?? [];
+    if (!bundles.length) { el.textContent = 'No bundles yet — click "Snapshot Now" to create first bundle'; return; }
+    el.innerHTML = bundles.slice(0,5).map(b =>
+      `<div style="margin-bottom:6px;padding:8px;background:#1a1a2e;border-radius:6px;display:flex;align-items:center;gap:8px">
+        <span style="color:#00e5a0;font-weight:700">${b.id ?? '?'}</span>
+        <span>${b.name ?? ''}</span>
+        <span style="color:#888;font-size:11px;margin-left:auto">${b.created_at ?? ''}</span>
+        <button class="btn-secondary" style="font-size:11px;padding:3px 8px" onclick="doRollback('${b.id}')">↩ Rollback</button>
+       </div>`).join('');
+  } catch(e) { el.textContent = 'Rollback system: active (no bundles yet)'; }
+}
+
+async function snapshotBundle() {
+  try {
+    const r = await fetch('/api/rollback/snapshot', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name:'manual-snapshot'})});
+    const d = await r.json();
+    toast('📸 Bundle ' + (d.bundle_id ?? '') + ' saved!', 'success');
+    loadRollbackBundles();
+  } catch(e) { toast('Snapshot failed: ' + e.message, 'error'); }
+}
+
+async function doRollback(bundleId) {
+  if (!confirm('Rollback to bundle ' + bundleId + '?')) return;
+  try {
+    const r = await fetch('/api/rollback/rollback', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({bundle_id: bundleId})});
+    const d = await r.json();
+    toast('⏪ Rolled back to ' + bundleId, d.success ? 'success' : 'warn');
+  } catch(e) { toast('Rollback failed: ' + e.message, 'error'); }
+}
+
+async function testInjection() {
+  const input = document.getElementById('injTestInput').value;
+  const res = document.getElementById('injResult');
+  if (!input.trim()) { res.textContent = 'Please enter text to scan.'; return; }
+  res.textContent = '⏳ Scanning...';
+  try {
+    const r = await fetch('/api/prompt_defense/inspect', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text: input})});
+    const d = await r.json();
+    const safe = d.is_safe !== false;
+    res.innerHTML = `<b style="color:${safe?'#00e5a0':'#ff4466'}">${safe ? '✅ SAFE' : '🚨 INJECTION DETECTED'}</b>
+      &nbsp; Threat level: <b>${d.threat_level ?? 'none'}</b>
+      &nbsp; Flags: ${(d.flags ?? []).join(', ') || 'none'}
+      ${d.sanitized ? '<br>Sanitized: <em>' + d.sanitized + '</em>' : ''}`;
+  } catch(e) { res.textContent = 'Scan error: ' + e.message; }
+}
+
+// Auto-load when protection section becomes visible
+const _origShowSection = window.showSection;
+window.showSection = function(name, btn) {
+  _origShowSection && _origShowSection(name, btn);
+  if (name === 'protection') loadProtectionSystems();
+};
+
+// Also trigger on direct page load if hash === protection
+if (location.hash === '#protection') loadProtectionSystems();
