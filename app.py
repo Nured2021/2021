@@ -28,6 +28,27 @@ except Exception as _e:
     _ENGINE_OK = False
     print(f"[WARN] Engine layer unavailable: {_e}")
 
+# ── Protection & observability layer ────────────────────────────────
+try:
+    from engine.loop_protection     import LoopProtection
+    from engine.judgment_stabilizer import HumanJudgmentStabilizer
+    from engine.secure_memory       import SecureMemoryBank
+    from engine.composable_agents   import AgentFactory
+    from engine.structural_defense  import StructuralDefense
+    from engine.continuous_memory   import ContinuousMemory
+    from engine.observability       import AgentObservability
+    from engine.load_tester         import LoadTester
+    from engine.rollback            import RollbackSystem
+    from engine.agent_fs            import AgentFS
+    from engine.prompt_defense      import PromptInjectionDefense
+    from engine.cost_governor       import CostGovernor
+    from engine.post_mortem         import PostMortemSystem
+    from engine.identity_guardrails import IdentityGuardrails
+    _PROTECTION_OK = True
+except Exception as _pe:
+    _PROTECTION_OK = False
+    print(f"[WARN] Protection layer unavailable: {_pe}")
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "ord-ai-secret-2024"
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
@@ -120,6 +141,27 @@ if _ENGINE_OK:
     _orch    = None   # set after socketio is ready (see bottom of file)
 else:
     _router = _memory = _rag = _tuner = _orch = None
+
+# ── Initialize protection singletons ──────────────────────────────
+if _PROTECTION_OK:
+    _loop_prot   = LoopProtection.get_instance()
+    _judg_stab   = HumanJudgmentStabilizer.get_instance()
+    _secure_mem  = SecureMemoryBank.get_instance()
+    _agent_fac   = AgentFactory.get_instance()
+    _struct_def  = StructuralDefense.get_instance()
+    _cont_mem    = ContinuousMemory.get_instance()
+    _obs         = AgentObservability.get_instance()
+    _load_test   = LoadTester.get_instance()
+    _rollback    = RollbackSystem.get_instance()
+    _agent_fs    = AgentFS.get_instance()
+    _prompt_def  = PromptInjectionDefense.get_instance()
+    _cost_gov    = CostGovernor.get_instance()
+    _post_mort   = PostMortemSystem.get_instance()
+    _identity    = IdentityGuardrails.get_instance()
+else:
+    (_loop_prot, _judg_stab, _secure_mem, _agent_fac, _struct_def,
+     _cont_mem, _obs, _load_test, _rollback, _agent_fs,
+     _prompt_def, _cost_gov, _post_mort, _identity) = (None,) * 14
 
 # ─────────────────────────────────────────────────────────────
 # GLOBAL STATE — 50/50/50 live counters
@@ -465,6 +507,28 @@ def api_ai_chat():
     if not msg:
         return jsonify({"reply": "Please type a message."})
 
+    # ── Identity guardrails: absolute rule check ───────────────────
+    if _identity:
+        id_check = _identity.check_input(msg)
+        if not id_check["allowed"]:
+            return jsonify({
+                "reply": "⛔ Input rejected by identity guardrails.",
+                "rule_violated": id_check["rule_violated"],
+                "blocked": True,
+            })
+
+    # ── Prompt injection defense ───────────────────────────────────
+    defense_result = None
+    if _prompt_def:
+        defense_result = _prompt_def.inspect(msg)
+        if not defense_result.is_safe:
+            return jsonify({
+                "reply": "⛔ Input blocked — possible injection attack detected.",
+                "threats": defense_result.threats_found,
+                "blocked": True,
+            })
+        msg = defense_result.sanitized_input  # use sanitized version
+
     # Use RAG + ModelRouter for real AI responses
     context = ""
     backend_used = "mock"
@@ -743,6 +807,355 @@ def api_orch_plan():
     })
 
 # ─────────────────────────────────────────────────────────────
+# PROTECTION LAYER ROUTES — all 14 systems
+# ─────────────────────────────────────────────────────────────
+
+@app.route("/api/protection/status")
+def api_protection_status():
+    """Full status of all 14 protection systems."""
+    return jsonify({
+        "protection_ok": _PROTECTION_OK,
+        "loop_protection":   _loop_prot.get_status()   if _loop_prot  else None,
+        "judgment_stab":     _judg_stab.get_status()   if _judg_stab  else None,
+        "secure_memory":     _secure_mem.get_status()  if _secure_mem else None,
+        "composable_agents": _agent_fac.get_status()   if _agent_fac  else None,
+        "struct_defense":    _struct_def.get_status()  if _struct_def else None,
+        "continuous_memory": _cont_mem.get_status()    if _cont_mem   else None,
+        "observability":     _obs.get_status()         if _obs        else None,
+        "load_tester":       _load_test.get_status()   if _load_test  else None,
+        "rollback":          _rollback.get_status()    if _rollback   else None,
+        "agent_fs":          _agent_fs.get_status()    if _agent_fs   else None,
+        "prompt_defense":    _prompt_def.get_status()  if _prompt_def else None,
+        "cost_governor":     _cost_gov.get_status()    if _cost_gov   else None,
+        "post_mortem":       _post_mort.get_status()   if _post_mort  else None,
+        "identity":          _identity.get_status()    if _identity   else None,
+    })
+
+# ── #6 Loop Protection ─────────────────────────────────────────────
+@app.route("/api/loop_protection/status")
+def api_loop_status():
+    if not _loop_prot: return jsonify({"error": "Not loaded"})
+    return jsonify(_loop_prot.get_status())
+
+# ── #7 Observability ──────────────────────────────────────────────
+@app.route("/api/observability/status")
+def api_obs_status():
+    if not _obs: return jsonify({"error": "Not loaded"})
+    return jsonify(_obs.get_status())
+
+@app.route("/api/observability/traces")
+def api_obs_traces():
+    agent_id = request.args.get("agent_id")
+    limit = int(request.args.get("limit", 50))
+    if not _obs: return jsonify([])
+    return jsonify(_obs.get_traces(agent_id=agent_id, limit=limit))
+
+@app.route("/api/observability/cost")
+def api_obs_cost():
+    hours = float(request.args.get("hours", 24))
+    if not _obs: return jsonify({})
+    return jsonify(_obs.cost_summary(since_hours=hours))
+
+@app.route("/api/observability/quality")
+def api_obs_quality():
+    if not _obs: return jsonify({})
+    return jsonify(_obs.quality_summary())
+
+# ── #8 Load Tester ────────────────────────────────────────────────
+@app.route("/api/load_test/status")
+def api_load_status():
+    if not _load_test: return jsonify({"error": "Not loaded"})
+    return jsonify(_load_test.get_status())
+
+@app.route("/api/load_test/run", methods=["POST"])
+def api_load_run():
+    if not _load_test: return jsonify({"error": "Not loaded"})
+    result = _load_test.start_background()
+    pilot_say("🔥 Load test started — normal / surge / adversarial scenarios", "info")
+    return jsonify(result)
+
+# ── #9 Rollback ───────────────────────────────────────────────────
+@app.route("/api/rollback/status")
+def api_rollback_status():
+    if not _rollback: return jsonify({"error": "Not loaded"})
+    return jsonify(_rollback.get_status())
+
+@app.route("/api/rollback/bundles")
+def api_rollback_bundles():
+    if not _rollback: return jsonify([])
+    return jsonify(_rollback.list_bundles())
+
+@app.route("/api/rollback/snapshot", methods=["POST"])
+def api_rollback_snapshot():
+    data = request.get_json(silent=True) or {}
+    label = (data.get("label") or "manual-snapshot").strip()
+    manifest = data.get("manifest", {})
+    if not _rollback: return jsonify({"error": "Not loaded"})
+    bundle_id = _rollback.snapshot_bundle(label, manifest)
+    pilot_say(f"📸 Bundle snapshot: {label} ({bundle_id})", "info")
+    return jsonify({"bundle_id": bundle_id, "label": label})
+
+@app.route("/api/rollback/rollback", methods=["POST"])
+def api_rollback_exec():
+    data = request.get_json(silent=True) or {}
+    bundle_id = data.get("bundle_id", "")
+    reason = data.get("reason", "manual rollback")
+    if not _rollback: return jsonify({"error": "Not loaded"})
+    result = _rollback.rollback(bundle_id, trigger="manual", reason=reason)
+    pilot_say(f"⏪ Rollback executed → {bundle_id[:8]}: {reason}", "warn")
+    return jsonify(result)
+
+# ── #10 Agent FS ──────────────────────────────────────────────────
+@app.route("/api/agentfs/status")
+def api_agentfs_status():
+    if not _agent_fs: return jsonify({"error": "Not loaded"})
+    return jsonify(_agent_fs.get_status())
+
+@app.route("/api/agentfs/fs", methods=["POST"])
+def api_agentfs_write():
+    data = request.get_json(silent=True) or {}
+    path = (data.get("path") or "").strip()
+    content = data.get("content", "")
+    if not path or not _agent_fs: return jsonify({"error": "Missing path or not loaded"})
+    return jsonify(_agent_fs.fs_write(path, content))
+
+@app.route("/api/agentfs/fs")
+def api_agentfs_read():
+    path = request.args.get("path", "")
+    if not path or not _agent_fs: return jsonify({"error": "Missing path"})
+    content = _agent_fs.fs_read(path)
+    return jsonify({"path": path, "content": content, "found": content is not None})
+
+@app.route("/api/agentfs/kv", methods=["POST"])
+def api_agentfs_kv_set():
+    data = request.get_json(silent=True) or {}
+    if not _agent_fs: return jsonify({"error": "Not loaded"})
+    _agent_fs.kv_set(data.get("key",""), data.get("value"), data.get("namespace","default"))
+    return jsonify({"status": "stored"})
+
+@app.route("/api/agentfs/tools")
+def api_agentfs_tools():
+    if not _agent_fs: return jsonify([])
+    return jsonify(_agent_fs.tools_query(limit=50))
+
+@app.route("/api/agentfs/sql", methods=["POST"])
+def api_agentfs_sql():
+    data = request.get_json(silent=True) or {}
+    query = (data.get("query") or "").strip()
+    if not query or not _agent_fs: return jsonify({"error": "No query"})
+    try:
+        return jsonify(_agent_fs.sql_query(query))
+    except ValueError:
+        return jsonify({"error": "Only SELECT statements are permitted."}), 400
+    except Exception:
+        return jsonify({"error": "Query failed. Check syntax and try again."}), 400
+
+# ── #11 Prompt Defense ────────────────────────────────────────────
+@app.route("/api/prompt_defense/status")
+def api_pdef_status():
+    if not _prompt_def: return jsonify({"error": "Not loaded"})
+    return jsonify(_prompt_def.get_status())
+
+@app.route("/api/prompt_defense/inspect", methods=["POST"])
+def api_pdef_inspect():
+    data = request.get_json(silent=True) or {}
+    text = (data.get("text") or data.get("input") or "").strip()
+    strict = bool(data.get("strict", False))
+    if not text or not _prompt_def: return jsonify({"error": "No text or not loaded"})
+    result = _prompt_def.inspect(text, strict=strict)
+    return jsonify(result.to_dict())
+
+# ── #12 Cost Governor ─────────────────────────────────────────────
+@app.route("/api/cost/status")
+def api_cost_status():
+    if not _cost_gov: return jsonify({"error": "Not loaded"})
+    return jsonify(_cost_gov.get_status())
+
+@app.route("/api/cost/summary")
+def api_cost_summary():
+    if not _cost_gov: return jsonify({})
+    return jsonify(_cost_gov.daily_summary())
+
+@app.route("/api/cost/roi", methods=["POST"])
+def api_cost_roi():
+    data = request.get_json(silent=True) or {}
+    rev = float(data.get("revenue_impact_usd", 0))
+    cost = float(data.get("infra_cost_usd", 0))
+    if not _cost_gov: return jsonify({"error": "Not loaded"})
+    return jsonify(_cost_gov.calculate_roi(rev, cost))
+
+# ── #13 Post-Mortem ───────────────────────────────────────────────
+@app.route("/api/postmortem/status")
+def api_pm_status():
+    if not _post_mort: return jsonify({"error": "Not loaded"})
+    return jsonify(_post_mort.get_status())
+
+@app.route("/api/postmortem/incidents")
+def api_pm_list():
+    status = request.args.get("status")
+    severity = request.args.get("severity")
+    if not _post_mort: return jsonify([])
+    return jsonify(_post_mort.list_incidents(status=status, severity=severity))
+
+@app.route("/api/postmortem/record", methods=["POST"])
+def api_pm_record():
+    data = request.get_json(silent=True) or {}
+    title = (data.get("title") or "Untitled Incident").strip()
+    if not _post_mort: return jsonify({"error": "Not loaded"})
+    inc_id = _post_mort.record_incident(
+        title=title,
+        severity=data.get("severity", "medium"),
+        description=data.get("description", ""),
+        root_cause=data.get("root_cause", "unknown"),
+        cascade_effects=data.get("cascade_effects", []),
+    )
+    pilot_say(f"🚨 Incident recorded: {title} ({inc_id})", "warn")
+    return jsonify({"incident_id": inc_id, "title": title})
+
+@app.route("/api/postmortem/resolve", methods=["POST"])
+def api_pm_resolve():
+    data = request.get_json(silent=True) or {}
+    inc_id = data.get("incident_id", "")
+    if not inc_id or not _post_mort: return jsonify({"error": "Missing incident_id"})
+    result = _post_mort.resolve_incident(
+        inc_id,
+        resolution_notes=data.get("resolution_notes", ""),
+        additional_improvements=data.get("improvements", []),
+    )
+    pilot_say(f"✅ Incident resolved: {inc_id}", "done")
+    return jsonify(result)
+
+@app.route("/api/postmortem/tasks")
+def api_pm_tasks():
+    if not _post_mort: return jsonify([])
+    return jsonify(_post_mort.improvement_tasks(status=request.args.get("status","open")))
+
+# ── #14 Identity / Guardrails ─────────────────────────────────────
+@app.route("/api/identity/status")
+def api_id_status():
+    if not _identity: return jsonify({"error": "Not loaded"})
+    return jsonify(_identity.get_status())
+
+@app.route("/api/identity/soul")
+def api_id_soul():
+    if not _identity: return jsonify({"error": "Not loaded"})
+    return jsonify(_identity.get_soul())
+
+@app.route("/api/identity/check", methods=["POST"])
+def api_id_check():
+    data = request.get_json(silent=True) or {}
+    text = (data.get("text") or data.get("input") or "").strip()
+    if not text or not _identity: return jsonify({"error": "No text"})
+    return jsonify(_identity.check_input(text))
+
+@app.route("/api/identity/system_prompt")
+def api_id_system_prompt():
+    if not _identity: return jsonify({"error": "Not loaded"})
+    return jsonify({"system_prompt": _identity.get_system_prompt()})
+
+# ── Secure Memory ──────────────────────────────────────────────────
+@app.route("/api/secure_memory/status")
+def api_smem_status():
+    if not _secure_mem: return jsonify({"error": "Not loaded"})
+    return jsonify(_secure_mem.get_status())
+
+@app.route("/api/secure_memory/add", methods=["POST"])
+def api_smem_add():
+    data = request.get_json(silent=True) or {}
+    content = (data.get("content") or "").strip()
+    source = data.get("source", "user")
+    if not content or not _secure_mem: return jsonify({"error": "No content"})
+    return jsonify(_secure_mem.add_memory(content, source=source))
+
+@app.route("/api/secure_memory/flagged")
+def api_smem_flagged():
+    if not _secure_mem: return jsonify([])
+    return jsonify(_secure_mem.list_flagged())
+
+# ── Continuous Memory ──────────────────────────────────────────────
+@app.route("/api/continuous_memory/status")
+def api_cmem_status():
+    if not _cont_mem: return jsonify({"error": "Not loaded"})
+    return jsonify(_cont_mem.get_status())
+
+@app.route("/api/continuous_memory/remember", methods=["POST"])
+def api_cmem_remember():
+    data = request.get_json(silent=True) or {}
+    session_id = (data.get("session_id") or "default").strip()
+    key = (data.get("key") or "").strip()
+    value = data.get("value", "")
+    importance = float(data.get("importance", 0.5))
+    if not key or not _cont_mem: return jsonify({"error": "Missing key"})
+    _cont_mem.remember(session_id, key, str(value), importance=importance)
+    return jsonify({"status": "stored", "session_id": session_id, "key": key})
+
+@app.route("/api/continuous_memory/summarize")
+def api_cmem_summarize():
+    session_id = request.args.get("session_id", "default")
+    if not _cont_mem: return jsonify({"summary": ""})
+    return jsonify({"summary": _cont_mem.summarize(session_id)})
+
+@app.route("/api/continuous_memory/sessions")
+def api_cmem_sessions():
+    if not _cont_mem: return jsonify([])
+    return jsonify(_cont_mem.list_sessions())
+
+# ── Composable Agents ──────────────────────────────────────────────
+@app.route("/api/agents/primitives")
+def api_agents_primitives():
+    if not _agent_fac: return jsonify({})
+    return jsonify(_agent_fac.list_primitives())
+
+@app.route("/api/agents/list")
+def api_agents_list():
+    if not _agent_fac: return jsonify([])
+    return jsonify(_agent_fac.list_agents())
+
+@app.route("/api/agents/compose", methods=["POST"])
+def api_agents_compose():
+    data = request.get_json(silent=True) or {}
+    agent_id = (data.get("agent_id") or "custom").strip()
+    if not _agent_fac: return jsonify({"error": "Not loaded"})
+    agent = _agent_fac.create_agent(
+        agent_id=agent_id,
+        role_names=data.get("roles", []),
+        outcome_names=data.get("outcomes", []),
+        tradeoff_names=data.get("tradeoffs", []),
+    )
+    return jsonify(agent.to_dict())
+
+# ── Structural Defense ─────────────────────────────────────────────
+@app.route("/api/structural_defense/status")
+def api_sdef_status():
+    if not _struct_def: return jsonify({"error": "Not loaded"})
+    return jsonify(_struct_def.get_status())
+
+@app.route("/api/structural_defense/check_command", methods=["POST"])
+def api_sdef_check():
+    data = request.get_json(silent=True) or {}
+    cmd = (data.get("command") or "").strip()
+    if not cmd or not _struct_def: return jsonify({"error": "No command"})
+    return jsonify(_struct_def.check_command(cmd, strict=bool(data.get("strict", False))))
+
+# ── Judgment Stabilizer ────────────────────────────────────────────
+@app.route("/api/judgment/validate", methods=["POST"])
+def api_judg_validate():
+    data = request.get_json(silent=True) or {}
+    rating = float(data.get("rating", 5))
+    task_type = data.get("task_type", "review")
+    if not _judg_stab: return jsonify({"status": "consistent"})
+    return jsonify(_judg_stab.validate_feedback(
+        rating=rating, task_type=task_type,
+        context_tags=data.get("tags", []),
+        reviewer_id=data.get("reviewer_id", "human"),
+    ))
+
+@app.route("/api/judgment/status")
+def api_judg_status():
+    if not _judg_stab: return jsonify({"error": "Not loaded"})
+    return jsonify(_judg_stab.get_status())
+
+# ─────────────────────────────────────────────────────────────
 # SOCKET.IO
 # ─────────────────────────────────────────────────────────────
 @socketio.on("connect")
@@ -769,16 +1182,17 @@ def on_stop():
 # ENTRY
 # ─────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    print("\n" + "═"*60)
-    print("  ORD AI — ∞-Loop Human-AI Factory")
+    port = int(os.environ.get("PORT", 5000))
+    print("\n" + "═"*65)
+    print("  ORD AI — ∞-Loop Human-AI Factory  (PRODUCTION BUILD)")
     print("  50 Cores · 50 Engines · 50 AI Builders")
-    print("  All 4 Blueprints + 5 Engine Systems Unified")
-    print(f"  http://0.0.0.0:5000")
-    print("═"*60 + "\n")
+    print(f"  All 14 Protection Systems: {'✅ ACTIVE' if _PROTECTION_OK else '⚠ partial'}")
+    print(f"  Open in browser → http://0.0.0.0:{port}")
+    print("═"*65 + "\n")
     # Wire PowerfulOrchestrator to socketio.emit after app is ready
     if _ENGINE_OK:
         import engine.orchestrator as _orch_mod
         _orch = PowerfulOrchestrator.get_instance(
             emit_fn=lambda event, data: socketio.emit(event, data)
         )
-    socketio.run(app, host="0.0.0.0", port=5000, debug=False, allow_unsafe_werkzeug=True)
+    socketio.run(app, host="0.0.0.0", port=port, debug=False, allow_unsafe_werkzeug=True)

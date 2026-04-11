@@ -138,3 +138,90 @@
 **50 CORES. 50 ENGINES. 50 AI BUILDERS.**
 **∞ LOOP. AI PILOT 100% ALIVE. NEVER SILENT. NEVER STOPS.**
 **BUILD ANYTHING. DEPLOY ANYWHERE. LOOP FOREVER.** 🚀
+
+---
+
+## 🚀 DEPLOY — ONE LINK, ONE COMMAND
+
+The entire ORD AI platform (frontend + backend + all 14 protection systems)
+runs from a **single server** on **one URL**. No separate frontend/backend links.
+
+---
+
+### Option 1 — Render.com (Free, 1-Click)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Nured2021/2021)
+
+1. Click the button above  
+2. Render reads `render.yaml` automatically  
+3. Your live URL: `https://ord-ai-platform.onrender.com`  
+4. **Everything** — dashboard, API, WebSockets — served from that one URL
+
+---
+
+### Option 2 — Railway (Free tier)
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/Nured2021/2021)
+
+1. Click → sign in with GitHub  
+2. Railway detects `Procfile` automatically  
+3. Your live URL: `https://ord-ai-platform.up.railway.app`
+
+---
+
+### Option 3 — Docker (Any VPS / local)
+
+```bash
+# Clone & launch in one command
+git clone https://github.com/Nured2021/2021.git && cd 2021
+docker-compose up -d
+
+# Open → http://localhost:5000
+```
+
+Or without Docker:
+```bash
+pip install -r requirements.txt
+python app.py
+# Open → http://localhost:5000
+```
+
+---
+
+## 🛡️ PRODUCTION SYSTEMS (All Active)
+
+| # | System | What It Does |
+|---|--------|-------------|
+| 1 | Loop Protection | Detects agent stuck-in-loop, forces strategy switch |
+| 2 | Human Judgment Stabilizer | Catches inconsistent HITL feedback |
+| 3 | Secure Memory | Poisoning detection, audit trail, rollback |
+| 4 | Composable Agents | Primitives-based swappable capabilities |
+| 5 | Structural Defense | Command sandbox + identity version control |
+| 6 | Continuous Memory | Session-portable memory, no discontinuity |
+| 7 | Observability | Engineering traces + executive cost + quality scoring |
+| 8 | Load Tester | Normal / surge / adversarial stress scenarios |
+| 9 | Rollback System | One-command versioned bundle revert |
+| 10 | Agent Filesystem | Unified SQLite FS + KV + audit log |
+| 11 | Prompt Injection Defense | Multi-pattern injection detection & sanitization |
+| 12 | Cost Governor | Budget caps, cost-aware routing, ROI tracking |
+| 13 | Post-Mortem | Incident capture → root-cause → improvement pipeline |
+| 14 | Identity Guardrails | Non-overridable "soul" — cannot be jailbroken |
+
+## 🔌 API ENDPOINTS
+
+All served from the **same URL** as the dashboard:
+
+```
+GET  /                          → Full dashboard UI
+GET  /api/state                 → Live 50/50/50 counters
+POST /api/build                 → Start a build
+POST /api/ai_chat               → AI Pilot chat
+GET  /api/protection/status     → All 14 systems status
+GET  /api/observability/traces  → Engineering traces
+GET  /api/cost/summary          → Executive cost summary
+POST /api/rollback/rollback     → One-command rollback
+POST /api/prompt_defense/inspect→ Test injection defense
+GET  /api/identity/soul         → View agent soul/identity
+POST /api/postmortem/record     → Record an incident
+GET  /api/agents/primitives     → Composable agent building blocks
+```

@@ -1,11 +1,25 @@
 """
 ORD AI — PowerfulOrchestrator
-Complete ∞-Loop brain incorporating all 5 systems:
-  1. ModelRouter  — routes tasks to optimal LLM
-  2. MemoryBank   — short/long/episodic memory
-  3. HybridRAG    — BM25 + vector retrieval
-  4. FineTuner    — permanent learning from builds
-  5. This orchestrator — DAG execution, HITL, bottleneck detection
+Complete ∞-Loop brain incorporating all 14 production systems:
+  1. ModelRouter          — routes tasks to optimal LLM
+  2. MemoryBank           — short/long/episodic memory
+  3. HybridRAG            — BM25 + vector retrieval
+  4. FineTuner            — permanent learning from builds
+  5. This orchestrator    — DAG execution, HITL, bottleneck detection
+  6. LoopProtection       — escape hatch + frustration metric
+  7. JudgmentStabilizer   — inconsistent HITL feedback detection
+  8. SecureMemoryBank     — memory poisoning protection + audit trail
+  9. ComposableAgents     — primitives-based agent architecture
+ 10. StructuralDefense    — sandbox + identity version control
+ 11. ContinuousMemory     — portable memory across sessions
+ 12. AgentObservability   — three-perspective tracing + quality scoring
+ 13. LoadTester           — stress testing (normal/surge/adversarial)
+ 14. RollbackSystem       — versioned bundle snapshots
+ 15. AgentFS              — unified SQLite agent filesystem
+ 16. PromptDefense        — multi-agent injection protection
+ 17. CostGovernor         — budget governance + ROI
+ 18. PostMortemSystem     — incident → improvement pipeline
+ 19. IdentityGuardrails   — non-overridable soul/identity
 
 Features:
   • Proper async DAG (TaskStatus enum, Task dataclass, dependency tracking)
@@ -14,6 +28,9 @@ Features:
   • Learns from every build via FineTuner
   • 50 concurrent workers
   • ∞-loop job queue
+  • Every input screened by PromptDefense + IdentityGuardrails
+  • Every decision traced by AgentObservability
+  • Every cost tracked by CostGovernor
 """
 import asyncio
 import threading
@@ -29,6 +46,27 @@ from engine.model_router import ModelRouter
 from engine.memory import MemoryBank
 from engine.rag import HybridRAG
 from engine.fine_tuner import FineTuner
+
+# ── Protection & observability layer (all optional-import safe) ────────
+try:
+    from engine.loop_protection     import LoopProtection
+    from engine.judgment_stabilizer import HumanJudgmentStabilizer
+    from engine.secure_memory       import SecureMemoryBank
+    from engine.composable_agents   import AgentFactory
+    from engine.structural_defense  import StructuralDefense
+    from engine.continuous_memory   import ContinuousMemory
+    from engine.observability       import AgentObservability
+    from engine.load_tester         import LoadTester
+    from engine.rollback            import RollbackSystem
+    from engine.agent_fs            import AgentFS
+    from engine.prompt_defense      import PromptInjectionDefense
+    from engine.cost_governor       import CostGovernor
+    from engine.post_mortem         import PostMortemSystem
+    from engine.identity_guardrails import IdentityGuardrails
+    _PROTECTION_OK = True
+except Exception as _pe:
+    _PROTECTION_OK = False
+    print(f"[WARN] Protection layer partially unavailable: {_pe}")
 
 
 # ── Task Status ────────────────────────────────────────────────────
@@ -133,6 +171,29 @@ class PowerfulOrchestrator:
         self.rag     = HybridRAG.get_instance()
         self.tuner   = FineTuner.get_instance()
 
+        # ── Protection & observability layer ──────────────────────
+        if _PROTECTION_OK:
+            self.loop_protection  = LoopProtection.get_instance()
+            self.judgment_stab    = HumanJudgmentStabilizer.get_instance()
+            self.secure_mem       = SecureMemoryBank.get_instance()
+            self.agent_factory    = AgentFactory.get_instance()
+            self.struct_defense   = StructuralDefense.get_instance()
+            self.cont_memory      = ContinuousMemory.get_instance()
+            self.observability    = AgentObservability.get_instance()
+            self.load_tester      = LoadTester.get_instance()
+            self.rollback         = RollbackSystem.get_instance()
+            self.agent_fs         = AgentFS.get_instance()
+            self.prompt_defense   = PromptInjectionDefense.get_instance()
+            self.cost_governor    = CostGovernor.get_instance()
+            self.post_mortem      = PostMortemSystem.get_instance()
+            self.identity         = IdentityGuardrails.get_instance()
+        else:
+            (self.loop_protection, self.judgment_stab, self.secure_mem,
+             self.agent_factory, self.struct_defense, self.cont_memory,
+             self.observability, self.load_tester, self.rollback,
+             self.agent_fs, self.prompt_defense, self.cost_governor,
+             self.post_mortem, self.identity) = (None,) * 14
+
         # ── Config ────────────────────────────────────────────────
         self.max_concurrent = max_concurrent
         self._emit = emit_fn or (lambda e, d: None)
@@ -198,6 +259,22 @@ class PowerfulOrchestrator:
             "memory":          self.memory.summary(),
             "rag":             self.rag.stats(),
             "finetune":        self.tuner.get_status(),
+            "protection": {
+                "loop_protection":  self.loop_protection.get_status()  if self.loop_protection  else None,
+                "prompt_defense":   self.prompt_defense.get_status()   if self.prompt_defense   else None,
+                "secure_memory":    self.secure_mem.get_status()       if self.secure_mem       else None,
+                "cost_governor":    self.cost_governor.get_status()    if self.cost_governor    else None,
+                "observability":    self.observability.get_status()    if self.observability    else None,
+                "rollback":         self.rollback.get_status()         if self.rollback         else None,
+                "identity":         self.identity.get_status()         if self.identity         else None,
+                "composable_agents":self.agent_factory.get_status()    if self.agent_factory    else None,
+                "struct_defense":   self.struct_defense.get_status()   if self.struct_defense   else None,
+                "agent_fs":         self.agent_fs.get_status()         if self.agent_fs         else None,
+                "continuous_memory":self.cont_memory.get_status()      if self.cont_memory      else None,
+                "judgment_stab":    self.judgment_stab.get_status()    if self.judgment_stab    else None,
+                "post_mortem":      self.post_mortem.get_status()      if self.post_mortem      else None,
+                "load_tester":      self.load_tester.get_status()      if self.load_tester      else None,
+            },
         }
 
     # ── HITL approval ─────────────────────────────────────────────
@@ -425,11 +502,83 @@ class PowerfulOrchestrator:
                     (v for k, v in _TASK_TYPE_MAP.items() if k in task.name.lower()),
                     "default",
                 )
+
+                # ── Loop protection: detect stuck agents ───────────
+                if self.loop_protection:
+                    if self.loop_protection.detect_stuck(task.id):
+                        escape = self.loop_protection.escape_prompt(task.id)
+                        task.description = escape + "\n\nOriginal task: " + task.description
+
+                # ── Cost-aware routing ─────────────────────────────
+                if self.cost_governor:
+                    est_cost = self.cost_governor.estimate_cost(
+                        self.router.active_backend(), 512
+                    )
+                    budget_check = self.cost_governor.check_budget(est_cost)
+                    if not budget_check["allowed"]:
+                        task.status = TaskStatus.FAILED
+                        task.error  = "Daily budget cap reached — request blocked."
+                        self.memory.ep_record(
+                            f"Task blocked (budget): {task.name}", kind="warn"
+                        )
+                        continue
+
+                t0 = time.time()
                 res = self.router.ask(task.description, task_type=task_type)
+                latency_ms = int((time.time() - t0) * 1000)
+
                 task.assigned_backend = res.get("backend", "mock")
                 task.result    = res["response"][:300]
                 task.status    = TaskStatus.COMPLETE
                 task.completed_at = time.time()
+
+                # ── Observability: trace decision + quality + cost ──
+                if self.observability:
+                    tid = self.observability.trace_decision(
+                        agent_id=task.name,
+                        prompt=task.description,
+                        response=res["response"],
+                        backend=task.assigned_backend,
+                        latency_ms=latency_ms,
+                    )
+                    self.observability.evaluate_quality(
+                        response=res["response"],
+                        agent_id=task.name,
+                        trace_id=tid,
+                    )
+                    tokens_est = res.get("tokens", len(res["response"].split()) * 2)
+                    self.observability.track_cost(
+                        model=task.assigned_backend,
+                        tokens_in=tokens_est // 2,
+                        tokens_out=tokens_est // 2,
+                        task_type=task_type,
+                    )
+                if self.cost_governor:
+                    self.cost_governor.record(
+                        model=task.assigned_backend,
+                        tokens_in=res.get("tokens", 256) // 2,
+                        tokens_out=res.get("tokens", 256) // 2,
+                        task_type=task_type,
+                    )
+
+                # ── AgentFS: log to tool-call audit trail ──────────
+                if self.agent_fs:
+                    self.agent_fs.tools_record(
+                        tool=task_type,
+                        input_data={"task": task.name, "desc": task.description[:200]},
+                        output_data={"response": task.result, "backend": task.assigned_backend},
+                        agent_id=task.name,
+                        duration_ms=latency_ms,
+                    )
+
+                # ── Loop protection: record attempt ────────────────
+                if self.loop_protection:
+                    self.loop_protection.record_attempt(
+                        task_id=task.id,
+                        approach_type=task_type,
+                        score=1.0,
+                    )
+                    self.loop_protection.reset_task(task.id)
 
                 duration = task.duration()
                 self.performance_metrics.setdefault(task.assigned_backend, []).append(duration)
@@ -472,5 +621,6 @@ class PowerfulOrchestrator:
                 self._emit("bottleneck_fixed", {"fixed": fixed})
 
     def get_full_status(self) -> dict:
-        return self.snapshot()
-
+        snap = self.snapshot()
+        snap["protection_layer_ok"] = _PROTECTION_OK
+        return snap

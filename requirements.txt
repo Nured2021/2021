@@ -1,12 +1,13 @@
 flask==3.0.3
 flask-socketio==5.3.6
 eventlet==0.36.1
+gunicorn==22.0.0
 
-# Optional: semantic vector search (comment out if not needed)
+# Optional: semantic vector search
 # sentence-transformers==3.3.1
 # numpy>=1.24.0
 
-# Optional: real fine-tuning (requires GPU)
+# Optional: real fine-tuning (GPU required)
 # transformers>=4.40.0
 # peft>=0.11.0
 # torch>=2.1.0

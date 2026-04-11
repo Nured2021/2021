@@ -190,7 +190,7 @@ class FineTuner:
             loss = 2.5
             for step in range(total_steps):
                 time.sleep(0.05)
-                loss = max(0.1, loss - random.uniform(0.005, 0.02))  # noqa: F821
+                loss = max(0.1, loss - random.uniform(0.005, 0.02))
                 self.progress = int((step + 1) / total_steps * 100)
                 run["current_loss"] = round(loss, 4)
             output_path = os.path.join(FINETUNE_DIR, "finetuned_ord_ai.gguf")
