@@ -62,7 +62,7 @@ function App() {
   const [showKeys, setShowKeys]   = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showPremiumDashboard, setShowPremiumDashboard] = useState(false);
-  const [showNewDashboard, setShowNewDashboard] = useState(false);
+  const [showNewDashboard, setShowNewDashboard] = useState(true);
   const [showClassroom, setShowClassroom] = useState(false);
   const [activeTab, setActiveTab]     = useState("document");
   const [docFormat, setDocFormat]     = useState("doc");
