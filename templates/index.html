@@ -29,6 +29,7 @@
     <button class="nav-btn" onclick="showSection('builder',this)">🔨 Builder</button>
     <button class="nav-btn" onclick="showSection('editor',this)">💻 Editor</button>
     <button class="nav-btn" onclick="showSection('analytics',this)">📊 Analytics</button>
+    <button class="nav-btn" onclick="showSection('engine',this)">⚙ Engine</button>
     <button class="nav-btn" onclick="showSection('blueprint',this)">📐 Blueprint</button>
   </div>
   <div class="nav-right">
@@ -399,6 +400,141 @@ ord_ai.loop_forever()
       </div>
     </div>
   </div>
+</section>
+
+<!-- ════ ENGINE ════ -->
+<section id="sec-engine" class="section">
+  <div class="section-title">⚙ ORD AI ENGINE LAYER — ModelRouter · Memory · RAG · FineTuner</div>
+
+  <div class="engine-grid">
+
+    <!-- MODEL ROUTER PANEL -->
+    <div class="panel engine-panel">
+      <div class="panel-head">
+        <span class="ph-title">🔀 MultiModelRouter</span>
+        <span id="routerActiveBadge" class="badge badge-green">mock</span>
+      </div>
+      <div class="router-sub">Dynamic LLM routing — LMStudio · Ollama · OpenAI · Mock</div>
+      <div id="routerBackends" class="router-backends"></div>
+      <div class="engine-prompt-row">
+        <input id="routerPrompt" class="engine-input" placeholder="Ask the AI directly…" />
+        <select id="routerTaskType" class="engine-select">
+          <option value="default">Default</option>
+          <option value="code_generation">Code Gen</option>
+          <option value="system_architecture">Architecture</option>
+          <option value="fast_iteration">Fast Iter</option>
+          <option value="validation">Validation</option>
+          <option value="review">Review</option>
+        </select>
+        <button class="btn-engine" onclick="routerAsk()">Ask ⟶</button>
+      </div>
+      <div id="routerResponse" class="engine-response"></div>
+    </div>
+
+    <!-- MEMORY PANEL -->
+    <div class="panel engine-panel">
+      <div class="panel-head">
+        <span class="ph-title">🧠 Memory Bank</span>
+        <button class="btn-sm" onclick="loadMemory()">Refresh</button>
+      </div>
+      <div class="memory-tiers">
+        <div class="mem-tier">
+          <div class="mt-header blue">Short-Term <span class="mt-ttl">TTL 1h</span></div>
+          <div id="memShortCount" class="mt-count">0 keys</div>
+        </div>
+        <div class="mem-tier">
+          <div class="mt-header green">Long-Term <span class="mt-ttl">SQLite FTS</span></div>
+          <div id="memLongCount" class="mt-count">0 docs</div>
+        </div>
+        <div class="mem-tier">
+          <div class="mt-header purple">Episodic <span class="mt-ttl">Events</span></div>
+          <div id="memEpiCount" class="mt-count">0 events</div>
+        </div>
+      </div>
+      <div class="engine-prompt-row">
+        <input id="memSearchQ" class="engine-input" placeholder="Search long-term memory…" />
+        <button class="btn-engine" onclick="memSearch()">Search</button>
+      </div>
+      <div id="memResults" class="engine-response"></div>
+      <div class="panel-head" style="margin-top:8px"><span class="ph-title">Recent Events</span></div>
+      <div id="episodicFeed" class="episodic-feed"></div>
+    </div>
+
+    <!-- RAG PANEL -->
+    <div class="panel engine-panel">
+      <div class="panel-head">
+        <span class="ph-title">📚 Hybrid RAG</span>
+        <span id="ragDocBadge" class="badge badge-blue">0 docs</span>
+      </div>
+      <div class="router-sub">BM25 keyword + vector semantic search · Zero-dep fallback</div>
+      <div class="rag-stats-row">
+        <div class="rag-stat"><span id="ragTotal">0</span><br><small>Documents</small></div>
+        <div class="rag-stat"><span id="ragVectorized">0</span><br><small>Vectorized</small></div>
+        <div class="rag-stat"><span id="ragVectorOk" class="badge badge-amber">BM25</span><br><small>Mode</small></div>
+      </div>
+      <div class="engine-prompt-row">
+        <input id="ragQuery" class="engine-input" placeholder="Query knowledge base…" />
+        <select id="ragMode" class="engine-select">
+          <option value="hybrid">Hybrid</option>
+          <option value="bm25">BM25 only</option>
+          <option value="vector">Vector only</option>
+        </select>
+        <button class="btn-engine" onclick="ragQuery()">Search</button>
+      </div>
+      <div id="ragResults" class="engine-response"></div>
+      <div class="panel-head" style="margin-top:8px"><span class="ph-title">Ingest Document</span></div>
+      <div class="ingest-form">
+        <input id="ingestTitle" class="engine-input" placeholder="Title" style="width:100%;margin-bottom:4px" />
+        <textarea id="ingestContent" class="engine-textarea" placeholder="Content to add to knowledge base…" rows="3"></textarea>
+        <div class="engine-prompt-row">
+          <input id="ingestTags" class="engine-input" placeholder="tags (comma-separated)" />
+          <button class="btn-engine" onclick="ragIngest()">Ingest ⟶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINE-TUNER PANEL -->
+    <div class="panel engine-panel">
+      <div class="panel-head">
+        <span class="ph-title">🎓 FineTuner</span>
+        <span id="ftStatusBadge" class="badge badge-amber">idle</span>
+      </div>
+      <div class="router-sub">LoRA/QLoRA fine-tuning from build history · GGUF/ONNX export</div>
+      <div class="ft-config">
+        <div class="ft-row-cfg">
+          <label>Base Model</label>
+          <select id="ftModel" class="engine-select" style="flex:1">
+            <option value="llama-3.1-8b">LLaMA 3.1 8B</option>
+            <option value="qwen2.5-coder-7b">Qwen2.5-Coder 7B</option>
+            <option value="mistral-7b">Mistral 7B</option>
+            <option value="codellama-7b">CodeLLaMA 7B</option>
+          </select>
+        </div>
+        <div class="ft-row-cfg">
+          <label>Method</label>
+          <select id="ftMethod" class="engine-select" style="flex:1">
+            <option value="lora">LoRA</option>
+            <option value="qlora">QLoRA (4-bit)</option>
+          </select>
+        </div>
+        <div class="ft-row-cfg">
+          <label>Epochs</label>
+          <input id="ftEpochs" type="number" value="3" min="1" max="10" class="engine-input" style="width:60px" />
+          <button class="btn-engine" style="margin-left:auto" onclick="startFinetune()">▶ Start Training</button>
+        </div>
+      </div>
+      <div class="ft-progress-wrap">
+        <div class="ft-progress-bar"><div id="ftProgressFill" class="ft-progress-fill" style="width:0%"></div></div>
+        <span id="ftProgressPct">0%</span>
+      </div>
+      <div id="ftStatus" class="engine-response">
+        Ready. Training data auto-generated from your build history.
+      </div>
+      <div class="panel-head" style="margin-top:8px"><span class="ph-title">Training History</span></div>
+      <div id="ftHistory" class="episodic-feed"></div>
+    </div>
+
+  </div><!-- /engine-grid -->
 </section>
 
 <!-- ════ BLUEPRINT ════ -->

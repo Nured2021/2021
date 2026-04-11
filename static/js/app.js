@@ -656,3 +656,227 @@ document.getElementById("promptInput")?.addEventListener("keydown", function(e) 
 function now() {
   return new Date().toTimeString().slice(0, 8);
 }
+
+// ══════════════════════════════════════════════════════════════
+//  ENGINE LAYER — ModelRouter · Memory · RAG · FineTuner
+// ══════════════════════════════════════════════════════════════
+
+// ── Load engine status on page load + every 15s ──────────────
+(function engineInit() {
+  loadEngineStatus();
+  loadMemory();
+  loadRagStats();
+  loadFinetuneStatus();
+  setInterval(loadEngineStatus, 15000);
+  setInterval(loadMemory, 10000);
+  setInterval(loadFinetuneStatus, 5000);
+  setInterval(loadEpisodicFeed, 8000);
+})();
+
+// ─── ModelRouter ─────────────────────────────────────────────
+async function loadEngineStatus() {
+  try {
+    const r = await fetch("/api/models");
+    const d = await r.json();
+    if (!d.backends) return;
+    document.getElementById("routerActiveBadge").textContent = d.active_backend || "mock";
+    const container = document.getElementById("routerBackends");
+    container.innerHTML = "";
+    const order = ["lmstudio","ollama","openai","mock"];
+    order.forEach(name => {
+      const b = d.backends[name];
+      if (!b) return;
+      const online = b.available;
+      const avgLat = b.avg_latency_ms > 0 ? `${b.avg_latency_ms}ms` : "--";
+      container.innerHTML += `
+        <div class="router-backend">
+          <div class="rb-dot ${online ? 'online' : 'offline'}"></div>
+          <span class="rb-name">${name}</span>
+          <span class="rb-model">${b.model}</span>
+          <div class="rb-stats"><b>${b.calls}</b> calls &nbsp;<b>${b.tokens}</b> tok</div>
+          <span class="rb-latency">${avgLat}</span>
+        </div>`;
+    });
+  } catch(e) { /* silent */ }
+}
+
+async function routerAsk() {
+  const prompt = document.getElementById("routerPrompt").value.trim();
+  const taskType = document.getElementById("routerTaskType").value;
+  if (!prompt) return;
+  const el = document.getElementById("routerResponse");
+  el.textContent = "⏳ Asking " + taskType + " model…";
+  try {
+    const r = await fetch("/api/models/ask", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({prompt, task_type: taskType})
+    });
+    const d = await r.json();
+    el.textContent = `[${d.backend} · ${d.model} · ${d.latency_ms}ms · ${d.tokens} tok]\n\n${d.response}`;
+    loadEngineStatus();
+  } catch(e) { el.textContent = "Error: " + e.message; }
+}
+
+document.getElementById("routerPrompt")?.addEventListener("keydown", e => {
+  if (e.key === "Enter") routerAsk();
+});
+
+// ─── Memory ──────────────────────────────────────────────────
+async function loadMemory() {
+  try {
+    const r = await fetch("/api/memory");
+    const d = await r.json();
+    if (d.error) return;
+    document.getElementById("memShortCount").textContent =
+      d.short_term.active_keys + " keys";
+    document.getElementById("memLongCount").textContent =
+      (d.long_term.count || 0) + " docs";
+    document.getElementById("memEpiCount").textContent =
+      (d.episodic.total || 0) + " events";
+  } catch(e) {}
+  loadEpisodicFeed();
+}
+
+async function loadEpisodicFeed() {
+  try {
+    const r = await fetch("/api/memory/episodic?limit=20");
+    const events = await r.json();
+    const feed = document.getElementById("episodicFeed");
+    if (!feed) return;
+    feed.innerHTML = events.map(ev => {
+      const t = new Date(ev.ts * 1000).toTimeString().slice(0,8);
+      return `<div class="ep-event">
+        <span class="ep-kind ${ev.kind}">[${ev.kind}]</span>
+        <span class="ep-msg">${ev.event}</span>
+        <span style="color:var(--text3);font-size:9px">${t}</span>
+      </div>`;
+    }).join("");
+  } catch(e) {}
+}
+
+async function memSearch() {
+  const q = document.getElementById("memSearchQ").value.trim();
+  if (!q) return;
+  const el = document.getElementById("memResults");
+  el.textContent = "⏳ Searching…";
+  try {
+    const r = await fetch(`/api/memory/search?q=${encodeURIComponent(q)}`);
+    const results = await r.json();
+    if (!results.length) { el.textContent = "No results found."; return; }
+    el.innerHTML = results.map(r =>
+      `<div style="margin-bottom:6px"><b>${r.key}</b><br><span style="color:var(--text3)">${(r.content||"").slice(0,200)}</span></div>`
+    ).join("<hr style='border-color:var(--border1);margin:4px 0'>");
+  } catch(e) { el.textContent = "Error: " + e.message; }
+}
+
+// ─── RAG ─────────────────────────────────────────────────────
+async function loadRagStats() {
+  try {
+    const r = await fetch("/api/rag/stats");
+    const d = await r.json();
+    document.getElementById("ragTotal").textContent = d.total_documents || 0;
+    document.getElementById("ragVectorized").textContent = d.vectorized || 0;
+    document.getElementById("ragVectorOk").textContent = d.vector_search_enabled ? "Hybrid" : "BM25";
+    document.getElementById("ragVectorOk").className = d.vector_search_enabled ? "badge badge-green" : "badge badge-amber";
+    document.getElementById("ragDocBadge").textContent = (d.total_documents || 0) + " docs";
+  } catch(e) {}
+}
+
+async function ragQuery() {
+  const q = document.getElementById("ragQuery").value.trim();
+  const mode = document.getElementById("ragMode").value;
+  if (!q) return;
+  const el = document.getElementById("ragResults");
+  el.innerHTML = "⏳ Querying knowledge base…";
+  try {
+    const r = await fetch("/api/rag/query", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({query: q, mode, top_k: 5})
+    });
+    const d = await r.json();
+    if (!d.results || !d.results.length) {
+      el.textContent = "No results found."; return;
+    }
+    el.innerHTML = d.results.map(res =>
+      `<div class="rag-result">
+        <div class="rag-result-title">${res.title}</div>
+        <div class="rag-result-content">${(res.content||"").slice(0,200)}…</div>
+        <div class="rag-result-meta">
+          <span>score: ${(res.score||0).toFixed(3)}</span>
+          <span>method: ${res.method||mode}</span>
+          <span>source: ${res.source||"-"}</span>
+        </div>
+      </div>`
+    ).join("");
+  } catch(e) { el.innerHTML = "Error: " + e.message; }
+}
+
+document.getElementById("ragQuery")?.addEventListener("keydown", e => {
+  if (e.key === "Enter") ragQuery();
+});
+
+async function ragIngest() {
+  const title   = document.getElementById("ingestTitle").value.trim();
+  const content = document.getElementById("ingestContent").value.trim();
+  const tags    = document.getElementById("ingestTags").value.trim();
+  if (!content) { toast("Add content to ingest", "error"); return; }
+  try {
+    const r = await fetch("/api/rag/ingest", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({title: title||"Untitled", content, source:"user", tags})
+    });
+    const d = await r.json();
+    toast(`✅ Ingested: ${d.title} (id #${d.id})`, "success");
+    document.getElementById("ingestContent").value = "";
+    document.getElementById("ingestTitle").value = "";
+    loadRagStats();
+  } catch(e) { toast("Ingest failed: " + e.message, "error"); }
+}
+
+// ─── FineTuner ───────────────────────────────────────────────
+async function loadFinetuneStatus() {
+  try {
+    const r = await fetch("/api/finetune/status");
+    const d = await r.json();
+    const badge = document.getElementById("ftStatusBadge");
+    const fill  = document.getElementById("ftProgressFill");
+    const pct   = document.getElementById("ftProgressPct");
+    const status = document.getElementById("ftStatus");
+    badge.textContent = d.status;
+    badge.className = "badge " + (d.status==="done"?"badge-green":d.status==="training"?"badge-blue":d.status==="error"?"badge-red":"badge-amber");
+    fill.style.width = d.progress + "%";
+    pct.textContent  = d.progress + "%";
+    if (d.current_run) {
+      const run = d.current_run;
+      status.textContent = `Model: ${run.base_model} | Method: ${run.method} | Epochs: ${run.epochs}\n` +
+        `Samples: ${run.training_samples} | Status: ${run.status}` +
+        (run.final_loss ? ` | Final loss: ${run.final_loss}` : "") +
+        (run.current_loss ? ` | Loss: ${run.current_loss}` : "");
+    }
+    // History
+    if (d.history && d.history.length) {
+      document.getElementById("ftHistory").innerHTML = d.history.slice(-5).reverse().map(h =>
+        `<div class="ft-hist-item">${h.started_at} · ${h.base_model} · ${h.method} · ${h.training_samples} samples · ${h.status}</div>`
+      ).join("");
+    }
+  } catch(e) {}
+}
+
+async function startFinetune() {
+  const base_model = document.getElementById("ftModel").value;
+  const method     = document.getElementById("ftMethod").value;
+  const epochs     = parseInt(document.getElementById("ftEpochs").value) || 3;
+  try {
+    const r = await fetch("/api/finetune/start", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({base_model, method, epochs})
+    });
+    const d = await r.json();
+    toast(`🎓 Fine-tuning ${d.status}: ${base_model}`, d.status==="started"?"success":"info");
+    loadFinetuneStatus();
+  } catch(e) { toast("Finetune error: " + e.message, "error"); }
+}

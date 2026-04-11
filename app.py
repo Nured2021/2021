@@ -5,11 +5,29 @@ All 4 Blueprints Unified:
  2. AI Pilot (100% Alive — 7 Commitments)
  3. Three-Window IDE (Prompt Block / Live Coding / Live Preview)
  4. SpecKit Autopilot (Planner→Implementer→Validator→Reviewer→Merger + HITL)
+
+Engine Layer (New):
+ 5. MultiModelRouter (LMStudio / Ollama / OpenAI / Mock)
+ 6. MemoryBank (Short-term TTL / Long-term SQLite FTS / Episodic events)
+ 7. HybridRAG (BM25 keyword + optional vector search)
+ 8. FineTuner (LoRA/QLoRA — builds training data from build history)
+ 9. InfinityLoopOrchestrator (coordinates all 50/50/50 components)
 """
 import threading, time, random, subprocess, sys, json, os, sqlite3
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO, emit
+
+# ── Engine layer (new) ──────────────────────────────────────────────
+try:
+    from engine.model_router import ModelRouter
+    from engine.memory import MemoryBank
+    from engine.rag import HybridRAG
+    from engine.fine_tuner import FineTuner
+    _ENGINE_OK = True
+except Exception as _e:
+    _ENGINE_OK = False
+    print(f"[WARN] Engine layer unavailable: {_e}")
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "ord-ai-secret-2024"
@@ -92,6 +110,15 @@ def db_hitl_pending():
     return rows
 
 db_init()
+
+# ── Initialize engine singletons ───────────────────────────────────
+if _ENGINE_OK:
+    _router  = ModelRouter.get_instance()
+    _memory  = MemoryBank.get_instance()
+    _rag     = HybridRAG.get_instance()
+    _tuner   = FineTuner.get_instance()
+else:
+    _router = _memory = _rag = _tuner = None
 
 # ─────────────────────────────────────────────────────────────
 # GLOBAL STATE — 50/50/50 live counters
@@ -429,13 +456,31 @@ def api_ai_chat():
     msg  = (data.get("message") or "").strip()
     if not msg:
         return jsonify({"reply": "Please type a message."})
-    reply = pilot_reply(msg)
-    pilot_say(f"🤖 AI Pilot: {reply}", "pilot")
+
+    # Use RAG + ModelRouter for real AI responses
+    context = ""
+    backend_used = "mock"
+    if _rag:
+        rag_result = _rag.query(msg, top_k=3)
+        context = rag_result["context"]
+    if _router:
+        task_type = "code_generation" if any(w in msg.lower() for w in ["build","code","create","implement"]) else "default"
+        prompt = f"Context:\n{context}\n\nUser: {msg}\nAssistant:" if context else msg
+        res = _router.ask(prompt, task_type=task_type)
+        reply = res["response"]
+        backend_used = res.get("backend", "mock")
+    else:
+        reply = pilot_reply(msg)
+
+    if _memory:
+        _memory.ep_record(f"AI Chat: {msg[:80]}", kind="pilot", payload={"reply": reply[:80], "backend": backend_used})
+
+    pilot_say(f"🤖 AI Pilot [{backend_used}]: {reply[:120]}", "pilot")
     # Auto-trigger build if command starts with build verb
     if any(msg.lower().startswith(w) for w in ["build","create","make","generate"]) and not STATE["build_active"]:
         STATE["current_job"] = msg
         threading.Thread(target=_run_build, args=(msg,), daemon=True).start()
-    return jsonify({"reply": reply})
+    return jsonify({"reply": reply, "backend": backend_used, "context_used": bool(context)})
 
 @app.route("/api/fix_bottleneck", methods=["POST"])
 def api_fix_bn():
@@ -494,6 +539,134 @@ def api_builds():
 @app.route("/api/hitl")
 def api_hitl():
     return jsonify(db_hitl_pending())
+
+# ─────────────────────────────────────────────────────────────
+# ENGINE ROUTES — ModelRouter, Memory, RAG, FineTuner
+# ─────────────────────────────────────────────────────────────
+
+@app.route("/api/models")
+def api_models():
+    """ModelRouter status — which backends are available."""
+    if not _router:
+        return jsonify({"error": "Engine not loaded", "engine_ok": False})
+    return jsonify({
+        "engine_ok": True,
+        "active_backend": _router.active_backend(),
+        "backends": _router.get_status(),
+    })
+
+@app.route("/api/models/ask", methods=["POST"])
+def api_models_ask():
+    """Direct LLM query via ModelRouter."""
+    data = request.get_json(silent=True) or {}
+    prompt = (data.get("prompt") or "").strip()
+    task_type = data.get("task_type", "default")
+    if not prompt:
+        return jsonify({"error": "No prompt provided"})
+    if not _router:
+        return jsonify({"error": "Engine not loaded"})
+    result = _router.ask(prompt, task_type=task_type)
+    if _memory:
+        _memory.ep_record(f"Direct LLM query ({task_type})", kind="info", payload={"backend": result.get("backend")})
+    return jsonify(result)
+
+@app.route("/api/memory")
+def api_memory():
+    """MemoryBank summary."""
+    if not _memory:
+        return jsonify({"error": "Engine not loaded"})
+    return jsonify(_memory.summary())
+
+@app.route("/api/memory/short")
+def api_memory_short():
+    """All active short-term memory entries."""
+    if not _memory:
+        return jsonify([])
+    return jsonify(_memory.st_all())
+
+@app.route("/api/memory/episodic")
+def api_memory_episodic():
+    """Recent episodic events."""
+    kind = request.args.get("kind")
+    limit = int(request.args.get("limit", 30))
+    if not _memory:
+        return jsonify([])
+    return jsonify(_memory.ep_recent(limit=limit, kind=kind or None))
+
+@app.route("/api/memory/search")
+def api_memory_search():
+    """Long-term memory full-text search."""
+    q = request.args.get("q", "").strip()
+    if not _memory or not q:
+        return jsonify([])
+    return jsonify(_memory.lt_search(q, limit=10))
+
+@app.route("/api/rag/stats")
+def api_rag_stats():
+    """RAG knowledge base statistics."""
+    if not _rag:
+        return jsonify({"error": "Engine not loaded"})
+    return jsonify(_rag.stats())
+
+@app.route("/api/rag/query", methods=["POST"])
+def api_rag_query():
+    """Query the RAG knowledge base."""
+    data = request.get_json(silent=True) or {}
+    q    = (data.get("query") or data.get("q") or "").strip()
+    mode = data.get("mode", "hybrid")
+    top_k = int(data.get("top_k", 5))
+    if not q:
+        return jsonify({"error": "No query provided"})
+    if not _rag:
+        return jsonify({"error": "Engine not loaded"})
+    return jsonify(_rag.query(q, top_k=top_k, mode=mode))
+
+@app.route("/api/rag/ingest", methods=["POST"])
+def api_rag_ingest():
+    """Add a document to the RAG knowledge base."""
+    data    = request.get_json(silent=True) or {}
+    title   = (data.get("title") or "Untitled").strip()
+    content = (data.get("content") or "").strip()
+    source  = data.get("source", "user")
+    tags    = data.get("tags", "")
+    if not content:
+        return jsonify({"error": "No content provided"})
+    if not _rag:
+        return jsonify({"error": "Engine not loaded"})
+    result = _rag.ingest(title, content, source, tags)
+    pilot_say(f"📚 RAG: Ingested '{title}' ({len(content)} chars)", "info")
+    return jsonify(result)
+
+@app.route("/api/finetune/status")
+def api_finetune_status():
+    """Fine-tuner status."""
+    if not _tuner:
+        return jsonify({"error": "Engine not loaded"})
+    return jsonify(_tuner.get_status())
+
+@app.route("/api/finetune/start", methods=["POST"])
+def api_finetune_start():
+    """Start a fine-tuning run."""
+    data       = request.get_json(silent=True) or {}
+    base_model = data.get("base_model", "llama-3.1-8b")
+    method     = data.get("method", "lora")
+    epochs     = int(data.get("epochs", 3))
+    if not _tuner:
+        return jsonify({"error": "Engine not loaded"})
+    result = _tuner.start(base_model=base_model, method=method, epochs=epochs)
+    pilot_say(f"🎓 Fine-tuning started: {base_model} ({method}, {epochs} epochs)", "info")
+    return jsonify(result)
+
+@app.route("/api/engine/status")
+def api_engine_status():
+    """Full engine status — all components."""
+    return jsonify({
+        "engine_ok": _ENGINE_OK,
+        "router":    _router.get_status()    if _router  else None,
+        "memory":    _memory.summary()       if _memory  else None,
+        "rag":       _rag.stats()            if _rag     else None,
+        "finetune":  _tuner.get_status()     if _tuner   else None,
+    })
 
 # ─────────────────────────────────────────────────────────────
 # SOCKET.IO
