@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EASY AI DOC & EDUCATION CORE</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <div class="nav-brand">
+    <div class="brand-icon">⚡</div>
+    <div>
+      <span class="brand-name">EASY AI</span>
+      <span class="brand-sub">DOC & EDUCATION CORE</span>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('generator',this)">📄 Generator</button>
+    <button class="nav-tab" onclick="showTab('education',this)">🎓 Education</button>
+    <button class="nav-tab" onclick="showTab('files',this)">📁 Files</button>
+  </div>
+  <div class="nav-health">
+    <span class="pulse-dot"></span>
+    <span id="healthStatus">Loading...</span>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ═══ GENERATOR ═══ -->
+<section id="sec-generator" class="section active">
+  <div class="hero">
+    <h1>EASY AI DOC & EDUCATION CORE</h1>
+    <p>Generate professional PDF, DOCX, XLSX, and PPTX documents instantly. Powered by AI with 20 specialist professors.</p>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-item"><div class="status-val">4</div><div class="status-label">Engines</div></div>
+    <div class="status-item"><div class="status-val">20</div><div class="status-label">Professors</div></div>
+    <div class="status-item"><div class="status-val">4</div><div class="status-label">File Types</div></div>
+    <div class="status-item"><div class="status-val" style="color:var(--green)">Ready</div><div class="status-label">Status</div></div>
+  </div>
+
+  <div class="prompt-box">
+    <textarea id="mainPrompt" placeholder="Describe what you need...&#10;&#10;Examples:&#10;• Write a business proposal for a tech startup&#10;• Create a financial budget spreadsheet for Q1 2025&#10;• Make a presentation about artificial intelligence&#10;• Generate a legal contract for freelance services" rows="4"></textarea>
+
+    <div class="format-row">
+      <label>FORMAT:</label>
+      <button class="format-btn active" onclick="selectFormat('pdf',this)">📄 PDF</button>
+      <button class="format-btn" onclick="selectFormat('docx',this)">📝 DOCX</button>
+      <button class="format-btn" onclick="selectFormat('xlsx',this)">📊 XLSX</button>
+      <button class="format-btn" onclick="selectFormat('pptx',this)">📽️ PPTX</button>
+    </div>
+
+    <div class="prompt-actions">
+      <button class="btn btn-primary btn-lg" onclick="smartGenerate()">🧠 Smart Generate (Auto-Detect)</button>
+      <button class="btn btn-secondary btn-lg" onclick="generateFile()">⬇ Generate Selected Format</button>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Write a comprehensive business proposal for a technology startup focusing on AI-powered solutions')">💼 Business Proposal</button>
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Create a detailed financial budget spreadsheet with quarterly breakdown and projections')">📊 Budget Sheet</button>
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Make a professional presentation about the future of artificial intelligence in healthcare')">📽️ AI Presentation</button>
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Draft a legal contract for freelance software development services')">⚖️ Legal Contract</button>
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Write an academic research paper on machine learning applications in finance')">📚 Research Paper</button>
+      <button class="btn btn-sm btn-secondary" onclick="usePreset('Create an invoice template with tax calculations and payment terms')">🧾 Invoice</button>
+    </div>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div style="color:var(--muted)">Generating your document...</div>
+  </div>
+
+  <div id="resultsArea" class="results-area"></div>
+</section>
+
+<!-- ═══ EDUCATION ═══ -->
+<section id="sec-education" class="section">
+  <div class="hero">
+    <h1>🎓 20 AI Professors</h1>
+    <p>Select a professor, enter a topic, and get a full semester course: 15-week syllabus, lecture notes, and examination.</p>
+  </div>
+
+  <div id="profGrid" class="prof-grid"></div>
+
+  <div class="prompt-box" style="margin-top:20px">
+    <textarea id="eduTopic" placeholder="Enter your study topic...&#10;&#10;Examples:&#10;• Introduction to Machine Learning&#10;• Quantum Mechanics Fundamentals&#10;• Contract Law Principles&#10;• Microeconomic Theory" rows="3"></textarea>
+    <div class="prompt-actions">
+      <button class="btn btn-purple btn-lg" onclick="generateCourse()">🎓 Generate Full Course</button>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('eduTopic').value='Introduction to Machine Learning and Neural Networks'">🤖 Machine Learning</button>
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('eduTopic').value='Quantum Mechanics: Wave-Particle Duality'">⚛️ Quantum Physics</button>
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('eduTopic').value='International Contract Law and Trade Agreements'">⚖️ Contract Law</button>
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('eduTopic').value='Human Anatomy: Cardiovascular System'">🏥 Anatomy</button>
+      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('eduTopic').value='Data Structures and Algorithm Design'">💻 Algorithms</button>
+    </div>
+  </div>
+
+  <div id="eduLoading" class="loading">
+    <div class="spinner"></div>
+    <div style="color:var(--muted)">Generating course content...</div>
+  </div>
+
+  <div id="courseOutput" class="course-output"></div>
+</section>
+
+<!-- ═══ FILES ═══ -->
+<section id="sec-files" class="section">
+  <div class="hero">
+    <h1>📁 Generated Files</h1>
+    <p>All your generated documents in one place. Click to download.</p>
+  </div>
+  <div id="filesGrid" class="files-grid">
+    <div style="text-align:center;padding:40px;color:var(--muted);grid-column:1/-1">No files yet. Generate a document first.</div>
+  </div>
+</section>
+
+</main>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
