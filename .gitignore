@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+
+# Data and checkpoints (user-generated)
+data/
+checkpoints/
+tokenizer.json
+
+# PyTorch artefacts
+*.pt
+*.pth
